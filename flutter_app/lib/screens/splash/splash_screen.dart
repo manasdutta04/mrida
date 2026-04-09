@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import '../../widgets/mrida_logo.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -26,10 +27,8 @@ class _SplashScreenState extends State<SplashScreen> {
       body: Center(
         child: Column(
           mainAxisSize: MainAxisSize.min,
-          children: const [
-            Text('MRIDA', style: TextStyle(fontSize: 40, fontWeight: FontWeight.bold)),
-            SizedBox(height: 8),
-            Text('मृदा'),
+          children: [
+            MridaLogo(width: 240),
           ],
         ),
       ),

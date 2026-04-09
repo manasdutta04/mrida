@@ -14,7 +14,7 @@ class WarningBanner extends StatelessWidget {
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(color: bg.withOpacity(0.15), borderRadius: BorderRadius.circular(12)),
+      decoration: BoxDecoration(color: bg.withValues(alpha: 0.15), borderRadius: BorderRadius.circular(12)),
       child: Row(children: [Icon(Icons.warning_amber_rounded, color: bg), const SizedBox(width: 8), Expanded(child: Text(message))]),
     );
   }

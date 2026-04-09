@@ -36,8 +36,9 @@ class _PhoneEntryScreenState extends State<PhoneEntryScreen> {
                       if (raw.length != 10) return;
                       setState(() => loading = true);
                       final verificationId = await _auth.sendOTP('+91$raw');
-                      if (mounted) context.go('/login/otp', extra: verificationId);
-                      if (mounted) setState(() => loading = false);
+                      if (!context.mounted) return;
+                      setState(() => loading = false);
+                      context.go('/login/otp', extra: verificationId);
                     },
               child: Text(loading ? 'Sending...' : 'Send OTP'),
             ),
