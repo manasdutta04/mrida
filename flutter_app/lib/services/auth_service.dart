@@ -5,6 +5,40 @@ import 'package:firebase_auth/firebase_auth.dart';
 class AuthService {
   final FirebaseAuth _auth = FirebaseAuth.instance;
 
+  Future<UserCredential> authenticateWithEmailPassword({
+    required String email,
+    required String password,
+  }) async {
+    try {
+      return await signInWithEmailPassword(email: email, password: password);
+    } on FirebaseAuthException catch (e) {
+      if (e.code == 'user-not-found') {
+        return signUpWithEmailPassword(email: email, password: password);
+      }
+      rethrow;
+    }
+  }
+
+  Future<UserCredential> signInWithEmailPassword({
+    required String email,
+    required String password,
+  }) {
+    return _auth.signInWithEmailAndPassword(
+      email: email.trim(),
+      password: password,
+    );
+  }
+
+  Future<UserCredential> signUpWithEmailPassword({
+    required String email,
+    required String password,
+  }) {
+    return _auth.createUserWithEmailAndPassword(
+      email: email.trim(),
+      password: password,
+    );
+  }
+
   Future<String> sendOTP(String phoneNumber) async {
     final regex = RegExp(r'^\+[1-9]\d{7,14}$');
     if (!regex.hasMatch(phoneNumber)) {
