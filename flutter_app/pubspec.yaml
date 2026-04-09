@@ -43,6 +43,7 @@ dev_dependencies:
   json_serializable: ^6.7.1
   riverpod_generator: ^2.3.9
   flutter_lints: ^3.0.1
+  flutter_launcher_icons: ^0.14.3
 
 flutter:
   uses-material-design: true
@@ -50,3 +51,10 @@ flutter:
     - assets/demo/
     - assets/demo/images/
     - assets/branding/
+
+flutter_launcher_icons:
+  android: true
+  ios: true
+  image_path: assets/branding/mrida_app_icon.png
+  adaptive_icon_background: "#FAF9F6"
+  adaptive_icon_foreground: assets/branding/mrida_app_icon.png
