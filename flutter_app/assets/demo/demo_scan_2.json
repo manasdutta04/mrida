@@ -1,0 +1,38 @@
+{
+  "scanId": "demo-scan-2",
+  "fieldId": "demo-field-2",
+  "userId": "demo-user",
+  "imageUrl": "assets/demo/images/demo_soil_2.jpg",
+  "grade": "B",
+  "npk": {
+    "nitrogen": "Low (<280 kg/ha)",
+    "phosphorus": "Medium (12-25 kg/ha)",
+    "potassium": "Medium (120-300 kg/ha)",
+    "nitrogenRaw": "low",
+    "phosphorusRaw": "medium",
+    "potassiumRaw": "medium"
+  },
+  "ph": {
+    "min": 5.8,
+    "max": 6.5,
+    "interpretation": "Slightly acidic, suited for paddy with balanced fertilization."
+  },
+  "deficiencies": ["nitrogen", "boron"],
+  "prescriptionText": "Apply 50 kg urea per acre in split doses and 8 kg borax per acre as basal.",
+  "prescriptionAudio": "Use split urea and add borax as basal.",
+  "confidenceScore": 0.71,
+  "signals": {
+    "colorDescription": "Brown, Munsell 10YR 4/3",
+    "textureObservation": "Moderate granular texture",
+    "crackPattern": "fine",
+    "moistureLevel": "dry",
+    "organicMatterHint": "medium"
+  },
+  "languageCode": "en",
+  "location": {
+    "_latitude": 13.0827,
+    "_longitude": 80.2707
+  },
+  "scannedAt": "2026-04-08T10:30:00.000Z",
+  "warningNote": "Moderate confidence due uneven lighting."
+}

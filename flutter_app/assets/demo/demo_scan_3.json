@@ -1,0 +1,38 @@
+{
+  "scanId": "demo-scan-3",
+  "fieldId": "demo-field-3",
+  "userId": "demo-user",
+  "imageUrl": "assets/demo/images/demo_soil_3.jpg",
+  "grade": "C",
+  "npk": {
+    "nitrogen": "Low (<280 kg/ha)",
+    "phosphorus": "Low (<12 kg/ha)",
+    "potassium": "Low (<120 kg/ha)",
+    "nitrogenRaw": "low",
+    "phosphorusRaw": "low",
+    "potassiumRaw": "low"
+  },
+  "ph": {
+    "min": 7.8,
+    "max": 8.5,
+    "interpretation": "Alkaline soil, zinc and iron uptake may be reduced."
+  },
+  "deficiencies": ["nitrogen", "zinc", "iron"],
+  "prescriptionText": "Apply 60 kg urea and 25 kg SSP per acre, with zinc sulfate before sowing and iron foliar spray at 25 days.",
+  "prescriptionAudio": "Apply urea, SSP, and zinc sulfate; follow with iron spray.",
+  "confidenceScore": 0.59,
+  "signals": {
+    "colorDescription": "Pale brown, Munsell 7.5YR 6/3",
+    "textureObservation": "Loose sandy texture",
+    "crackPattern": "none",
+    "moistureLevel": "dry",
+    "organicMatterHint": "low"
+  },
+  "languageCode": "en",
+  "location": {
+    "_latitude": 26.9124,
+    "_longitude": 75.7873
+  },
+  "scannedAt": "2026-04-07T10:30:00.000Z",
+  "warningNote": "Low confidence. Retake photo in natural daylight with soil spread flat."
+}

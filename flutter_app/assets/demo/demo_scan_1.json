@@ -1,0 +1,38 @@
+{
+  "scanId": "demo-scan-1",
+  "fieldId": "demo-field-1",
+  "userId": "demo-user",
+  "imageUrl": "assets/demo/images/demo_soil_1.jpg",
+  "grade": "A",
+  "npk": {
+    "nitrogen": "Medium (280-450 kg/ha)",
+    "phosphorus": "Medium (12-25 kg/ha)",
+    "potassium": "High (>300 kg/ha)",
+    "nitrogenRaw": "medium",
+    "phosphorusRaw": "medium",
+    "potassiumRaw": "high"
+  },
+  "ph": {
+    "min": 6.3,
+    "max": 7.1,
+    "interpretation": "Near-neutral soil, suitable for rice and wheat."
+  },
+  "deficiencies": ["zinc"],
+  "prescriptionText": "Apply 40 kg urea per acre in two splits and add 10 kg zinc sulfate before sowing.",
+  "prescriptionAudio": "Use split urea and zinc sulfate before sowing.",
+  "confidenceScore": 0.82,
+  "signals": {
+    "colorDescription": "Dark brown, Munsell 10YR 3/2",
+    "textureObservation": "Fine granular structure",
+    "crackPattern": "none",
+    "moistureLevel": "moist",
+    "organicMatterHint": "high"
+  },
+  "languageCode": "en",
+  "location": {
+    "_latitude": 22.5726,
+    "_longitude": 88.3639
+  },
+  "scannedAt": "2026-04-09T10:30:00.000Z",
+  "warningNote": null
+}
