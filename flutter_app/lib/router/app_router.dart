@@ -6,7 +6,6 @@ import '../models/scan_result.dart';
 import '../screens/auth/otp_screen.dart';
 import '../screens/auth/phone_entry_screen.dart';
 import '../screens/auth/welcome_screen.dart';
-import '../screens/demo/demo_screen.dart';
 import '../screens/field/field_detail_screen.dart';
 import '../screens/history/history_screen.dart';
 import '../screens/home/home_screen.dart';
@@ -22,8 +21,7 @@ final appRouterProvider = Provider<GoRouter>((ref) {
     redirect: (context, state) {
       final user = FirebaseAuth.instance.currentUser;
       final isAuthFlow = state.matchedLocation.startsWith('/login') ||
-          state.matchedLocation == '/welcome' ||
-          state.matchedLocation == '/demo';
+          state.matchedLocation == '/welcome';
 
       if (user == null && !isAuthFlow) {
         return '/welcome';
@@ -60,7 +58,6 @@ final appRouterProvider = Provider<GoRouter>((ref) {
             FieldDetailScreen(fieldId: state.pathParameters['fieldId'] ?? ''),
       ),
       GoRoute(path: '/profile', builder: (_, __) => const ProfileScreen()),
-      GoRoute(path: '/demo', builder: (_, __) => const DemoScreen()),
     ],
   );
 });

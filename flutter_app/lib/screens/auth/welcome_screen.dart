@@ -114,20 +114,6 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                         ),
                         child: const Text('GET STARTED'),
                       ),
-                      const SizedBox(height: 16),
-                      OutlinedButton(
-                        onPressed: () => context.go('/demo'),
-                        style: OutlinedButton.styleFrom(
-                          minimumSize: const Size(double.infinity, 56),
-                          side: BorderSide(color: MridaColors.surface.withOpacity(0.3), width: 2),
-                          shape: const StadiumBorder(),
-                          foregroundColor: MridaColors.surface,
-                        ),
-                        child: const Text(
-                          'TRY DEMO',
-                          style: TextStyle(fontWeight: FontWeight.bold, letterSpacing: 0.5),
-                        ),
-                      ),
                     ],
                   ),
                   const SizedBox(height: 48),
