@@ -5,6 +5,7 @@ from pathlib import Path
 from typing import Any
 
 import google.generativeai as genai
+from dotenv import load_dotenv
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
@@ -14,6 +15,7 @@ from prompts import build_user_prompt
 from storage import store_scan_result
 from validation import validate_against_regional_profile
 
+load_dotenv()
 
 app = FastAPI(title="MRIDA AI Backend", version="1.0.0")
 app.add_middleware(
@@ -29,8 +31,15 @@ with (root / "data" / "regional_soil_profiles.json").open("r", encoding="utf-8")
 with (root / "prompts" / "system_prompt.txt").open("r", encoding="utf-8") as f:
     SYSTEM_PROMPT = f.read()
 
-genai.configure(api_key=os.environ.get("GEMINI_API_KEY"))
-model = genai.GenerativeModel(model_name="gemini-2.0-flash", system_instruction=SYSTEM_PROMPT)
+api_key = os.environ.get("GEMINI_API_KEY")
+if not api_key:
+    raise RuntimeError("GEMINI_API_KEY environment variable is required")
+
+genai.configure(api_key=api_key)
+model = genai.GenerativeModel(
+    model_name="gemini-2.5-flash",
+    system_instruction=SYSTEM_PROMPT,
+)
 
 
 class ScanRequest(BaseModel):
@@ -63,8 +72,11 @@ class ScanResponse(BaseModel):
 @app.post("/scan", response_model=ScanResponse)
 async def analyze_soil(request: ScanRequest) -> ScanResponse:
     try:
+        # 1. Preprocess image
         image_bytes = base64.b64decode(request.image_base64)
         processed_b64 = preprocess_soil_image(image_bytes)
+
+        # 2. Build user prompt
         user_prompt = build_user_prompt(
             state=request.state,
             district=request.district,
@@ -72,6 +84,8 @@ async def analyze_soil(request: ScanRequest) -> ScanResponse:
             crop=request.crop,
             language=request.language,
         )
+
+        # 3. Call Gemini Vision (direct API — no Vertex AI)
         image_part = {"mime_type": "image/jpeg", "data": processed_b64}
         response = model.generate_content(
             [user_prompt, image_part],
@@ -80,17 +94,35 @@ async def analyze_soil(request: ScanRequest) -> ScanResponse:
                 response_mime_type="application/json",
             ),
         )
+
+        # 4. Parse structured JSON response
         result = json.loads(response.text)
+
+        # 5. Validate against regional profiles
         result = validate_against_regional_profile(result, request.state, REGIONAL_PROFILES)
+
+        # 6. Confidence gate — reject if too low
         if result["confidence"] < 0.40:
             raise HTTPException(
                 status_code=422,
-                detail={"error": "low_confidence", "message": "Image quality insufficient for accurate analysis.", "confidence": result["confidence"]},
+                detail={
+                    "error": "low_confidence",
+                    "message": "Image quality insufficient for accurate analysis.",
+                    "confidence": result["confidence"],
+                },
             )
-        scan_id, image_url = await store_scan_result(result=result, image_bytes=image_bytes, request=request)
+
+        # 7. Store to Firestore
+        scan_id, image_url = await store_scan_result(
+            result=result, image_bytes=image_bytes, request=request
+        )
+
         return ScanResponse(scan_id=scan_id, image_url=image_url, **result)
+
     except json.JSONDecodeError as exc:
-        raise HTTPException(status_code=500, detail="Gemini returned malformed JSON. Retry.") from exc
+        raise HTTPException(
+            status_code=500, detail="Gemini returned malformed JSON. Retry."
+        ) from exc
     except HTTPException:
         raise
     except Exception as exc:
@@ -99,4 +131,4 @@ async def analyze_soil(request: ScanRequest) -> ScanResponse:
 
 @app.get("/health")
 def health() -> dict[str, str]:
-    return {"status": "ok"}
+    return {"status": "ok", "model": "gemini-2.5-flash"}

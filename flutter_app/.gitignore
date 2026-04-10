@@ -56,3 +56,4 @@ app.*.map.json
 # Kotlin/Android transient artifacts
 **/kotlin-compiler-*
 **/*.kotlin_module
+

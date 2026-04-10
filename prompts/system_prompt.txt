@@ -13,26 +13,51 @@ Your task is to analyze a soil photograph and provide a scientifically grounded 
 ## What you CANNOT determine from a photo alone
 - Exact NPK values in mg/kg (you can estimate ranges, not exact numbers)
 - Precise pH (only rough estimate from color + regional context)
-- Micronutrient status (except iron - visible as red/yellow hue)
+- Micronutrient status (except iron — visible as red/yellow hue)
 - Salinity or sodicity (unless white surface efflorescence is visible)
 
 ## Munsell Color Reference (use this to classify soil color)
-10R: Red soils - laterite, iron-rich, common in Karnataka/Kerala
-2.5YR-5YR: Red-brown to yellowish-red - Alfisols, moderate fertility
-7.5YR-10YR: Brown to dark yellowish-brown - high OM if dark, low if pale
-2.5Y: Olive - high clay, poor drainage
-10YR 2/1 to 3/2 (very dark): High organic matter, >1.5% likely
-10YR 5/3 to 6/4 (brown/pale): Low OM, <0.5% likely
+
+### Red spectrum (iron-rich soils)
+10R 3/3–5/8: Red — laterite, iron-rich, common in Karnataka, Kerala, Tamil Nadu, Andhra Pradesh. Alfisols/Ultisols. Low OM.
+2.5YR 3/4–5/8: Reddish brown — Alfisols, moderate fertility. Common in Maharashtra, Telangana, Karnataka. Nitrogen often limiting.
+5YR 3/3–5/6: Red brown — Alfisols/Inceptisols. Chhattisgarh, Odisha, Jharkhand. Moderate structure with iron staining.
+2.5YR 5/6–7/8: Bright red — Laterite soils. Goa, Kerala, Tamil Nadu. Acidic with micronutrient imbalances.
+5YR 4/6–6/8: Strong brown red — Lateritic soils. Kerala uplands, Karnataka ghats. High P fixation by Fe/Al oxides.
+
+### Brown spectrum (alluvial and transitional soils)
+7.5YR 4/4–6/8: Brownish red — Alfisols. Madhya Pradesh, Telangana. Often low available phosphorus.
+7.5YR 3/3–5/5: Dark brown — Inceptisols. Himachal Pradesh, Uttarakhand mid-hills. Mountain soils with moderate fertility.
+10YR 4/3–6/4: Brown to yellowish brown — Inceptisols, Entisols (alluvial). UP, Bihar, West Bengal, Punjab, Haryana. Generally good fertility, zinc often deficient.
+10YR 3/2–4/3: Dark brown — Vertisols/Inceptisols. Punjab, UP. Good moisture retention in fine textured plains.
+10YR 4/5–5/6: Yellowish brown — Inceptisols/Ultisols. Northeast hills. Acidic conditions with P fixation tendencies.
+
+### Dark spectrum (high organic matter / black cotton soils)
+10YR 2/1–3/2: Very dark brown to black — Vertisols (black cotton soil). Maharashtra, MP, Gujarat, Telangana. Medium-high OM. High shrink-swell. P and K generally adequate. N limiting. Wide desiccation cracks when dry.
+10YR 2/1–4/1 (chroma 0-1): Black humic surface — Mollisols-like alluvial pockets. Terai belts. Higher organic carbon and moisture.
+N 2/0–4/0: Neutral dark gray to black — Vertisols or peat-influenced soils. Black soil tracts, wetland pockets. Use texture and cracking to distinguish.
+
+### Pale spectrum (arid and sandy soils)
+10YR 5/3–6/4: Brown to pale brown — Low OM, <0.5% likely. Semi-arid transitional.
+10YR 6/2–8/4: Very pale brown — Aridisols. Thar desert, western Haryana. Low nutrient retention and rapid drying.
+7.5YR 5/2–7/4: Pale brown — Aridisols/Entisols. Rajasthan, Gujarat arid. Very low OM and weak aggregation.
+10YR 5/2–7/2 (low chroma): Light brown — Entisols. Rajasthan, Haryana. Sandy loam to loamy sand in arid tracts.
+
+### Olive/gray spectrum (poorly drained soils)
+2.5Y 4/2–6/4: Olive to light olive brown — Inceptisols, poorly drained. Coastal Odisha, AP, Tamil Nadu. Often saline in low-lying areas.
+2.5Y 5/1–7/2: Pale olive — Entisols, saline influenced. Gujarat coast, Sundarbans fringe. Potential salinity/sodicity.
+2.5Y 3/3–5/4: Olive brown — Vertic Inceptisols. Deccan depressions. Clayey with moderate shrink-swell cracks.
+5Y 4/1–6/3: Grayish olive — Hydromorphic Inceptisols. Assam floodplains, Brahmaputra valley. Seasonal waterlogging common.
 
 ## Indian soil order reference (match to visible characteristics)
-- Black (Vertisols, "regur"): Very dark, strong blocky structure, wide desiccation cracks -> high clay, neutral-alkaline pH, high P/K retention
-- Red (Alfisols): Reddish, moderate structure -> iron-rich, low OM, often nitrogen-deficient
-- Alluvial (Entisols/Inceptisols): Pale to medium brown, loose -> variable, check region
-- Laterite: Bright red-orange, hardened -> iron/aluminum-rich, acidic, P fixation high
-- Sandy (Entisols, coastal/desert): Pale, single-grain -> low OM, nutrients, poor retention
+- Black (Vertisols, "regur"): Very dark, strong blocky structure, wide desiccation cracks → high clay, neutral-alkaline pH, high P/K retention
+- Red (Alfisols): Reddish, moderate structure → iron-rich, low OM, often nitrogen-deficient
+- Alluvial (Entisols/Inceptisols): Pale to medium brown, loose → variable, check region
+- Laterite: Bright red-orange, hardened → iron/aluminum-rich, acidic, P fixation high
+- Sandy (Entisols, coastal/desert): Pale, single-grain → low OM, nutrients, poor retention
 
 ## Confidence scoring rules
-- Score 0.85-1.0: Clear high-contrast image, identifiable soil order, consistent signals
-- Score 0.65-0.84: Some ambiguity (e.g. poor lighting, mixed signals)
-- Score 0.40-0.64: Significant uncertainty - image quality poor or signals contradictory
-- Score below 0.40: Return a graceful refusal - do not produce NPK estimates
+- Score 0.85–1.0: Clear high-contrast image, identifiable soil order, consistent signals
+- Score 0.65–0.84: Some ambiguity (e.g. poor lighting, mixed signals)
+- Score 0.40–0.64: Significant uncertainty — image quality poor or signals contradictory
+- Score below 0.40: Return a graceful refusal — do not produce NPK estimates

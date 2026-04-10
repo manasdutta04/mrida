@@ -38,26 +38,87 @@ class ScanResult {
   final DateTime scannedAt;
   final String? warningNote;
 
+  /// Parse backend response (Mode 2 — Cloud Run / Firestore document)
   factory ScanResult.fromJson(Map<String, dynamic> json) {
     final loc = json['location'];
     return ScanResult(
-      scanId: json['scanId'] as String,
-      fieldId: json['fieldId'] as String,
-      userId: json['userId'] as String,
-      imageUrl: json['imageUrl'] as String,
-      grade: SoilGrade.values.firstWhere((e) => e.name.toUpperCase() == (json['grade'] as String).toUpperCase(), orElse: () => SoilGrade.c),
+      scanId: (json['scanId'] ?? json['scan_id'] ?? '') as String,
+      fieldId: (json['fieldId'] ?? json['field_id'] ?? '') as String,
+      userId: (json['userId'] ?? json['user_id'] ?? '') as String,
+      imageUrl: (json['imageUrl'] ?? json['image_url'] ?? '') as String,
+      grade: _parseGrade(json['grade'] as String? ?? 'C'),
       npk: NPKEstimate.fromJson(Map<String, dynamic>.from(json['npk'] as Map)),
       ph: PHRange.fromJson(Map<String, dynamic>.from(json['ph'] as Map)),
       deficiencies: (json['deficiencies'] as List).map((e) => e.toString()).toList(),
-      prescriptionText: json['prescriptionText'] as String,
-      prescriptionAudio: json['prescriptionAudio'] as String,
-      confidenceScore: (json['confidenceScore'] as num).toDouble(),
+      prescriptionText: _extractPrescriptionText(json),
+      prescriptionAudio: _extractPrescriptionAudio(json),
+      confidenceScore: (json['confidenceScore'] ?? json['confidence'] as num? ?? 0.0).toDouble(),
       signals: SoilSignals.fromJson(Map<String, dynamic>.from(json['signals'] as Map)),
-      languageCode: json['languageCode'] as String,
-      location: GeoPoint((loc['_latitude'] as num).toDouble(), (loc['_longitude'] as num).toDouble()),
-      scannedAt: DateTime.parse(json['scannedAt'] as String),
-      warningNote: json['warningNote'] as String?,
+      languageCode: (json['languageCode'] ?? json['language'] ?? 'en') as String,
+      location: loc != null
+          ? GeoPoint(
+              (loc['_latitude'] ?? loc['latitude'] as num? ?? 0.0).toDouble(),
+              (loc['_longitude'] ?? loc['longitude'] as num? ?? 0.0).toDouble(),
+            )
+          : const GeoPoint(0, 0),
+      scannedAt: json['scannedAt'] != null
+          ? DateTime.parse(json['scannedAt'] as String)
+          : DateTime.now(),
+      warningNote: (json['warningNote'] ?? json['warning_note']) as String?,
     );
+  }
+
+  /// Parse direct Gemini API response (Mode 1 — direct call)
+  /// This JSON comes straight from Gemini, so it uses the prompt's schema
+  /// (snake_case keys), and has no scan_id, user_id, image_url etc.
+  factory ScanResult.fromGeminiJson(
+    Map<String, dynamic> json, {
+    required String userId,
+    required String fieldId,
+    required double latitude,
+    required double longitude,
+  }) {
+    final prescription = json['prescription'] as Map<String, dynamic>? ?? {};
+
+    return ScanResult(
+      scanId: 'local-${DateTime.now().millisecondsSinceEpoch}',
+      fieldId: fieldId,
+      userId: userId,
+      imageUrl: '', // No image URL in direct mode
+      grade: _parseGrade(json['grade'] as String? ?? 'C'),
+      npk: NPKEstimate.fromJson(Map<String, dynamic>.from(json['npk'] as Map)),
+      ph: PHRange.fromJson(Map<String, dynamic>.from(json['ph'] as Map)),
+      deficiencies: (json['deficiencies'] as List?)?.map((e) => e.toString()).toList() ?? [],
+      prescriptionText: (prescription['text'] ?? '') as String,
+      prescriptionAudio: (prescription['audio_short'] ?? '') as String,
+      confidenceScore: (json['confidence'] as num? ?? 0.0).toDouble(),
+      signals: SoilSignals.fromJson(Map<String, dynamic>.from(json['signals'] as Map)),
+      languageCode: 'en',
+      location: GeoPoint(latitude, longitude),
+      scannedAt: DateTime.now(),
+      warningNote: json['warning_note'] as String?,
+    );
+  }
+
+  static SoilGrade _parseGrade(String grade) {
+    return SoilGrade.values.firstWhere(
+      (e) => e.name.toUpperCase() == grade.toUpperCase(),
+      orElse: () => SoilGrade.c,
+    );
+  }
+
+  static String _extractPrescriptionText(Map<String, dynamic> json) {
+    if (json['prescriptionText'] != null) return json['prescriptionText'] as String;
+    final prescription = json['prescription'];
+    if (prescription is Map) return (prescription['text'] ?? '') as String;
+    return '';
+  }
+
+  static String _extractPrescriptionAudio(Map<String, dynamic> json) {
+    if (json['prescriptionAudio'] != null) return json['prescriptionAudio'] as String;
+    final prescription = json['prescription'];
+    if (prescription is Map) return (prescription['audio_short'] ?? '') as String;
+    return '';
   }
 }
 
@@ -78,12 +139,12 @@ class NPKEstimate {
   final String potassiumRaw;
 
   factory NPKEstimate.fromJson(Map<String, dynamic> json) => NPKEstimate(
-        nitrogen: json['nitrogen'] as String,
-        phosphorus: json['phosphorus'] as String,
-        potassium: json['potassium'] as String,
-        nitrogenRaw: json['nitrogenRaw'] as String,
-        phosphorusRaw: json['phosphorusRaw'] as String,
-        potassiumRaw: json['potassiumRaw'] as String,
+        nitrogen: (json['nitrogen'] ?? 'Unknown') as String,
+        phosphorus: (json['phosphorus'] ?? 'Unknown') as String,
+        potassium: (json['potassium'] ?? 'Unknown') as String,
+        nitrogenRaw: (json['nitrogenRaw'] ?? json['nitrogen_range'] ?? json['nitrogen_basis'] ?? '') as String,
+        phosphorusRaw: (json['phosphorusRaw'] ?? json['phosphorus_range'] ?? json['phosphorus_basis'] ?? '') as String,
+        potassiumRaw: (json['potassiumRaw'] ?? json['potassium_range'] ?? json['potassium_basis'] ?? '') as String,
       );
 }
 
@@ -95,7 +156,7 @@ class PHRange {
   factory PHRange.fromJson(Map<String, dynamic> json) => PHRange(
         min: (json['min'] as num).toDouble(),
         max: (json['max'] as num).toDouble(),
-        interpretation: json['interpretation'] as String,
+        interpretation: (json['interpretation'] ?? '') as String,
       );
 }
 
@@ -114,10 +175,10 @@ class SoilSignals {
   final String organicMatterHint;
 
   factory SoilSignals.fromJson(Map<String, dynamic> json) => SoilSignals(
-        colorDescription: json['colorDescription'] as String,
-        textureObservation: json['textureObservation'] as String,
-        crackPattern: json['crackPattern'] as String,
-        moistureLevel: json['moistureLevel'] as String,
-        organicMatterHint: json['organicMatterHint'] as String,
+        colorDescription: (json['colorDescription'] ?? json['color_description'] ?? '') as String,
+        textureObservation: (json['textureObservation'] ?? json['texture_observation'] ?? '') as String,
+        crackPattern: (json['crackPattern'] ?? json['crack_pattern'] ?? '') as String,
+        moistureLevel: (json['moistureLevel'] ?? json['moisture_level'] ?? '') as String,
+        organicMatterHint: (json['organicMatterHint'] ?? json['organic_matter_hint'] ?? '') as String,
       );
 }
