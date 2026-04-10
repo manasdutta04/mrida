@@ -10,18 +10,6 @@ class ProfileScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: MridaColors.surface,
-      appBar: AppBar(
-        title: Text(
-          'Profile',
-          style: GoogleFonts.sora(
-            fontWeight: FontWeight.w700,
-            fontSize: 20,
-            color: MridaColors.primary,
-          ),
-        ),
-        backgroundColor: MridaColors.surface,
-        elevation: 0,
-      ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.fromLTRB(24, 0, 24, 120),
         child: Column(

@@ -12,25 +12,6 @@ class FieldMapScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: MridaColors.surface,
-      appBar: AppBar(
-        title: Text(
-          'Field Map',
-          style: GoogleFonts.sora(
-            fontWeight: FontWeight.w700,
-            fontSize: 20,
-            color: MridaColors.primary,
-          ),
-        ),
-        backgroundColor: MridaColors.surface,
-        elevation: 0,
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.my_location, color: MridaColors.primary),
-            onPressed: () {},
-          ),
-          const SizedBox(width: 8),
-        ],
-      ),
       body: Stack(
         children: [
           FlutterMap(

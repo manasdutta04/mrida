@@ -11,60 +11,20 @@ class HomeScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     
-    return Stack(
-      children: [
-        CustomScrollView(
-          slivers: [
-            // Custom Top App Bar (Blurred)
-            SliverAppBar(
-              pinned: true,
-              floating: true,
-              expandedHeight: 80,
-              backgroundColor: MridaColors.surface.withOpacity(0.8),
-              flexibleSpace: ClipRect(
-                child: BackdropFilter(
-                  filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
-                  child: FlexibleSpaceBar(
-                    background: Container(color: Colors.transparent),
-                  ),
-                ),
-              ),
-              title: Row(
+    return CustomScrollView(
+      slivers: [
+        // Consistently spaced top padding
+        const SliverToBoxAdapter(child: SizedBox(height: 32)),
+        
+        // Main Content
+        SliverPadding(
+          padding: const EdgeInsets.symmetric(horizontal: 24),
+          sliver: SliverList(
+            delegate: SliverChildListDelegate([
+              // Greeting with Profile Info
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.end,
                 children: [
-                  CircleAvatar(
-                    radius: 20,
-                    backgroundColor: MridaColors.surfaceContainerHighest,
-                    backgroundImage: const NetworkImage(
-                      'https://lh3.googleusercontent.com/aida-public/AB6AXuCHT72cPaneOEzHsg7sRqctmrvzcFO6AeyYwdXOoVOy550NSPXZmQ2VPIimD03e9NOUExYfwO2UPnFgE5QNbypnlgr3CM6IThGiWVtVo_VIcrLQ0BNLvPFvNOXi13owHRYxpQAsX9r7njpiX832WV6PR8DX8ay1b5A56Xci2FDNrhPlbvbZO9pkd3RMQTdZC89HtturjNARE6bd5kjSVnXmlQObBL_1F7VPm_HuDob3LzfgcM_gHKwUu5xL2XifiXMVMnkez3cNfHnx',
-                    ),
-                  ),
-                  const SizedBox(width: 12),
-                  Text(
-                    'MRIDA',
-                    style: GoogleFonts.sora(
-                      fontWeight: FontWeight.w900,
-                      letterSpacing: -1.5,
-                      fontSize: 24,
-                      color: MridaColors.primary,
-                    ),
-                  ),
-                ],
-              ),
-              actions: [
-                IconButton(
-                  icon: const Icon(Icons.notifications_none, color: MridaColors.primary),
-                  onPressed: () {},
-                ),
-                const SizedBox(width: 16),
-              ],
-            ),
-            
-            // Main Content
-            SliverPadding(
-              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 24),
-              sliver: SliverList(
-                delegate: SliverChildListDelegate([
-                  // Greeting
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
@@ -80,7 +40,15 @@ class HomeScreen extends StatelessWidget {
                       ),
                     ],
                   ),
-                  const SizedBox(height: 32),
+                  const Spacer(),
+                  CircleAvatar(
+                    radius: 20,
+                    backgroundColor: MridaColors.primary,
+                    child: const Text('RK', style: TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold)),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 32),
                   
                   // Hero Card (Bento)
                   Container(
@@ -252,10 +220,8 @@ class HomeScreen extends StatelessWidget {
               ),
             ),
           ],
-        ),
-      ],
-    );
-  }
+        );
+      }
 
   Widget _buildScanCard(String title, String crop, String date, String grade, Color color) {
     return Container(

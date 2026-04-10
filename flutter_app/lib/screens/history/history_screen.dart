@@ -61,24 +61,10 @@ class HistoryScreen extends StatelessWidget {
       );
     }
 
-    return Scaffold(
-      backgroundColor: MridaColors.surface,
-      appBar: AppBar(
-        title: Text(
-          'Scan History',
-          style: GoogleFonts.sora(
-            fontWeight: FontWeight.w700,
-            fontSize: 20,
-            color: MridaColors.primary,
-          ),
-        ),
-        backgroundColor: MridaColors.surface,
-        elevation: 0,
-      ),
-      body: ListView.builder(
-        padding: const EdgeInsets.fromLTRB(24, 8, 24, 120),
-        itemCount: historyData.keys.length,
-        itemBuilder: (context, index) {
+    return ListView.builder(
+      padding: const EdgeInsets.fromLTRB(24, 24, 24, 120),
+      itemCount: historyData.keys.length,
+      itemBuilder: (context, index) {
           final fieldName = historyData.keys.elementAt(index);
           final scans = historyData[fieldName]!;
 
@@ -103,9 +89,8 @@ class HistoryScreen extends StatelessWidget {
             ],
           );
         },
-      ),
-    );
-  }
+      );
+    }
 
   Widget _buildScanRow(BuildContext context, _ScanHistoryItem scan) {
     return Padding(

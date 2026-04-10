@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import '../theme/app_theme.dart';
 
 import '../models/scan_result.dart';
 import '../screens/auth/phone_entry_screen.dart';
@@ -15,6 +16,7 @@ import '../screens/scan/result_screen.dart';
 import '../screens/profile/profile_screen.dart';
 import '../screens/map/field_map_screen.dart';
 import '../widgets/modern_nav_bar.dart';
+import '../widgets/universal_app_bar.dart';
 
 final appRouterProvider = Provider<GoRouter>((ref) {
   return GoRouter(
@@ -48,8 +50,12 @@ final appRouterProvider = Provider<GoRouter>((ref) {
           }
 
           return Scaffold(
-            backgroundColor: const Color(0xFFF8FBF9),
-            body: navigationShell,
+            backgroundColor: MridaColors.surface,
+            appBar: const UniversalAppBar(),
+            body: SafeArea(
+              bottom: false, // ModernNavBar handles bottom
+              child: navigationShell,
+            ),
             extendBody: true,
             bottomNavigationBar: ModernNavBar(
               activeIndex: getNavIndex(navigationShell.currentIndex),
