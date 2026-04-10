@@ -7,6 +7,7 @@ import '../theme/app_theme.dart';
 import '../models/scan_result.dart';
 import '../screens/auth/phone_entry_screen.dart';
 import '../screens/auth/welcome_screen.dart';
+import '../screens/field/add_field_screen.dart';
 import '../screens/field/field_detail_screen.dart';
 import '../screens/history/history_screen.dart';
 import '../screens/home/home_screen.dart';
@@ -100,6 +101,8 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       ),
 
       GoRoute(path: '/settings', builder: (_, __) => const SettingsScreen()),
+
+      GoRoute(path: '/field/add', builder: (_, __) => const AddFieldScreen()),
 
       GoRoute(
         path: '/field/:fieldId',

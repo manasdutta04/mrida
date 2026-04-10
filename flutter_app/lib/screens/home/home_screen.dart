@@ -59,7 +59,7 @@ class HomeScreen extends StatelessWidget {
                       borderRadius: BorderRadius.circular(32),
                       boxShadow: [
                         BoxShadow(
-                          color: const Color(0xFF1D7A5F).withOpacity(0.15),
+                          color: const Color(0xFF1D7A5F).withValues(alpha: 0.15),
                           offset: const Offset(0, 20),
                           blurRadius: 40,
                         ),
@@ -75,7 +75,7 @@ class HomeScreen extends StatelessWidget {
                             height: 100,
                             decoration: BoxDecoration(
                               shape: BoxShape.circle,
-                              color: Colors.white.withOpacity(0.05),
+                              color: Colors.white.withValues(alpha: 0.05),
                             ),
                           ),
                         ),
@@ -277,16 +277,12 @@ class HomeScreen extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Icon(icon, color: MridaColors.primary.withOpacity(0.4)),
+          Icon(icon, color: MridaColors.primary.withValues(alpha: 0.4)),
           const SizedBox(height: 16),
           Text(value, style: GoogleFonts.sora(fontSize: 24, fontWeight: FontWeight.bold, color: MridaColors.primary)),
-          Text(label, style: GoogleFonts.inter(fontSize: 10, fontWeight: FontWeight.bold, letterSpacing: 1.5, color: MridaColors.onSurface.withOpacity(0.4))),
+          Text(label, style: GoogleFonts.inter(fontSize: 10, fontWeight: FontWeight.bold, letterSpacing: 1.5, color: MridaColors.onSurface.withValues(alpha: 0.4))),
         ],
       ),
     );
   }
-}
-
-extension on EdgeInsets {
-  static EdgeInsets top(double value) => EdgeInsets.only(top: value);
 }

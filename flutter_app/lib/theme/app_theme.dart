@@ -123,7 +123,7 @@ class AppTheme {
           onPrimaryContainer: MridaColors.onPrimaryContainer,
           surface: MridaColors.surface,
           onSurface: MridaColors.onSurface,
-          surfaceVariant: MridaColors.surfaceVariant,
+          surfaceContainerHighest: MridaColors.surfaceVariant,
           onSurfaceVariant: MridaColors.onSurfaceVariant,
           outline: MridaColors.outline,
           outlineVariant: MridaColors.outlineVariant,
@@ -161,7 +161,7 @@ class AppTheme {
             fontWeight: FontWeight.w500,
           ),
           hintStyle: GoogleFonts.inter(
-            color: MridaColors.onSecondaryContainer.withOpacity(0.5),
+            color: MridaColors.onSecondaryContainer.withValues(alpha: 0.5),
           ),
         ),
       );

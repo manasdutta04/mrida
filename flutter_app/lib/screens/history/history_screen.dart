@@ -96,7 +96,7 @@ class HistoryScreen extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 12),
       child: InkWell(
-        onTap: () => context.go('/scan/result', extra: null), // Navigates to result screen
+        onTap: () => context.push('/scan/result'), // Navigates to result screen with demo data
         borderRadius: BorderRadius.circular(12),
         child: Row(
           children: [

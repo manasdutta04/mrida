@@ -97,7 +97,6 @@ class SettingsScreen extends StatelessWidget {
       child: Column(children: children),
     );
   }
-
   Widget _buildSettingsTile(
     IconData icon,
     String title, {
@@ -106,41 +105,44 @@ class SettingsScreen extends StatelessWidget {
     bool hasChevron = false,
     Color? color,
   }) {
-    return Container(
-      height: 56,
-      padding: const EdgeInsets.symmetric(horizontal: 16),
-      child: Row(
-        children: [
-          Icon(icon, color: color ?? MridaColors.primary, size: 22),
-          const SizedBox(width: 16),
-          Expanded(
-            child: Text(
-              title,
-              style: GoogleFonts.inter(
-                fontSize: 15,
-                fontWeight: FontWeight.w600,
-                color: color ?? MridaColors.onSurface,
+    return InkWell(
+      onTap: () {},
+      child: Container(
+        height: 56,
+        padding: const EdgeInsets.symmetric(horizontal: 16),
+        child: Row(
+          children: [
+            Icon(icon, color: color ?? MridaColors.primary, size: 22),
+            const SizedBox(width: 16),
+            Expanded(
+              child: Text(
+                title,
+                style: GoogleFonts.inter(
+                  fontSize: 15,
+                  fontWeight: FontWeight.w600,
+                  color: color ?? MridaColors.onSurface,
+                ),
               ),
             ),
-          ),
-          if (trailing != null)
-            Text(
-              trailing,
-              style: GoogleFonts.inter(
-                fontSize: 13,
-                fontWeight: FontWeight.w700,
-                color: MridaColors.primary,
+            if (trailing != null)
+              Text(
+                trailing,
+                style: GoogleFonts.inter(
+                  fontSize: 13,
+                  fontWeight: FontWeight.w700,
+                  color: MridaColors.primary,
+                ),
               ),
-            ),
-          if (hasSwitch)
-            Switch(
-              value: true,
-              onChanged: (_) {},
-              activeColor: MridaColors.primary,
-            ),
-          if (hasChevron)
-            const Icon(Icons.chevron_right, color: MridaColors.outlineVariant),
-        ],
+            if (hasSwitch)
+              Switch(
+                value: true,
+                onChanged: (_) {},
+                activeThumbColor: MridaColors.primary,
+              ),
+            if (hasChevron)
+              const Icon(Icons.chevron_right, color: MridaColors.outlineVariant),
+          ],
+        ),
       ),
     );
   }

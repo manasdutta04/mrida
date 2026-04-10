@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../theme/app_theme.dart';
 
@@ -18,24 +19,17 @@ class ProfileScreen extends StatelessWidget {
               child: Column(
                 children: [
                   Container(
-                    width: 96,
-                    height: 96,
-                    decoration: BoxDecoration(
+                    width: 80,
+                    height: 80,
+                    decoration: const BoxDecoration(
                       color: MridaColors.primary,
                       shape: BoxShape.circle,
-                      boxShadow: [
-                        BoxShadow(
-                          color: MridaColors.primary.withValues(alpha: 0.2),
-                          blurRadius: 20,
-                          offset: const Offset(0, 10),
-                        ),
-                      ],
                     ),
                     alignment: Alignment.center,
                     child: Text(
                       'RK',
                       style: GoogleFonts.sora(
-                        fontSize: 32,
+                        fontSize: 28,
                         fontWeight: FontWeight.bold,
                         color: Colors.white,
                       ),
@@ -45,25 +39,46 @@ class ProfileScreen extends StatelessWidget {
                   Text(
                     'Rajan Kumar',
                     style: GoogleFonts.sora(
-                      fontSize: 24,
-                      fontWeight: FontWeight.w800,
+                      fontSize: 22,
+                      fontWeight: FontWeight.bold,
                       color: MridaColors.onSurface,
                     ),
                   ),
-                  Text(
-                    '+91 98765 43210',
-                    style: GoogleFonts.inter(
-                      fontSize: 14,
-                      color: MridaColors.onSurfaceVariant,
-                      fontWeight: FontWeight.w500,
-                    ),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text(
+                        '+91 98765 43210',
+                        style: GoogleFonts.inter(
+                          fontSize: 14,
+                          color: MridaColors.onSurfaceVariant,
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      Text(
+                        '·',
+                        style: TextStyle(color: MridaColors.onSurfaceVariant),
+                      ),
+                      const SizedBox(width: 8),
+                      GestureDetector(
+                        onTap: () {},
+                        child: Text(
+                          'Edit',
+                          style: GoogleFonts.inter(
+                            fontSize: 14,
+                            fontWeight: FontWeight.bold,
+                            color: MridaColors.primary,
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
                 ],
               ),
             ),
             const SizedBox(height: 32),
 
-            // Stats row
+            // Stats row: 3 metric cards
             Row(
               children: [
                 _buildStatCard('12', 'SCANS'),
@@ -73,7 +88,17 @@ class ProfileScreen extends StatelessWidget {
                 _buildStatCard('4', 'CROPS'),
               ],
             ),
-            const SizedBox(height: 40),
+            const SizedBox(height: 32),
+
+            // Preferences Section
+            _buildSectionHeader('PREFERENCES'),
+            const SizedBox(height: 12),
+            _buildSettingsGroup([
+              _buildSettingsTile(Icons.language, 'Language', trailing: 'Hindi (IN)'),
+              _buildSettingsTile(Icons.notifications_none, 'Notifications', hasSwitch: true),
+              _buildSettingsTile(Icons.eco_outlined, 'Default Crop', trailing: 'Rice (Paddy)'),
+            ]),
+            const SizedBox(height: 24),
 
             // My Farm Section
             _buildSectionHeader('MY FARM'),
@@ -81,38 +106,34 @@ class ProfileScreen extends StatelessWidget {
             _buildSettingsGroup([
               _buildSettingsTile(Icons.map_outlined, 'Manage Fields', hasChevron: true),
               _buildSettingsTile(Icons.history, 'Full Scan History', hasChevron: true),
-              _buildSettingsTile(Icons.assignment_outlined, 'Activity Reports', hasChevron: true),
             ]),
-            const SizedBox(height: 32),
+            const SizedBox(height: 24),
 
-            // Achievements Section
-            _buildSectionHeader('ACHIEVEMENTS'),
+            // Support Section
+            _buildSectionHeader('SUPPORT'),
             const SizedBox(height: 12),
-            SizedBox(
-              height: 120,
-              child: ListView(
-                scrollDirection: Axis.horizontal,
-                children: [
-                  _buildAchievementCard(Icons.verified_outlined, 'Soil Guardian', '10 Scans'),
-                  const SizedBox(width: 12),
-                  _buildAchievementCard(Icons.eco_outlined, 'Eco Mapper', '3 Fields'),
-                  const SizedBox(width: 12),
-                  _buildAchievementCard(Icons.workspace_premium_outlined, 'Pro Farmer', '1 mo streak'),
-                ],
-              ),
-            ),
+            _buildSettingsGroup([
+              _buildSettingsTile(Icons.info_outline, 'About MRIDA', hasChevron: true),
+              _buildSettingsTile(Icons.star_outline, 'Rate the App', hasChevron: true),
+            ]),
             const SizedBox(height: 48),
 
-            // Edit Profile Button
+            // Sign Out
             SizedBox(
               width: double.infinity,
-              child: OutlinedButton(
-                onPressed: () {},
-                style: OutlinedButton.styleFrom(
-                  minimumSize: const Size(double.infinity, 56),
-                  side: BorderSide(color: MridaColors.primary.withValues(alpha: 0.1), width: 2),
+              child: TextButton(
+                onPressed: () => context.go('/welcome'),
+                style: TextButton.styleFrom(
+                  foregroundColor: MridaColors.gradeD,
+                  padding: const EdgeInsets.symmetric(vertical: 16),
                 ),
-                child: const Text('EDIT PROFILE DETAILS'),
+                child: Text(
+                  'Sign Out',
+                  style: GoogleFonts.inter(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
               ),
             ),
           ],
@@ -121,27 +142,6 @@ class ProfileScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildAchievementCard(IconData icon, String title, String subtitle) {
-    return Container(
-      width: 130,
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: MridaColors.surfaceContainerLow,
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: MridaColors.outlineVariant.withValues(alpha: 0.2)),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(icon, color: MridaColors.primary, size: 24),
-          const Spacer(),
-          Text(title, style: GoogleFonts.sora(fontSize: 12, fontWeight: FontWeight.bold)),
-          Text(subtitle, style: GoogleFonts.inter(fontSize: 10, color: MridaColors.onSurfaceVariant)),
-        ],
-      ),
-    );
-  }
 
   Widget _buildStatCard(String value, String label) {
     return Expanded(
@@ -222,41 +222,44 @@ class ProfileScreen extends StatelessWidget {
     bool hasSwitch = false,
     bool hasChevron = false,
   }) {
-    return Container(
-      height: 56, // 56px tap height as requested
-      padding: const EdgeInsets.symmetric(horizontal: 16),
-      child: Row(
-        children: [
-          Icon(icon, color: MridaColors.primary, size: 22),
-          const SizedBox(width: 16),
-          Expanded(
-            child: Text(
-              title,
-              style: GoogleFonts.inter(
-                fontSize: 15,
-                fontWeight: FontWeight.w600,
-                color: MridaColors.onSurface,
+    return InkWell(
+      onTap: () {},
+      child: Container(
+        height: 56, // 56px tap height as requested
+        padding: const EdgeInsets.symmetric(horizontal: 16),
+        child: Row(
+          children: [
+            Icon(icon, color: MridaColors.primary, size: 22),
+            const SizedBox(width: 16),
+            Expanded(
+              child: Text(
+                title,
+                style: GoogleFonts.inter(
+                  fontSize: 15,
+                  fontWeight: FontWeight.w600,
+                  color: MridaColors.onSurface,
+                ),
               ),
             ),
-          ),
-          if (trailing != null)
-            Text(
-              trailing,
-              style: GoogleFonts.inter(
-                fontSize: 13,
-                fontWeight: FontWeight.w700,
-                color: MridaColors.primary,
+            if (trailing != null)
+              Text(
+                trailing,
+                style: GoogleFonts.inter(
+                  fontSize: 13,
+                  fontWeight: FontWeight.w700,
+                  color: MridaColors.primary,
+                ),
               ),
-            ),
-          if (hasSwitch)
-            Switch(
-              value: true,
-              onChanged: (_) {},
-              activeColor: MridaColors.primary,
-            ),
-          if (hasChevron)
-            const Icon(Icons.chevron_right, color: MridaColors.outlineVariant),
-        ],
+            if (hasSwitch)
+              Switch(
+                value: true,
+                onChanged: (_) {},
+                activeThumbColor: MridaColors.primary,
+              ),
+            if (hasChevron)
+              const Icon(Icons.chevron_right, color: MridaColors.outlineVariant),
+          ],
+        ),
       ),
     );
   }

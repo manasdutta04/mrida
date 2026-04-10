@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:latlong2/latlong.dart';
@@ -32,11 +33,7 @@ class FieldMapScreen extends StatelessWidget {
         ],
       ),
       floatingActionButton: FloatingActionButton.extended(
-        onPressed: () {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Field creation form coming soon')),
-          );
-        },
+        onPressed: () => context.push('/field/add'),
         backgroundColor: MridaColors.primary,
         icon: const Icon(Icons.add, color: Colors.white),
         label: Text(
