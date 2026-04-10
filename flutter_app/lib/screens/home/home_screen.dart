@@ -11,11 +11,8 @@ class HomeScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     
-    return Scaffold(
-      backgroundColor: MridaColors.surface,
-      extendBody: true,
-      body: Stack(
-        children: [
+    return Stack(
+      children: [
           CustomScrollView(
             slivers: [
               // Custom Top App Bar (Blurred)
@@ -256,8 +253,8 @@ class HomeScreen extends StatelessWidget {
               ),
             ],
           ),
-          
-          // Bottom Navigation
+        ],
+      ),
     );
   }
 
@@ -322,8 +319,6 @@ class HomeScreen extends StatelessWidget {
         ],
       ),
     );
-  }
-
   }
 }
 

@@ -10,39 +10,40 @@ class ProfileScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     
-    return Scaffold(
-      backgroundColor: MridaColors.surface,
-      appBar: AppBar(
-        leading: IconButton(
-          icon: const Icon(Icons.menu, color: MridaColors.primary),
-          onPressed: () {},
-        ),
-        title: Text(
-          'MRIDA',
-          style: GoogleFonts.sora(
-            fontWeight: FontWeight.w900,
-            letterSpacing: -1.5,
-            fontSize: 24,
-            color: MridaColors.primary,
+    return Column(
+      children: [
+        AppBar(
+          leading: IconButton(
+            icon: const Icon(Icons.menu, color: MridaColors.primary),
+            onPressed: () {},
           ),
-        ),
-        actions: [
-          Container(
-            width: 40,
-            height: 40,
-            decoration: const BoxDecoration(
+          title: Text(
+            'MRIDA',
+            style: GoogleFonts.sora(
+              fontWeight: FontWeight.w900,
+              letterSpacing: -1.5,
+              fontSize: 24,
               color: MridaColors.primary,
-              shape: BoxShape.circle,
             ),
-            alignment: Alignment.center,
-            child: const Text('RK', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 12)),
           ),
-          const SizedBox(width: 16),
-        ],
-      ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 32),
-        child: Column(
+          actions: [
+            Container(
+              width: 40,
+              height: 40,
+              decoration: const BoxDecoration(
+                color: MridaColors.primary,
+                shape: BoxShape.circle,
+              ),
+              alignment: Alignment.center,
+              child: const Text('RK', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 12)),
+            ),
+            const SizedBox(width: 16),
+          ],
+        ),
+        Expanded(
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 32),
+            child: Column(
           children: [
             // Profile Hero
             Column(
@@ -155,12 +156,13 @@ class ProfileScreen extends StatelessWidget {
                 foregroundColor: MridaColors.error,
               ),
             ),
-            const SizedBox(height: 100),
           ],
         ),
       ),
-    );
-  }
+    ),
+  ],
+);
+}
 
   Widget _buildStatCard(String value, String label) {
     return Expanded(

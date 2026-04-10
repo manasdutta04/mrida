@@ -6,11 +6,15 @@ class FieldMapScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: const Text('Field Map')),
-      body: const GoogleMap(
-        initialCameraPosition: CameraPosition(target: LatLng(20.5937, 78.9629), zoom: 4),
-      ),
+    return Column(
+      children: [
+        AppBar(title: const Text('Field Map')),
+        const Expanded(
+          child: GoogleMap(
+            initialCameraPosition: CameraPosition(target: LatLng(20.5937, 78.9629), zoom: 4),
+          ),
+        ),
+      ],
     );
   }
 }

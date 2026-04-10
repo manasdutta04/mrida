@@ -42,6 +42,7 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       StatefulShellRoute.indexedStack(
         builder: (context, state, navigationShell) {
           return Scaffold(
+            backgroundColor: const Color(0xFFF8FBF9), // Consistent Mrida surface
             body: navigationShell,
             extendBody: true,
             bottomNavigationBar: ModernNavBar(

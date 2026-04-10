@@ -10,46 +10,47 @@ class HistoryScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     
-    return Scaffold(
-      backgroundColor: MridaColors.surface,
-      appBar: AppBar(
-        leading: IconButton(
-          icon: const Icon(Icons.menu, color: MridaColors.primary),
-          onPressed: () {},
-        ),
-        title: Text(
-          'MRIDA',
-          style: GoogleFonts.sora(
-            fontWeight: FontWeight.w900,
-            letterSpacing: -1.5,
-            fontSize: 24,
-            color: MridaColors.primary,
+    return Column(
+      children: [
+        AppBar(
+          leading: IconButton(
+            icon: const Icon(Icons.menu, color: MridaColors.primary),
+            onPressed: () {},
           ),
-        ),
-        actions: [
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
-            decoration: BoxDecoration(
-              color: MridaColors.surfaceContainer,
-              borderRadius: BorderRadius.circular(100),
-            ),
-            child: Row(
-              children: [
-                Text(
-                  'ALL FIELDS',
-                  style: GoogleFonts.inter(fontSize: 10, fontWeight: FontWeight.bold, letterSpacing: 1.5, color: MridaColors.primary),
-                ),
-                const SizedBox(width: 8),
-                const Icon(Icons.filter_list, size: 16, color: MridaColors.primary),
-              ],
+          title: Text(
+            'MRIDA',
+            style: GoogleFonts.sora(
+              fontWeight: FontWeight.w900,
+              letterSpacing: -1.5,
+              fontSize: 24,
+              color: MridaColors.primary,
             ),
           ),
-          const SizedBox(width: 16),
-        ],
-      ),
-      body: ListView(
-        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
-        children: [
+          actions: [
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+              decoration: BoxDecoration(
+                color: MridaColors.surfaceContainer,
+                borderRadius: BorderRadius.circular(100),
+              ),
+              child: Row(
+                children: [
+                  Text(
+                    'ALL FIELDS',
+                    style: GoogleFonts.inter(fontSize: 10, fontWeight: FontWeight.bold, letterSpacing: 1.5, color: MridaColors.primary),
+                  ),
+                  const SizedBox(width: 8),
+                  const Icon(Icons.filter_list, size: 16, color: MridaColors.primary),
+                ],
+              ),
+            ),
+            const SizedBox(width: 16),
+          ],
+        ),
+        Expanded(
+          child: ListView(
+            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+            children: [
           const SizedBox(height: 16),
           Text(
             'Scan History',
@@ -135,8 +136,8 @@ class HistoryScreen extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 120),
-        ],
-      ),
+        ),
+      ],
     );
   }
 
