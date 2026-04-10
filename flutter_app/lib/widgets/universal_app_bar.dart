@@ -15,6 +15,7 @@ class UniversalAppBar extends StatelessWidget implements PreferredSizeWidget {
       backgroundColor: MridaColors.surface,
       elevation: 0,
       centerTitle: false,
+      primary: false,
       leading: context.canPop()
           ? IconButton(
               icon: const Icon(Icons.arrow_back, color: MridaColors.primary),
