@@ -13,9 +13,11 @@ __pycache__/
 venv/
 # Backend secrets
 backend/.env
+backend/.env.example
 backend/service-account.json
 backend/*.json.secret
 backend/*.key
+flutter_app/.env
 
 # Flutter app (repo-level fallback)
 flutter_app/.dart_tool/

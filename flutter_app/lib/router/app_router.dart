@@ -3,7 +3,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../models/scan_result.dart';
-import '../screens/auth/otp_screen.dart';
 import '../screens/auth/phone_entry_screen.dart';
 import '../screens/auth/welcome_screen.dart';
 import '../screens/field/field_detail_screen.dart';
@@ -37,16 +36,6 @@ final appRouterProvider = Provider<GoRouter>((ref) {
     routes: [
       GoRoute(path: '/welcome', builder: (_, __) => const WelcomeScreen()),
       GoRoute(path: '/login', builder: (_, __) => const PhoneEntryScreen()),
-      GoRoute(
-        path: '/login/otp',
-        builder: (_, state) {
-          final extra = state.extra as Map<String, dynamic>? ?? {};
-          return OTPScreen(
-            verificationId: extra['verificationId'] ?? '',
-            phoneNumber: extra['phoneNumber'] ?? '',
-          );
-        },
-      ),
       GoRoute(path: '/home', builder: (_, __) => const HomeScreen()),
       GoRoute(path: '/scan/camera', builder: (_, __) => const CameraScreen()),
       GoRoute(path: '/scan/loading', builder: (_, __) => const LoadingScreen()),
