@@ -5,8 +5,14 @@ import '../../theme/app_theme.dart';
 import '../../services/auth_service.dart';
 
 class OTPScreen extends StatefulWidget {
-  const OTPScreen({super.key, required this.verificationId});
+  const OTPScreen({
+    super.key, 
+    required this.verificationId,
+    required this.phoneNumber,
+  });
+  
   final String verificationId;
+  final String phoneNumber;
 
   @override
   State<OTPScreen> createState() => _OTPScreenState();
@@ -15,16 +21,19 @@ class OTPScreen extends StatefulWidget {
 class _OTPScreenState extends State<OTPScreen> {
   final controller = TextEditingController();
   final auth = AuthService();
+  late String currentVerificationId;
   bool loading = false;
   int seconds = 45;
 
   @override
   void initState() {
     super.initState();
+    currentVerificationId = widget.verificationId;
     _startTimer();
   }
 
   void _startTimer() {
+    setState(() => seconds = 45);
     Future.doWhile(() async {
       await Future<void>.delayed(const Duration(seconds: 1));
       if (!mounted || seconds == 0) return false;
@@ -33,13 +42,45 @@ class _OTPScreenState extends State<OTPScreen> {
     });
   }
 
+  Future<void> _resendCode() async {
+    if (seconds > 0) return;
+    try {
+      setState(() => loading = true);
+      final newVid = await auth.sendOTP(widget.phoneNumber);
+      setState(() {
+        currentVerificationId = newVid;
+        loading = false;
+      });
+      _startTimer();
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Verification code resent')),
+        );
+      }
+    } catch (e) {
+      setState(() => loading = false);
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(e.toString())),
+        );
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     
+    // Simple mask for phone number: +91 98XXX XX001
+    String maskedPhone = widget.phoneNumber;
+    if (maskedPhone.length > 7) {
+      maskedPhone = '${maskedPhone.substring(0, 6)}XXXXX${maskedPhone.substring(maskedPhone.length - 2)}';
+    }
+
     return Scaffold(
       backgroundColor: MridaColors.surface,
       appBar: AppBar(
+        automaticallyImplyLeading: false,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back, color: MridaColors.primary),
           onPressed: () => context.pop(),
@@ -62,7 +103,7 @@ class _OTPScreenState extends State<OTPScreen> {
                 children: [
                   const TextSpan(text: "We've sent a 6-digit verification code to\n"),
                   TextSpan(
-                    text: '+91 ••••• ••902', // Mocked as per Stitch design
+                    text: maskedPhone,
                     style: theme.textTheme.bodyLarge?.copyWith(
                       fontWeight: FontWeight.bold,
                       color: MridaColors.onSurface,
@@ -130,12 +171,25 @@ class _OTPScreenState extends State<OTPScreen> {
             Center(
               child: Column(
                 children: [
-                  Text(
-                    'Resend in 0:${seconds.toString().padLeft(2, '0')}',
-                    style: theme.textTheme.labelLarge?.copyWith(
-                      color: MridaColors.onSecondaryContainer,
+                  if (seconds > 0)
+                    Text(
+                      'Resend in 0:${seconds.toString().padLeft(2, '0')}',
+                      style: theme.textTheme.labelLarge?.copyWith(
+                        color: MridaColors.onSecondaryContainer,
+                      ),
+                    )
+                  else
+                    TextButton(
+                      onPressed: loading ? null : _resendCode,
+                      child: Text(
+                        'RESEND CODE',
+                        style: theme.textTheme.labelLarge?.copyWith(
+                          color: MridaColors.primary,
+                          fontWeight: FontWeight.bold,
+                          letterSpacing: 1.2,
+                        ),
+                      ),
                     ),
-                  ),
                   const SizedBox(height: 32),
                   ElevatedButton(
                     onPressed: loading ? null : _verify,

@@ -103,8 +103,14 @@ class _PhoneEntryScreenState extends State<PhoneEntryScreen> {
               onPressed: loading ? null : () async {
                 try {
                   setState(() => loading = true);
-                  final vid = await auth.sendOTP('+91${controller.text}');
-                  if (context.mounted) context.push('/login/otp', extra: vid);
+                  final phoneNumber = '+91${controller.text}';
+                  final vid = await auth.sendOTP(phoneNumber);
+                  if (context.mounted) {
+                    context.push('/login/otp', extra: {
+                      'verificationId': vid,
+                      'phoneNumber': phoneNumber,
+                    });
+                  }
                 } catch (e) {
                   setState(() => loading = false);
                   ScaffoldMessenger.of(context).showSnackBar(
