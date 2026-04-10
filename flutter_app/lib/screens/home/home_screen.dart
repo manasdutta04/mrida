@@ -258,14 +258,6 @@ class HomeScreen extends StatelessWidget {
           ),
           
           // Bottom Navigation
-          Positioned(
-            left: 0,
-            right: 0,
-            bottom: 0,
-            child: _buildBottomNav(context),
-          ),
-        ],
-      ),
     );
   }
 
@@ -332,90 +324,6 @@ class HomeScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildBottomNav(BuildContext context) {
-    return ClipRRect(
-      child: BackdropFilter(
-        filter: ImageFilter.blur(sigmaX: 20, sigmaY: 20),
-        child: Container(
-          padding: const EdgeInsets.fromLTRB(24, 16, 24, 32),
-          decoration: BoxDecoration(
-            color: MridaColors.surface.withOpacity(0.2),
-            borderRadius: const BorderRadius.vertical(top: Radius.circular(32)),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withOpacity(0.06),
-                offset: const Offset(0, -10),
-                blurRadius: 40,
-              ),
-            ],
-          ),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              _buildNavItem(context, Icons.home_filled, 'HOME', true, '/home'),
-              _buildNavItem(context, Icons.history, 'HISTORY', false, '/history'),
-              // Central FAB
-              InkWell(
-                onTap: () => context.go('/scan/camera'),
-                child: Transform.translate(
-                  offset: const Offset(0, -20),
-                  child: Container(
-                    width: 56,
-                    height: 56,
-                    decoration: const BoxDecoration(
-                      color: MridaColors.primary,
-                      shape: BoxShape.circle,
-                      boxShadow: [
-                        BoxShadow(
-                          color: Color.fromRGBO(0, 36, 26, 0.2),
-                          offset: Offset(0, 10),
-                          blurRadius: 20,
-                        ),
-                      ],
-                    ),
-                    child: const Icon(Icons.add, color: Colors.white, size: 32),
-                  ),
-                ),
-              ),
-              _buildNavItem(context, Icons.map_outlined, 'MAP', false, '/map'),
-              _buildNavItem(context, Icons.person_outline, 'PROFILE', false, '/profile'),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildNavItem(BuildContext context, IconData icon, String label, bool active, String route) {
-    return InkWell(
-      onTap: () => context.go(route),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(
-            icon,
-            color: active ? MridaColors.primary : MridaColors.primary.withOpacity(0.4),
-          ),
-          const SizedBox(height: 4),
-          Text(
-            label,
-            style: GoogleFonts.inter(
-              fontSize: 10,
-              fontWeight: FontWeight.bold,
-              letterSpacing: 1.0,
-              color: active ? MridaColors.primary : MridaColors.primary.withOpacity(0.4),
-            ),
-          ),
-          if (active)
-            Container(
-              margin: const EdgeInsets.only(top: 4),
-              width: 4,
-              height: 4,
-              decoration: const BoxDecoration(color: MridaColors.primary, shape: BoxShape.circle),
-            ),
-        ],
-      ),
-    );
   }
 }
 
