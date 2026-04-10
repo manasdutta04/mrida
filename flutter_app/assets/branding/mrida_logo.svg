@@ -1,12 +1,12 @@
 <svg width="512" height="160" viewBox="0 0 512 160" fill="none" xmlns="http://www.w3.org/2000/svg">
-  <rect width="512" height="160" rx="20" fill="#FAF9F6"/>
+  <rect width="512" height="160" rx="20" fill="#FBF9F6"/>
   <text
     x="256"
     y="105"
     text-anchor="middle"
-    font-family="Noto Sans Devanagari, Mangal, sans-serif"
+    font-family="Sora, Noto Sans Devanagari, sans-serif"
     font-size="96"
     font-weight="700"
-    fill="#1D7A5F"
-  >.C&></text>
+    fill="#00241A"
+  >मृदा</text>
 </svg>

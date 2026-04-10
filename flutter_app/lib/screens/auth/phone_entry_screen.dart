@@ -27,6 +27,7 @@ class _PhoneEntryScreenState extends State<PhoneEntryScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     return Scaffold(
       backgroundColor: MridaColors.surface,
       appBar: AppBar(

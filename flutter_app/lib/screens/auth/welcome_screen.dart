@@ -20,29 +20,15 @@ class WelcomeScreen extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               const SizedBox(height: 80),
-              // Brand Mark
-              Row(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  SvgPicture.asset(
-                    'assets/branding/mrida_logo.svg',
-                    height: 24,
-                    colorFilter: const ColorFilter.mode(
-                      MridaColors.primary,
-                      BlendMode.srcIn,
-                    ),
-                  ),
-                  const SizedBox(width: 12),
-                  Text(
-                    'MRIDA',
-                    style: GoogleFonts.inter(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w600,
-                      letterSpacing: 0.2,
-                      color: MridaColors.textPrimary,
-                    ),
-                  ),
-                ],
+              // Brand Mark (Clean Header)
+              Text(
+                'MRIDA',
+                style: GoogleFonts.inter(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w600,
+                  letterSpacing: 2.0,
+                  color: MridaColors.textPrimary,
+                ),
               ),
               const SizedBox(height: 64),
               // Devanagari Title

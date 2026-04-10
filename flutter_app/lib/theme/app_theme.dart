@@ -22,6 +22,12 @@ class MridaColors {
   
   static const border = Color(0xFFC0C8C3);
   static const error = Color(0xFFBA1A1A);
+  
+  // Functional Colors (Restored for older widgets)
+  static const confHigh = Color(0xFF2E7D32);
+  static const confMedium = Color(0xFFF57F17);
+  static const confLow = Color(0xFFC62828);
+  static const warning = Color(0xFFF57F17);
 }
 
 class AppTheme {
@@ -87,10 +93,23 @@ class AppTheme {
   static ThemeData dark() => ThemeData(
         useMaterial3: true,
         brightness: Brightness.dark,
-        textTheme: buildTextTheme(),
+        textTheme: buildTextTheme().apply(
+          bodyColor: Colors.white,
+          displayColor: Colors.white,
+        ),
         colorScheme: ColorScheme.fromSeed(
           seedColor: MridaColors.primary,
           brightness: Brightness.dark,
+          primary: MridaColors.primary,
+        ),
+        elevatedButtonTheme: ElevatedButtonThemeData(
+          style: ElevatedButton.styleFrom(
+            backgroundColor: MridaColors.primary,
+            foregroundColor: MridaColors.onPrimary,
+            minimumSize: const Size(double.infinity, 56),
+            shape: const StadiumBorder(),
+            elevation: 0,
+          ),
         ),
       );
 }
