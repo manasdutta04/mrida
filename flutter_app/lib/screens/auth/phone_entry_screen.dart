@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import '../../theme/app_theme.dart';
 import '../../services/auth_service.dart';
 
 class PhoneEntryScreen extends StatefulWidget {
@@ -27,87 +28,123 @@ class _PhoneEntryScreenState extends State<PhoneEntryScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Login')),
-      body: Padding(
-        padding: const EdgeInsets.all(16),
+      backgroundColor: MridaColors.surface,
+      appBar: AppBar(
+        title: const Text('LOGIN'),
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        titleTextStyle: theme.textTheme.labelLarge?.copyWith(
+          letterSpacing: 2.0,
+          color: MridaColors.textSecondary,
+        ),
+      ),
+      body: SingleChildScrollView(
+        padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 24),
         child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            Text(
+              'Welcome back.',
+              style: theme.textTheme.displayMedium,
+            ),
+            const SizedBox(height: 8),
+            Text(
+              'Securely access your soil digital archive.',
+              style: theme.textTheme.bodyMedium?.copyWith(color: MridaColors.textSecondary),
+            ),
+            const SizedBox(height: 48),
             SegmentedButton<bool>(
               segments: const [
-                ButtonSegment<bool>(value: false, label: Text('Phone OTP')),
-                ButtonSegment<bool>(value: true, label: Text('Email')),
+                ButtonSegment<bool>(value: false, label: Text('PHONE')),
+                ButtonSegment<bool>(value: true, label: Text('EMAIL')),
               ],
               selected: {isEmailMode},
               onSelectionChanged: (v) => setState(() => isEmailMode = v.first),
+              style: SegmentedButton.styleFrom(
+                selectedBackgroundColor: MridaColors.primary,
+                selectedForegroundColor: MridaColors.onPrimary,
+              ),
             ),
-            const SizedBox(height: 16),
+            const SizedBox(height: 32),
             if (!isEmailMode)
               TextField(
                 controller: _phoneController,
                 keyboardType: TextInputType.phone,
-                decoration: const InputDecoration(labelText: 'Phone (+91XXXXXXXXXX)'),
+                decoration: InputDecoration(
+                  labelText: 'PHONE NUMBER',
+                  hintText: '+91XXXXXXXXXX',
+                  labelStyle: theme.textTheme.labelLarge,
+                  filled: true,
+                  fillColor: MridaColors.surfaceVariant,
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(16),
+                    borderSide: BorderSide.none,
+                  ),
+                ),
               ),
             if (isEmailMode) ...[
               TextField(
                 controller: _emailController,
                 keyboardType: TextInputType.emailAddress,
-                decoration: const InputDecoration(labelText: 'Email'),
+                decoration: InputDecoration(
+                  labelText: 'EMAIL ADDRESS',
+                  labelStyle: theme.textTheme.labelLarge,
+                  filled: true,
+                  fillColor: MridaColors.surfaceVariant,
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(16),
+                    borderSide: BorderSide.none,
+                  ),
+                ),
               ),
-              const SizedBox(height: 12),
+              const SizedBox(height: 16),
               TextField(
                 controller: _passwordController,
                 obscureText: true,
-                decoration: const InputDecoration(labelText: 'Password'),
+                decoration: InputDecoration(
+                  labelText: 'PASSWORD',
+                  labelStyle: theme.textTheme.labelLarge,
+                  filled: true,
+                  fillColor: MridaColors.surfaceVariant,
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(16),
+                    borderSide: BorderSide.none,
+                  ),
+                ),
               ),
             ],
-            const SizedBox(height: 16),
-            if (!isEmailMode)
-              ElevatedButton(
-                onPressed: loading
-                    ? null
-                    : () async {
-                        try {
+            const SizedBox(height: 40),
+            ElevatedButton(
+              onPressed: loading
+                  ? null
+                  : () async {
+                      try {
+                        setState(() => loading = true);
+                        if (!isEmailMode) {
                           final raw = _phoneController.text.replaceAll(RegExp(r'\D'), '');
                           if (raw.length != 10) {
                             throw Exception('Enter a valid 10-digit phone number.');
                           }
-                          setState(() => loading = true);
                           final verificationId = await _auth.sendOTP('+91$raw');
                           if (!context.mounted) return;
-                          setState(() => loading = false);
                           context.go('/login/otp', extra: verificationId);
-                        } catch (e) {
-                          setState(() => loading = false);
-                          await _showError(e);
-                        }
-                      },
-                child: Text(loading ? 'Sending...' : 'Send OTP'),
-              ),
-            if (isEmailMode) ...[
-              ElevatedButton(
-                onPressed: loading
-                    ? null
-                    : () async {
-                        try {
-                          setState(() => loading = true);
+                        } else {
                           await _auth.authenticateWithEmailPassword(
                             email: _emailController.text,
                             password: _passwordController.text,
                           );
                           if (!context.mounted) return;
-                          setState(() => loading = false);
                           context.go('/home');
-                        } catch (e) {
-                          setState(() => loading = false);
-                          await _showError(e);
                         }
-                      },
-                child: Text(loading ? 'Authenticating...' : 'Authenticate'),
-              ),
-            ],
-            TextButton(
-              onPressed: () => context.go('/demo'),
-              child: const Text('Try Demo'),
+                        setState(() => loading = false);
+                      } catch (e) {
+                        setState(() => loading = false);
+                        await _showError(e);
+                      }
+                    },
+              child: Text(loading 
+                ? (isEmailMode ? 'AUTHENTICATING...' : 'SENDING...') 
+                : (isEmailMode ? 'CONTINUE' : 'SEND OTP')),
             ),
           ],
         ),

@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import '../models/scan_result.dart';
 import '../screens/auth/otp_screen.dart';
 import '../screens/auth/phone_entry_screen.dart';
+import '../screens/auth/welcome_screen.dart';
 import '../screens/demo/demo_screen.dart';
 import '../screens/field/field_detail_screen.dart';
 import '../screens/history/history_screen.dart';
@@ -20,14 +21,19 @@ final appRouterProvider = Provider<GoRouter>((ref) {
     initialLocation: '/',
     redirect: (context, state) {
       final user = FirebaseAuth.instance.currentUser;
-      final isProtected = !state.matchedLocation.startsWith('/login') &&
-          state.matchedLocation != '/' &&
-          state.matchedLocation != '/demo';
-      if (user == null && isProtected) return '/login';
+      final isAuthFlow = state.matchedLocation.startsWith('/login') ||
+          state.matchedLocation == '/welcome' ||
+          state.matchedLocation == '/' ||
+          state.matchedLocation == '/demo';
+
+      if (user == null && !isAuthFlow) {
+        return '/welcome';
+      }
       return null;
     },
     routes: [
       GoRoute(path: '/', builder: (_, __) => const SplashScreen()),
+      GoRoute(path: '/welcome', builder: (_, __) => const WelcomeScreen()),
       GoRoute(path: '/login', builder: (_, __) => const PhoneEntryScreen()),
       GoRoute(
         path: '/login/otp',
