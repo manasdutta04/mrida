@@ -156,6 +156,7 @@ class ProfileScreen extends StatelessWidget {
                 foregroundColor: MridaColors.error,
               ),
             ),
+            const SizedBox(height: 120),
             ],
           ),
         ),

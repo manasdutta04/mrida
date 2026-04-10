@@ -51,31 +51,60 @@ class _ModernNavBarState extends State<ModernNavBar> with TickerProviderStateMix
 
   @override
   Widget build(BuildContext context) {
-    return ClipRRect(
-      child: BackdropFilter(
-        filter: ImageFilter.blur(sigmaX: 30, sigmaY: 30),
-        child: Container(
-          padding: const EdgeInsets.fromLTRB(16, 12, 16, 28),
-          decoration: BoxDecoration(
-            color: MridaColors.surface.withOpacity(0.12),
-            borderRadius: const BorderRadius.vertical(top: Radius.circular(32)),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withOpacity(0.08),
-                offset: const Offset(0, -12),
-                blurRadius: 40,
+    return SafeArea(
+      top: false,
+      child: Container(
+        height: 100, // Fixed height for the dock + FAB overlap
+        padding: const EdgeInsets.symmetric(horizontal: 16),
+        alignment: Alignment.bottomCenter,
+        child: Stack(
+          alignment: Alignment.bottomCenter,
+          clipBehavior: Clip.none,
+          children: [
+            // Floating Glassmorphism Dock
+            Padding(
+              padding: const EdgeInsets.only(bottom: 12),
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(24),
+                child: BackdropFilter(
+                  filter: ImageFilter.blur(sigmaX: 20, sigmaY: 20),
+                  child: Container(
+                    height: 64, // The actual dock body height
+                    decoration: BoxDecoration(
+                      color: MridaColors.surface.withOpacity(0.15),
+                      borderRadius: BorderRadius.circular(24),
+                      border: Border.all(
+                        color: Colors.white.withOpacity(0.1),
+                        width: 1,
+                      ),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withOpacity(0.12),
+                          offset: const Offset(0, 10),
+                          blurRadius: 30,
+                        ),
+                      ],
+                    ),
+                    child: Row(
+                      children: [
+                        Expanded(child: _buildNavItem(0, Icons.home_filled, 'HOME')),
+                        Expanded(child: _buildNavItem(1, Icons.history, 'HISTORY')),
+                        const Expanded(child: SizedBox()), // Space for FAB
+                        Expanded(child: _buildNavItem(3, Icons.map_outlined, 'MAP')),
+                        Expanded(child: _buildNavItem(4, Icons.person_outline, 'PROFILE')),
+                      ],
+                    ),
+                  ),
+                ),
               ),
-            ],
-          ),
-          child: Row(
-            children: [
-              Expanded(child: _buildNavItem(0, Icons.home_filled, 'HOME')),
-              Expanded(child: _buildNavItem(1, Icons.history, 'HISTORY')),
-              Expanded(child: _buildCenterFAB(2)),
-              Expanded(child: _buildNavItem(3, Icons.map_outlined, 'MAP')),
-              Expanded(child: _buildNavItem(4, Icons.person_outline, 'PROFILE')),
-            ],
-          ),
+            ),
+            
+            // Floating FAB (Symmetricly placed in the center)
+            Positioned(
+              bottom: 28, // Pushed up from the bottom of the stack
+              child: _buildCenterFAB(2),
+            ),
+          ],
         ),
       ),
     );
