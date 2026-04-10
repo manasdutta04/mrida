@@ -1,13 +1,11 @@
 import 'dart:io';
+import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:image_picker/image_picker.dart';
 import '../../theme/app_theme.dart';
 
-/// Full-screen camera capture for soil photos.
-/// Shows a live viewfinder with corner bracket overlay and instruction text.
-/// After capture, shows preview with "Use this photo" / "Retake" options.
 class CameraScreen extends StatefulWidget {
   const CameraScreen({super.key});
 
@@ -15,18 +13,77 @@ class CameraScreen extends StatefulWidget {
   State<CameraScreen> createState() => _CameraScreenState();
 }
 
-class _CameraScreenState extends State<CameraScreen> {
-  final ImagePicker _picker = ImagePicker();
+class _CameraScreenState extends State<CameraScreen> with WidgetsBindingObserver {
+  CameraController? _controller;
+  bool _isCameraInitialized = false;
   File? _capturedImage;
+  final ImagePicker _picker = ImagePicker();
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addObserver(this);
+    _initializeCamera();
+  }
+
+  Future<void> _initializeCamera() async {
+    final cameras = await availableCameras();
+    if (cameras.isEmpty) return;
+
+    // Use the first available back camera
+    final backCamera = cameras.firstWhere(
+      (camera) => camera.lensDirection == CameraLensDirection.back,
+      orElse: () => cameras.first,
+    );
+
+    _controller = CameraController(
+      backCamera,
+      ResolutionPreset.high,
+      enableAudio: false,
+    );
+
+    try {
+      await _controller!.initialize();
+      if (mounted) {
+        setState(() => _isCameraInitialized = true);
+      }
+    } catch (e) {
+      debugPrint('Error initializing camera: $e');
+    }
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    _controller?.dispose();
+    super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    final CameraController? cameraController = _controller;
+
+    if (cameraController == null || !cameraController.value.isInitialized) {
+      return;
+    }
+
+    if (state == AppLifecycleState.inactive) {
+      cameraController.dispose();
+    } else if (state == AppLifecycleState.resumed) {
+      _initializeCamera();
+    }
+  }
 
   Future<void> _captureFromCamera() async {
-    final photo = await _picker.pickImage(
-      source: ImageSource.camera,
-      maxWidth: 1024,
-      imageQuality: 90,
-    );
-    if (photo != null && mounted) {
-      setState(() => _capturedImage = File(photo.path));
+    if (_controller == null || !_controller!.value.isInitialized) return;
+
+    try {
+      final XFile photo = await _controller!.takePicture();
+      if (mounted) {
+        setState(() => _capturedImage = File(photo.path));
+      }
+    } catch (e) {
+      debugPrint('Error taking picture: $e');
     }
   }
 
@@ -58,22 +115,26 @@ class _CameraScreenState extends State<CameraScreen> {
   }
 
   Widget _buildViewfinder() {
+    if (!_isCameraInitialized || _controller == null) {
+      return const Scaffold(
+        backgroundColor: Colors.black,
+        body: Center(child: CircularProgressIndicator(color: Colors.white)),
+      );
+    }
+
     return Scaffold(
       backgroundColor: Colors.black,
       body: Stack(
         children: [
-          // Simulated viewfinder background
-          Container(
-            color: const Color(0xFF1A1A1A),
-            child: Center(
-              child: Icon(
-                Icons.camera_alt_outlined,
-                size: 80,
-                color: Colors.white.withValues(alpha: 0.15),
-              ),
+          // Real Live Camera Preview
+          Positioned.fill(
+            child: AspectRatio(
+              aspectRatio: _controller!.value.aspectRatio,
+              child: CameraPreview(_controller!),
             ),
           ),
 
+          // Scanning UI Overlays
           // Corner bracket overlay
           Center(
             child: SizedBox(
@@ -102,7 +163,7 @@ class _CameraScreenState extends State<CameraScreen> {
                       Container(
                         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                         decoration: BoxDecoration(
-                          color: Colors.white.withValues(alpha: 0.15),
+                          color: Colors.black.withValues(alpha: 0.3),
                           borderRadius: BorderRadius.circular(100),
                         ),
                         child: Row(
@@ -172,8 +233,8 @@ class _CameraScreenState extends State<CameraScreen> {
                       GestureDetector(
                         onTap: _captureFromCamera,
                         child: Container(
-                          width: 72,
-                          height: 72,
+                          width: 76,
+                          height: 76,
                           decoration: BoxDecoration(
                             shape: BoxShape.circle,
                             border: Border.all(color: Colors.white, width: 4),
@@ -187,11 +248,20 @@ class _CameraScreenState extends State<CameraScreen> {
                           ),
                         ),
                       ),
-                      // Flash toggle (placeholder)
+                      // Flash toggle
                       _ActionButton(
-                        icon: Icons.flash_off_outlined,
+                        icon: _controller?.value.flashMode == FlashMode.off 
+                            ? Icons.flash_off_outlined 
+                            : Icons.flash_on_outlined,
                         label: 'Flash',
-                        onTap: () {},
+                        onTap: () async {
+                          if (_controller == null) return;
+                          final newMode = _controller!.value.flashMode == FlashMode.off 
+                              ? FlashMode.torch 
+                              : FlashMode.off;
+                          await _controller!.setFlashMode(newMode);
+                          setState(() {});
+                        },
                       ),
                     ],
                   ),

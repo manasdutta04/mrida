@@ -30,6 +30,7 @@ class MridaApp extends ConsumerWidget {
         Locale('mr'),
       ],
       routerConfig: router,
+      themeMode: ThemeMode.light,
     );
   }
 }

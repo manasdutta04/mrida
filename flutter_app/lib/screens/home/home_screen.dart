@@ -84,66 +84,77 @@ class HomeScreen extends StatelessWidget {
                             Text(
                               'B',
                               style: GoogleFonts.sora(
-                                fontSize: 80,
+                                fontSize: 64, // Reduced slightly to avoid cramped feel
                                 fontWeight: FontWeight.w800,
-                                color: Colors.white.withOpacity(0.9),
+                                color: Colors.white.withValues(alpha: 0.9),
                                 height: 1,
                               ),
                             ),
-                            const SizedBox(width: 24),
-                            Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Text(
-                                  'North Plot',
-                                  style: GoogleFonts.sora(
-                                    fontSize: 20,
-                                    fontWeight: FontWeight.bold,
-                                    color: Colors.white,
+                            const SizedBox(width: 20),
+                            Expanded(
+                              flex: 3,
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Text(
+                                    'North Plot',
+                                    style: GoogleFonts.sora(
+                                      fontSize: 18,
+                                      fontWeight: FontWeight.bold,
+                                      color: Colors.white,
+                                    ),
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
                                   ),
-                                ),
-                                Text(
-                                  '3 days ago',
-                                  style: GoogleFonts.inter(
-                                    fontSize: 14,
-                                    color: Colors.white.withOpacity(0.7),
+                                  Text(
+                                    '3 days ago',
+                                    style: GoogleFonts.inter(
+                                      fontSize: 13,
+                                      color: Colors.white.withValues(alpha: 0.7),
+                                    ),
                                   ),
-                                ),
-                              ],
+                                ],
+                              ),
                             ),
-                            const Spacer(),
-                            Column(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              crossAxisAlignment: CrossAxisAlignment.end,
-                              children: [
-                                Container(
-                                  width: 80,
-                                  height: 6,
-                                  decoration: BoxDecoration(
-                                    color: Colors.white.withOpacity(0.2),
-                                    borderRadius: BorderRadius.circular(100),
-                                  ),
-                                  child: FractionallySizedBox(
-                                    widthFactor: 0.72,
-                                    alignment: Alignment.centerLeft,
-                                    child: Container(
-                                      decoration: BoxDecoration(
-                                        color: Colors.white,
-                                        borderRadius: BorderRadius.circular(100),
+                            const SizedBox(width: 12),
+                            Expanded(
+                              flex: 2,
+                              child: Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                crossAxisAlignment: CrossAxisAlignment.end,
+                                children: [
+                                  Container(
+                                    width: double.infinity,
+                                    height: 4,
+                                    decoration: BoxDecoration(
+                                      color: Colors.white.withValues(alpha: 0.2),
+                                      borderRadius: BorderRadius.circular(100),
+                                    ),
+                                    child: FractionallySizedBox(
+                                      widthFactor: 0.72,
+                                      alignment: Alignment.centerLeft,
+                                      child: Container(
+                                        decoration: BoxDecoration(
+                                          color: Colors.white,
+                                          borderRadius: BorderRadius.circular(100),
+                                        ),
                                       ),
                                     ),
                                   ),
-                                ),
-                                const SizedBox(height: 8),
-                                Text(
-                                  '72% CONFIDENCE',
-                                  style: theme.textTheme.labelMedium?.copyWith(
-                                    color: Colors.white.withOpacity(0.8),
-                                    fontSize: 10,
+                                  const SizedBox(height: 8),
+                                  FittedBox(
+                                    child: Text(
+                                      '72% CONFIDENCE',
+                                      style: theme.textTheme.labelMedium?.copyWith(
+                                        color: Colors.white.withValues(alpha: 0.8),
+                                        fontSize: 9,
+                                        fontWeight: FontWeight.w900,
+                                      ),
+                                    ),
                                   ),
-                                ),
-                              ],
+                                ],
+                              ),
                             ),
                           ],
                         ),

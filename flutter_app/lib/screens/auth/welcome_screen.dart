@@ -25,14 +25,14 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: MridaColors.primary,
+      backgroundColor: MridaColors.surface,
       body: Stack(
         children: [
           // Background Image Layer with Gradient Overlay
           Positioned.fill(
             child: Container(
               decoration: const BoxDecoration(
-                color: MridaColors.primary,
+                color: MridaColors.surface,
               ),
               child: Stack(
                 children: [
@@ -40,7 +40,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                     child: Image.network(
                       _bgUrl,
                       fit: BoxFit.cover,
-                      colorBlendMode: BlendMode.darken,
+                      opacity: const AlwaysStoppedAnimation(0.4), // Fade image for light look
                     ),
                   ),
                   Positioned.fill(
@@ -50,11 +50,11 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                           begin: Alignment.topCenter,
                           end: Alignment.bottomCenter,
                           colors: [
-                            const Color(0xFF0D3B2E).withOpacity(0.2),
-                            const Color(0xFF0D3B2E).withOpacity(0.6),
-                            const Color(0xFF0D3B2E).withOpacity(0.95),
+                            MridaColors.surface.withValues(alpha: 0.2),
+                            MridaColors.surface.withValues(alpha: 0.8),
+                            MridaColors.surface,
                           ],
-                          stops: const [0.0, 0.6, 1.0],
+                          stops: const [0.0, 0.5, 0.8],
                         ),
                       ),
                     ),
@@ -72,7 +72,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                 children: [
                   const Spacer(flex: 3),
                   
-                  // Center Branding (Swapped Hierarchy)
+                  // Center Branding
                   Column(
                     children: [
                       Text(
@@ -80,7 +80,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                         style: GoogleFonts.sora(
                           fontSize: 72,
                           fontWeight: FontWeight.bold,
-                          color: MridaColors.surface,
+                          color: MridaColors.primary,
                           letterSpacing: -2.0,
                           height: 1.1,
                         ),
@@ -92,7 +92,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                         style: GoogleFonts.inter(
                           fontSize: 16,
                           fontWeight: FontWeight.w500,
-                          color: MridaColors.surface.withOpacity(0.8),
+                          color: MridaColors.primary.withValues(alpha: 0.7),
                           letterSpacing: 2.0,
                         ),
                       ),
@@ -107,10 +107,10 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                       ElevatedButton(
                         onPressed: () => context.go('/login'),
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: MridaColors.surface,
-                          foregroundColor: MridaColors.primary,
-                          elevation: 10,
-                          shadowColor: Colors.black.withOpacity(0.3),
+                          backgroundColor: MridaColors.primary,
+                          foregroundColor: MridaColors.surface,
+                          padding: const EdgeInsets.symmetric(horizontal: 48, vertical: 20),
+                          elevation: 0,
                         ),
                         child: const Text('GET STARTED'),
                       ),
