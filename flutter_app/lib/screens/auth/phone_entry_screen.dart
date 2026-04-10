@@ -3,6 +3,7 @@ import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../theme/app_theme.dart';
 import '../../services/auth_service.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 
 class PhoneEntryScreen extends StatefulWidget {
   const PhoneEntryScreen({super.key});
@@ -23,10 +24,7 @@ class _PhoneEntryScreenState extends State<PhoneEntryScreen> {
     return Scaffold(
       backgroundColor: MridaColors.surface,
       appBar: AppBar(
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: MridaColors.primary),
-          onPressed: () => context.pop(),
-        ),
+        automaticallyImplyLeading: false,
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 24),
@@ -118,14 +116,6 @@ class _PhoneEntryScreenState extends State<PhoneEntryScreen> {
             ),
             
             const SizedBox(height: 32),
-            Center(
-              child: Text(
-                'No account needed · Free forever',
-                style: theme.textTheme.bodySmall?.copyWith(
-                  color: MridaColors.onSecondaryContainer.withOpacity(0.6),
-                ),
-              ),
-            ),
             
             const SizedBox(height: 32),
             
@@ -177,10 +167,9 @@ class _PhoneEntryScreenState extends State<PhoneEntryScreen> {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Image.network(
-                    'https://upload.wikimedia.org/wikipedia/commons/c/c1/Google_%22G%22_logo.svg',
-                    height: 24,
-                    errorBuilder: (context, error, stackTrace) => const Icon(Icons.login),
+                  SvgPicture.network(
+                    'https://www.vectorlogo.zone/logos/google/google-icon.svg',
+                    height: 20,
                   ),
                   const SizedBox(width: 12),
                   const Text('CONTINUE WITH GOOGLE'),
