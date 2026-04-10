@@ -127,6 +127,67 @@ class _PhoneEntryScreenState extends State<PhoneEntryScreen> {
               ),
             ),
             
+            const SizedBox(height: 32),
+            
+            // Divider
+            Row(
+              children: [
+                Expanded(child: Divider(color: MridaColors.onSurface.withOpacity(0.1))),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  child: Text(
+                    'OR',
+                    style: GoogleFonts.inter(
+                      fontSize: 12,
+                      fontWeight: FontWeight.w600,
+                      color: MridaColors.onSurface.withOpacity(0.4),
+                      letterSpacing: 1.2,
+                    ),
+                  ),
+                ),
+                Expanded(child: Divider(color: MridaColors.onSurface.withOpacity(0.1))),
+              ],
+            ),
+            
+            const SizedBox(height: 32),
+            
+            // Google Sign-In Button
+            OutlinedButton(
+              onPressed: () async {
+                try {
+                  setState(() => loading = true);
+                  await auth.signInWithGoogle();
+                  if (context.mounted) context.go('/home');
+                } catch (e) {
+                  setState(() => loading = false);
+                  if (context.mounted) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(content: Text(e.toString())),
+                    );
+                  }
+                }
+              },
+              style: OutlinedButton.styleFrom(
+                backgroundColor: Colors.white,
+                foregroundColor: MridaColors.onSurface,
+                side: BorderSide(color: MridaColors.onSurface.withOpacity(0.1)),
+                elevation: 2,
+                shadowColor: Colors.black.withOpacity(0.05),
+              ),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Image.network(
+                    'https://upload.wikimedia.org/wikipedia/commons/c/c1/Google_%22G%22_logo.svg',
+                    height: 24,
+                    errorBuilder: (context, error, stackTrace) => const Icon(Icons.login),
+                  ),
+                  const SizedBox(width: 12),
+                  const Text('CONTINUE WITH GOOGLE'),
+                ],
+              ),
+            ),
+            
             // Brand Vignette
             const SizedBox(height: 64),
             Center(
