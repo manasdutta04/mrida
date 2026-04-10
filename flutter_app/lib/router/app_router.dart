@@ -55,7 +55,7 @@ final appRouterProvider = Provider<GoRouter>((ref) {
             backgroundColor: MridaColors.surface,
             body: Column(
               children: [
-                const SafeArea(bottom: false, child: UniversalAppBar()),
+                UniversalAppBar(),
                 Expanded(child: navigationShell),
               ],
             ),

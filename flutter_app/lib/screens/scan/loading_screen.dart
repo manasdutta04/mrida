@@ -1,7 +1,11 @@
 import 'dart:async';
 import 'dart:math' as math;
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import '../../models/scan_result.dart';
+import '../../models/soil_grade.dart';
 import '../../theme/app_theme.dart';
 
 /// Shown during AI analysis. Cycles through progressive messages
@@ -31,14 +35,19 @@ class _LoadingScreenState extends State<LoadingScreen>
   void initState() {
     super.initState();
 
-    // Message cycling
-    _timer = Timer.periodic(const Duration(seconds: 2), (_) {
-      if (mounted) {
-        setState(() => _messageIndex = (_messageIndex + 1) % _messages.length);
+    // Message cycling + Navigation trigger
+    _timer = Timer.periodic(const Duration(seconds: 2), (timer) {
+      if (!mounted) return;
+
+      if (_messageIndex < _messages.length - 1) {
+        setState(() => _messageIndex++);
+      } else {
+        timer.cancel();
+        _navigateToResult();
       }
     });
 
-    // Pulse animation
+    // ... existing pulse/rotate controllers ...
     _pulseController = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 1500),
@@ -52,6 +61,46 @@ class _LoadingScreenState extends State<LoadingScreen>
       vsync: this,
       duration: const Duration(seconds: 4),
     )..repeat();
+  }
+
+  void _navigateToResult() {
+    // Generate a high-quality mock result for the demo
+    final mockResult = ScanResult(
+      scanId: 'demo-${DateTime.now().millisecondsSinceEpoch}',
+      fieldId: 'North Plot',
+      userId: 'demo-user',
+      imageUrl: '',
+      grade: SoilGrade.a,
+      npk: const NPKEstimate(
+        nitrogen: 'High',
+        phosphorus: 'Medium',
+        potassium: 'High',
+        nitrogenRaw: '185 kg/ha',
+        phosphorusRaw: '42 kg/ha',
+        potassiumRaw: '290 kg/ha',
+      ),
+      ph: const PHRange(
+        min: 6.5,
+        max: 7.2,
+        interpretation: 'Ideal neutral range — excellent for cereal crops.',
+      ),
+      deficiencies: ['Zinc', 'Boron'],
+      prescriptionText: 'Apply 110 kg/ha Urea in three splits. Use 50 kg/ha DAP as basal. For micronutrients, apply 20 kg/ha Zinc Sulphate due to visible deficiency signs in soil texture.',
+      prescriptionAudio: 'Soil health is good. Apply Urea in three doses and use DAP at sowing. Add Zinc Sulphate to correct minor deficiencies.',
+      confidenceScore: 0.88,
+      signals: const SoilSignals(
+        colorDescription: 'Dark Chrome Brown (7.5YR 3/2)',
+        textureObservation: 'Fine granular with good crumb structure',
+        crackPattern: 'No significant surface cracking',
+        moistureLevel: 'Optimal field capacity',
+        organicMatterHint: 'High (3.5% estimated)',
+      ),
+      languageCode: 'en',
+      location: const GeoPoint(28.6139, 77.2090),
+      scannedAt: DateTime.now(),
+    );
+
+    context.go('/scan/result', extra: mockResult);
   }
 
   @override

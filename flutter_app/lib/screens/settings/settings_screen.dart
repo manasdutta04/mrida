@@ -10,11 +10,12 @@ class SettingsScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: MridaColors.surface,
+      appBar: UniversalAppBar(title: 'PREFERENCES', showSettings: false),
       body: SingleChildScrollView(
-        padding: const EdgeInsets.fromLTRB(24, 24, 24, 120),
+        padding: const EdgeInsets.fromLTRB(24, 0, 24, 120),
         child: Column(
           children: [
-            _buildSectionHeader('PREFERENCES'),
+            const SizedBox(height: 24),
             const SizedBox(height: 12),
             _buildSettingsGroup([
               _buildSettingsTile(Icons.language, 'Language', trailing: 'Hindi (IN)'),

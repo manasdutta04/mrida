@@ -16,17 +16,9 @@ class _AddFieldScreenState extends State<AddFieldScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: MridaColors.surface,
-      appBar: AppBar(
-        backgroundColor: MridaColors.surface,
-        elevation: 0,
-        title: Text(
-          'Register New Field',
-          style: GoogleFonts.sora(
-            fontWeight: FontWeight.bold,
-            fontSize: 18,
-            color: MridaColors.onSurface,
-          ),
-        ),
+      appBar: UniversalAppBar(
+        title: 'NEW FIELD',
+        showSettings: false,
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(24),
