@@ -15,6 +15,7 @@ import '../screens/scan/loading_screen.dart';
 import '../screens/scan/result_screen.dart';
 import '../screens/profile/profile_screen.dart';
 import '../screens/map/field_map_screen.dart';
+import '../screens/settings/settings_screen.dart';
 import '../widgets/modern_nav_bar.dart';
 import '../widgets/universal_app_bar.dart';
 
@@ -97,6 +98,8 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         path: '/scan/result',
         builder: (_, state) => ResultScreen(result: state.extra as ScanResult?),
       ),
+
+      GoRoute(path: '/settings', builder: (_, __) => const SettingsScreen()),
 
       GoRoute(
         path: '/field/:fieldId',

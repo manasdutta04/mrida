@@ -35,8 +35,7 @@ class UniversalAppBar extends StatelessWidget implements PreferredSizeWidget {
         IconButton(
           icon: const Icon(Icons.settings_outlined, color: MridaColors.primary),
           onPressed: () {
-            // For now, settings opens the profile tab
-            GoRouter.of(context).go('/profile');
+            context.push('/settings');
           },
         ),
         const SizedBox(width: 8),

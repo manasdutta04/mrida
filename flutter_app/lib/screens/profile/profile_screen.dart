@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../theme/app_theme.dart';
 
@@ -11,10 +10,9 @@ class ProfileScreen extends StatelessWidget {
     return Scaffold(
       backgroundColor: MridaColors.surface,
       body: SingleChildScrollView(
-        padding: const EdgeInsets.fromLTRB(24, 0, 24, 120),
+        padding: const EdgeInsets.fromLTRB(24, 24, 24, 120),
         child: Column(
           children: [
-            const SizedBox(height: 24),
             // User Avatar & Name
             Center(
               child: Column(
@@ -60,16 +58,6 @@ class ProfileScreen extends StatelessWidget {
                       fontWeight: FontWeight.w500,
                     ),
                   ),
-                  TextButton(
-                    onPressed: () {},
-                    child: Text(
-                      'Edit profile details',
-                      style: GoogleFonts.inter(
-                        fontWeight: FontWeight.w700,
-                        color: MridaColors.primary,
-                      ),
-                    ),
-                  ),
                 ],
               ),
             ),
@@ -87,52 +75,70 @@ class ProfileScreen extends StatelessWidget {
             ),
             const SizedBox(height: 40),
 
-            // Settings sections
-            _buildSectionHeader('PREFERENCES'),
-            const SizedBox(height: 12),
-            _buildSettingsGroup([
-              _buildSettingsTile(Icons.language, 'Language', trailing: 'Hindi (IN)'),
-              _buildSettingsTile(Icons.notifications_none, 'Notifications', hasSwitch: true),
-              _buildSettingsTile(Icons.eco_outlined, 'Default Crop', trailing: 'Rice (Paddy)'),
-            ]),
-            const SizedBox(height: 32),
-
+            // My Farm Section
             _buildSectionHeader('MY FARM'),
             const SizedBox(height: 12),
             _buildSettingsGroup([
               _buildSettingsTile(Icons.map_outlined, 'Manage Fields', hasChevron: true),
               _buildSettingsTile(Icons.history, 'Full Scan History', hasChevron: true),
+              _buildSettingsTile(Icons.assignment_outlined, 'Activity Reports', hasChevron: true),
             ]),
             const SizedBox(height: 32),
 
-            _buildSectionHeader('SUPPORT'),
+            // Achievements Section
+            _buildSectionHeader('ACHIEVEMENTS'),
             const SizedBox(height: 12),
-            _buildSettingsGroup([
-              _buildSettingsTile(Icons.info_outline, 'About MRIDA', hasChevron: true),
-              _buildSettingsTile(Icons.star_outline, 'Rate the App', hasChevron: true),
-            ]),
+            SizedBox(
+              height: 120,
+              child: ListView(
+                scrollDirection: Axis.horizontal,
+                children: [
+                  _buildAchievementCard(Icons.verified_outlined, 'Soil Guardian', '10 Scans'),
+                  const SizedBox(width: 12),
+                  _buildAchievementCard(Icons.eco_outlined, 'Eco Mapper', '3 Fields'),
+                  const SizedBox(width: 12),
+                  _buildAchievementCard(Icons.workspace_premium_outlined, 'Pro Farmer', '1 mo streak'),
+                ],
+              ),
+            ),
             const SizedBox(height: 48),
 
-            // Sign Out
+            // Edit Profile Button
             SizedBox(
               width: double.infinity,
-              child: TextButton(
-                onPressed: () => context.go('/welcome'),
-                style: TextButton.styleFrom(
-                  foregroundColor: MridaColors.gradeD,
-                  padding: const EdgeInsets.symmetric(vertical: 16),
+              child: OutlinedButton(
+                onPressed: () {},
+                style: OutlinedButton.styleFrom(
+                  minimumSize: const Size(double.infinity, 56),
+                  side: BorderSide(color: MridaColors.primary.withValues(alpha: 0.1), width: 2),
                 ),
-                child: Text(
-                  'Sign Out',
-                  style: GoogleFonts.inter(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w700,
-                  ),
-                ),
+                child: const Text('EDIT PROFILE DETAILS'),
               ),
             ),
           ],
         ),
+      ),
+    );
+  }
+
+  Widget _buildAchievementCard(IconData icon, String title, String subtitle) {
+    return Container(
+      width: 130,
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: MridaColors.surfaceContainerLow,
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: MridaColors.outlineVariant.withValues(alpha: 0.2)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(icon, color: MridaColors.primary, size: 24),
+          const Spacer(),
+          Text(title, style: GoogleFonts.sora(fontSize: 12, fontWeight: FontWeight.bold)),
+          Text(subtitle, style: GoogleFonts.inter(fontSize: 10, color: MridaColors.onSurfaceVariant)),
+        ],
       ),
     );
   }
