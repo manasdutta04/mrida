@@ -8,80 +8,86 @@ class ProfileScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    
-    return Column(
-      children: [
-        AppBar(
-          leading: IconButton(
-            icon: const Icon(Icons.menu, color: MridaColors.primary),
-            onPressed: () {},
+    return Scaffold(
+      backgroundColor: MridaColors.surface,
+      appBar: AppBar(
+        title: Text(
+          'Profile',
+          style: GoogleFonts.sora(
+            fontWeight: FontWeight.w700,
+            fontSize: 20,
+            color: MridaColors.primary,
           ),
-          title: Text(
-            'MRIDA',
-            style: GoogleFonts.sora(
-              fontWeight: FontWeight.w900,
-              letterSpacing: -1.5,
-              fontSize: 24,
-              color: MridaColors.primary,
-            ),
-          ),
-          actions: [
-            Container(
-              width: 40,
-              height: 40,
-              decoration: const BoxDecoration(
-                color: MridaColors.primary,
-                shape: BoxShape.circle,
-              ),
-              alignment: Alignment.center,
-              child: const Text('RK', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 12)),
-            ),
-            const SizedBox(width: 16),
-          ],
         ),
-        Expanded(
-          child: SingleChildScrollView(
-            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 32),
-            child: Column(
+        backgroundColor: MridaColors.surface,
+        elevation: 0,
+      ),
+      body: SingleChildScrollView(
+        padding: const EdgeInsets.fromLTRB(24, 0, 24, 120),
+        child: Column(
           children: [
-            // Profile Hero
-            Column(
-              children: [
-                Container(
-                  width: 96,
-                  height: 96,
-                  decoration: BoxDecoration(
-                    color: MridaColors.primary,
-                    shape: BoxShape.circle,
-                    boxShadow: [
-                      BoxShadow(color: MridaColors.primary.withOpacity(0.2), blurRadius: 20, offset: const Offset(0, 10)),
-                    ],
+            const SizedBox(height: 24),
+            // User Avatar & Name
+            Center(
+              child: Column(
+                children: [
+                  Container(
+                    width: 96,
+                    height: 96,
+                    decoration: BoxDecoration(
+                      color: MridaColors.primary,
+                      shape: BoxShape.circle,
+                      boxShadow: [
+                        BoxShadow(
+                          color: MridaColors.primary.withValues(alpha: 0.2),
+                          blurRadius: 20,
+                          offset: const Offset(0, 10),
+                        ),
+                      ],
+                    ),
+                    alignment: Alignment.center,
+                    child: Text(
+                      'RK',
+                      style: GoogleFonts.sora(
+                        fontSize: 32,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white,
+                      ),
+                    ),
                   ),
-                  alignment: Alignment.center,
-                  child: Text(
-                    'RK',
-                    style: GoogleFonts.sora(fontSize: 32, fontWeight: FontWeight.bold, color: Colors.white),
+                  const SizedBox(height: 16),
+                  Text(
+                    'Rajan Kumar',
+                    style: GoogleFonts.sora(
+                      fontSize: 24,
+                      fontWeight: FontWeight.w800,
+                      color: MridaColors.onSurface,
+                    ),
                   ),
-                ),
-                const SizedBox(height: 16),
-                const Text(
-                  'Rajan Kumar',
-                  style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-                ),
-                const Text(
-                  '+91 98765 43210',
-                  style: TextStyle(color: MridaColors.secondary, fontWeight: FontWeight.w500),
-                ),
-                TextButton(
-                  onPressed: () {},
-                  child: const Text('Edit Profile', style: TextStyle(fontWeight: FontWeight.bold)),
-                ),
-              ],
+                  Text(
+                    '+91 98765 43210',
+                    style: GoogleFonts.inter(
+                      fontSize: 14,
+                      color: MridaColors.onSurfaceVariant,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                  TextButton(
+                    onPressed: () {},
+                    child: Text(
+                      'Edit profile details',
+                      style: GoogleFonts.inter(
+                        fontWeight: FontWeight.w700,
+                        color: MridaColors.primary,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
             ),
-            const SizedBox(height: 48),
-            
-            // Stats Grid
+            const SizedBox(height: 32),
+
+            // Stats row
             Row(
               children: [
                 _buildStatCard('12', 'SCANS'),
@@ -91,79 +97,57 @@ class ProfileScreen extends StatelessWidget {
                 _buildStatCard('4', 'CROPS'),
               ],
             ),
-            const SizedBox(height: 48),
-            
-            // Preferences Group
-            _buildGroupHeader('PREFERENCES'),
-            const SizedBox(height: 16),
-            Container(
-              decoration: BoxDecoration(
-                color: MridaColors.surfaceContainerLow,
-                borderRadius: BorderRadius.circular(16),
-              ),
-              child: Column(
-                children: [
-                  _buildListTile(Icons.language, 'Language', trailing: 'Hindi'),
-                  _buildListTile(Icons.notifications_none, 'Notifications', hasSwitch: true),
-                  _buildListTile(Icons.eco_outlined, 'Default Crop', trailing: 'Wheat', isLast: true),
-                ],
-              ),
-            ),
+            const SizedBox(height: 40),
+
+            // Settings sections
+            _buildSectionHeader('PREFERENCES'),
+            const SizedBox(height: 12),
+            _buildSettingsGroup([
+              _buildSettingsTile(Icons.language, 'Language', trailing: 'Hindi (IN)'),
+              _buildSettingsTile(Icons.notifications_none, 'Notifications', hasSwitch: true),
+              _buildSettingsTile(Icons.eco_outlined, 'Default Crop', trailing: 'Rice (Paddy)'),
+            ]),
             const SizedBox(height: 32),
-            
-            // My Farm Group
-            _buildGroupHeader('MY FARM'),
-            const SizedBox(height: 16),
-            Container(
-              decoration: BoxDecoration(
-                color: MridaColors.surfaceContainerLow,
-                borderRadius: BorderRadius.circular(16),
-              ),
-              child: Column(
-                children: [
-                  _buildListTile(Icons.map_outlined, 'Manage Fields', hasChevron: true),
-                  _buildListTile(Icons.history, 'Scan History', hasChevron: true, isLast: true),
-                ],
-              ),
-            ),
+
+            _buildSectionHeader('MY FARM'),
+            const SizedBox(height: 12),
+            _buildSettingsGroup([
+              _buildSettingsTile(Icons.map_outlined, 'Manage Fields', hasChevron: true),
+              _buildSettingsTile(Icons.history, 'Full Scan History', hasChevron: true),
+            ]),
             const SizedBox(height: 32),
-            
-            // Support Group
-            _buildGroupHeader('SUPPORT'),
-            const SizedBox(height: 16),
-            Container(
-              decoration: BoxDecoration(
-                color: MridaColors.surfaceContainerLow,
-                borderRadius: BorderRadius.circular(16),
-              ),
-              child: Column(
-                children: [
-                  _buildListTile(Icons.info_outline, 'About', hasChevron: true),
-                  _buildListTile(Icons.security_outlined, 'Privacy Policy', hasChevron: true),
-                  _buildListTile(Icons.star_outline, 'Rate App', hasChevron: true, isLast: true),
-                ],
-              ),
-            ),
+
+            _buildSectionHeader('SUPPORT'),
+            const SizedBox(height: 12),
+            _buildSettingsGroup([
+              _buildSettingsTile(Icons.info_outline, 'About MRIDA', hasChevron: true),
+              _buildSettingsTile(Icons.star_outline, 'Rate the App', hasChevron: true),
+            ]),
             const SizedBox(height: 48),
-            
+
             // Sign Out
-            ElevatedButton.icon(
-              onPressed: () => context.go('/welcome'),
-              icon: const Icon(Icons.logout),
-              label: const Text('SIGN OUT'),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: MridaColors.errorContainer,
-                foregroundColor: MridaColors.error,
+            SizedBox(
+              width: double.infinity,
+              child: TextButton(
+                onPressed: () => context.go('/welcome'),
+                style: TextButton.styleFrom(
+                  foregroundColor: MridaColors.gradeD,
+                  padding: const EdgeInsets.symmetric(vertical: 16),
+                ),
+                child: Text(
+                  'Sign Out',
+                  style: GoogleFonts.inter(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
               ),
             ),
-            const SizedBox(height: 120),
-            ],
-          ),
+          ],
         ),
       ),
-    ],
-  );
-}
+    );
+  }
 
   Widget _buildStatCard(String value, String label) {
     return Expanded(
@@ -171,52 +155,114 @@ class ProfileScreen extends StatelessWidget {
         padding: const EdgeInsets.symmetric(vertical: 24),
         decoration: BoxDecoration(
           color: Colors.white,
-          borderRadius: BorderRadius.circular(16),
+          borderRadius: BorderRadius.circular(20),
           boxShadow: [
-            BoxShadow(color: Colors.black.withOpacity(0.02), blurRadius: 20, offset: const Offset(0, 10)),
+            BoxShadow(
+              color: Colors.black.withValues(alpha: 0.03),
+              offset: const Offset(0, 4),
+              blurRadius: 20,
+            ),
           ],
         ),
         child: Column(
           children: [
-            Text(value, style: GoogleFonts.sora(fontSize: 24, fontWeight: FontWeight.bold, color: MridaColors.primary)),
-            Text(label, style: GoogleFonts.inter(fontSize: 10, fontWeight: FontWeight.bold, letterSpacing: 1.0, color: MridaColors.secondary)),
+            Text(
+              value,
+              style: GoogleFonts.sora(
+                fontSize: 24,
+                fontWeight: FontWeight.w800,
+                color: MridaColors.primary,
+              ),
+            ),
+            Text(
+              label,
+              style: GoogleFonts.inter(
+                fontSize: 10,
+                fontWeight: FontWeight.w800,
+                letterSpacing: 1.0,
+                color: MridaColors.onSurfaceVariant,
+              ),
+            ),
           ],
         ),
       ),
     );
   }
 
-  Widget _buildGroupHeader(String title) {
+  Widget _buildSectionHeader(String title) {
     return Align(
       alignment: Alignment.centerLeft,
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 8),
-        child: Text(
-          title,
-          style: GoogleFonts.inter(fontSize: 11, fontWeight: FontWeight.bold, letterSpacing: 2.0, color: MridaColors.onSurfaceVariant),
+      child: Text(
+        title,
+        style: GoogleFonts.inter(
+          fontSize: 11,
+          fontWeight: FontWeight.w800,
+          letterSpacing: 2.0,
+          color: MridaColors.onSurfaceVariant,
         ),
       ),
     );
   }
 
-  Widget _buildListTile(IconData icon, String title, {String? trailing, bool hasSwitch = false, bool hasChevron = false, bool isLast = false}) {
+  Widget _buildSettingsGroup(List<Widget> children) {
     return Container(
-      height: 60,
       decoration: BoxDecoration(
-        border: isLast ? null : Border(bottom: BorderSide(color: MridaColors.outlineVariant.withOpacity(0.1))),
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(20),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.02),
+            offset: const Offset(0, 2),
+            blurRadius: 10,
+          ),
+        ],
       ),
-      child: ListTile(
-        leading: Icon(icon, color: MridaColors.primary),
-        title: Text(title, style: const TextStyle(fontWeight: FontWeight.w500)),
-        trailing: hasSwitch 
-          ? Switch(value: true, onChanged: (_) {}, activeColor: MridaColors.primary)
-          : Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                if (trailing != null) Text(trailing, style: const TextStyle(fontWeight: FontWeight.bold, color: MridaColors.onSurfaceVariant, fontSize: 13)),
-                if (hasChevron) const Icon(Icons.chevron_right, color: MridaColors.outlineVariant),
-              ],
+      child: Column(children: children),
+    );
+  }
+
+  Widget _buildSettingsTile(
+    IconData icon,
+    String title, {
+    String? trailing,
+    bool hasSwitch = false,
+    bool hasChevron = false,
+  }) {
+    return Container(
+      height: 56, // 56px tap height as requested
+      padding: const EdgeInsets.symmetric(horizontal: 16),
+      child: Row(
+        children: [
+          Icon(icon, color: MridaColors.primary, size: 22),
+          const SizedBox(width: 16),
+          Expanded(
+            child: Text(
+              title,
+              style: GoogleFonts.inter(
+                fontSize: 15,
+                fontWeight: FontWeight.w600,
+                color: MridaColors.onSurface,
+              ),
             ),
+          ),
+          if (trailing != null)
+            Text(
+              trailing,
+              style: GoogleFonts.inter(
+                fontSize: 13,
+                fontWeight: FontWeight.w700,
+                color: MridaColors.primary,
+              ),
+            ),
+          if (hasSwitch)
+            Switch(
+              value: true,
+              onChanged: (_) {},
+              activeColor: MridaColors.primary,
+            ),
+          if (hasChevron)
+            const Icon(Icons.chevron_right, color: MridaColors.outlineVariant),
+        ],
       ),
     );
   }

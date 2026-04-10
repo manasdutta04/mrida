@@ -38,16 +38,30 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       GoRoute(path: '/welcome', builder: (_, __) => const WelcomeScreen()),
       GoRoute(path: '/login', builder: (_, __) => const PhoneEntryScreen()),
       
-      // Universal Navigation Shell
+      // Universal Navigation Shell (4 persistent tabs)
       StatefulShellRoute.indexedStack(
         builder: (context, state, navigationShell) {
+          // Map shell index to navbar index
+          int getNavIndex(int shellIndex) {
+            if (shellIndex < 2) return shellIndex;
+            return shellIndex + 1; // Skip index 2 (Scan)
+          }
+
           return Scaffold(
-            backgroundColor: const Color(0xFFF8FBF9), // Consistent Mrida surface
+            backgroundColor: const Color(0xFFF8FBF9),
             body: navigationShell,
             extendBody: true,
             bottomNavigationBar: ModernNavBar(
-              activeIndex: navigationShell.currentIndex,
-              onItemSelected: (index) => navigationShell.goBranch(index),
+              activeIndex: getNavIndex(navigationShell.currentIndex),
+              onItemSelected: (index) {
+                if (index == 2) {
+                  context.push('/scan/camera');
+                } else {
+                  // Map navbar index to shell index
+                  int shellIndex = index > 2 ? index - 1 : index;
+                  navigationShell.goBranch(shellIndex);
+                }
+              },
             ),
           );
         },
@@ -59,9 +73,6 @@ final appRouterProvider = Provider<GoRouter>((ref) {
             routes: [GoRoute(path: '/history', builder: (_, __) => const HistoryScreen())],
           ),
           StatefulShellBranch(
-            routes: [GoRoute(path: '/scan/camera', builder: (_, __) => const CameraScreen())],
-          ),
-          StatefulShellBranch(
             routes: [GoRoute(path: '/map', builder: (_, __) => const FieldMapScreen())],
           ),
           StatefulShellBranch(
@@ -70,12 +81,14 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         ],
       ),
       
-      // Secondary routes (outside shell if needed, or inside if they need nav)
+      // Full-screen Scan Flow (outside shell)
+      GoRoute(path: '/scan/camera', builder: (_, __) => const CameraScreen()),
       GoRoute(path: '/scan/loading', builder: (_, __) => const LoadingScreen()),
       GoRoute(
         path: '/scan/result',
         builder: (_, state) => ResultScreen(result: state.extra as ScanResult?),
       ),
+
       GoRoute(
         path: '/field/:fieldId',
         builder: (_, state) =>

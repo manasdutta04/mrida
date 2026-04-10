@@ -30,13 +30,15 @@ class _ModernNavBarState extends State<ModernNavBar> with TickerProviderStateMix
         duration: const Duration(milliseconds: 600),
       ),
     );
-    _bounceControllers[widget.activeIndex].forward();
+    if (widget.activeIndex < 5) {
+      _bounceControllers[widget.activeIndex].forward();
+    }
   }
 
   @override
   void didUpdateWidget(ModernNavBar oldWidget) {
     super.didUpdateWidget(oldWidget);
-    if (oldWidget.activeIndex != widget.activeIndex) {
+    if (oldWidget.activeIndex != widget.activeIndex && widget.activeIndex < 5) {
       _bounceControllers[widget.activeIndex].forward(from: 0);
     }
   }
@@ -54,57 +56,44 @@ class _ModernNavBarState extends State<ModernNavBar> with TickerProviderStateMix
     return SafeArea(
       top: false,
       child: Container(
-        height: 100, // Fixed height for the dock + FAB overlap
+        height: 88,
         padding: const EdgeInsets.symmetric(horizontal: 16),
         alignment: Alignment.bottomCenter,
-        child: Stack(
-          alignment: Alignment.bottomCenter,
-          clipBehavior: Clip.none,
-          children: [
-            // Floating Glassmorphism Dock
-            Padding(
-              padding: const EdgeInsets.only(bottom: 12),
-              child: ClipRRect(
-                borderRadius: BorderRadius.circular(24),
-                child: BackdropFilter(
-                  filter: ImageFilter.blur(sigmaX: 20, sigmaY: 20),
-                  child: Container(
-                    height: 64, // The actual dock body height
-                    decoration: BoxDecoration(
-                      color: MridaColors.surface.withOpacity(0.15),
-                      borderRadius: BorderRadius.circular(24),
-                      border: Border.all(
-                        color: Colors.white.withOpacity(0.1),
-                        width: 1,
-                      ),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black.withOpacity(0.12),
-                          offset: const Offset(0, 10),
-                          blurRadius: 30,
-                        ),
-                      ],
-                    ),
-                    child: Row(
-                      children: [
-                        Expanded(child: _buildNavItem(0, Icons.home_filled, 'HOME')),
-                        Expanded(child: _buildNavItem(1, Icons.history, 'HISTORY')),
-                        const Expanded(child: SizedBox()), // Space for FAB
-                        Expanded(child: _buildNavItem(3, Icons.map_outlined, 'MAP')),
-                        Expanded(child: _buildNavItem(4, Icons.person_outline, 'PROFILE')),
-                      ],
-                    ),
+        child: Padding(
+          padding: const EdgeInsets.only(bottom: 12),
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(24),
+            child: BackdropFilter(
+              filter: ImageFilter.blur(sigmaX: 20, sigmaY: 20),
+              child: Container(
+                height: 68,
+                decoration: BoxDecoration(
+                  color: MridaColors.surface.withValues(alpha: 0.15),
+                  borderRadius: BorderRadius.circular(24),
+                  border: Border.all(
+                    color: Colors.white.withValues(alpha: 0.1),
+                    width: 1,
                   ),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withValues(alpha: 0.12),
+                      offset: const Offset(0, 10),
+                      blurRadius: 30,
+                    ),
+                  ],
+                ),
+                child: Row(
+                  children: [
+                    Expanded(child: _buildNavItem(0, Icons.home_filled, 'HOME')),
+                    Expanded(child: _buildNavItem(1, Icons.history, 'HISTORY')),
+                    Expanded(child: _buildCenterItem(2)),
+                    Expanded(child: _buildNavItem(3, Icons.map_outlined, 'MAP')),
+                    Expanded(child: _buildNavItem(4, Icons.person_outline, 'PROFILE')),
+                  ],
                 ),
               ),
             ),
-            
-            // Floating FAB (Symmetricly placed in the center)
-            Positioned(
-              bottom: 28, // Pushed up from the bottom of the stack
-              child: _buildCenterFAB(2),
-            ),
-          ],
+          ),
         ),
       ),
     );
@@ -112,7 +101,9 @@ class _ModernNavBarState extends State<ModernNavBar> with TickerProviderStateMix
 
   Widget _buildNavItem(int index, IconData icon, String label) {
     final isActive = widget.activeIndex == index;
-    final color = isActive ? MridaColors.primary : MridaColors.primary.withOpacity(0.3);
+    final color = isActive
+        ? MridaColors.primary
+        : MridaColors.primary.withValues(alpha: 0.3);
 
     return InkWell(
       onTap: () => widget.onItemSelected(index),
@@ -143,15 +134,15 @@ class _ModernNavBarState extends State<ModernNavBar> with TickerProviderStateMix
               ),
             ),
           ),
-          const SizedBox(height: 6),
-          // Precise active indicator
+          const SizedBox(height: 5),
+          // Active indicator dot
           AnimatedContainer(
             duration: const Duration(milliseconds: 300),
-            width: isActive ? 12 : 0,
-            height: 2.5,
+            width: isActive ? 5 : 0,
+            height: isActive ? 5 : 0,
             decoration: BoxDecoration(
               color: MridaColors.primary,
-              borderRadius: BorderRadius.circular(100),
+              shape: BoxShape.circle,
             ),
           ),
         ],
@@ -159,36 +150,45 @@ class _ModernNavBarState extends State<ModernNavBar> with TickerProviderStateMix
     );
   }
 
-  Widget _buildCenterFAB(int index) {
+  /// Center "+" button — same level as other items, not elevated.
+  Widget _buildCenterItem(int index) {
     return InkWell(
       onTap: () => widget.onItemSelected(index),
       splashColor: Colors.transparent,
       highlightColor: Colors.transparent,
-      child: Container(
-        alignment: Alignment.center,
-        child: Transform.translate(
-          offset: const Offset(0, -26),
-          child: Container(
-            width: 60,
-            height: 60,
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Container(
+            width: 44,
+            height: 44,
             decoration: BoxDecoration(
               color: MridaColors.primary,
               shape: BoxShape.circle,
               boxShadow: [
                 BoxShadow(
-                  color: MridaColors.primary.withOpacity(0.3),
-                  offset: const Offset(0, 10),
-                  blurRadius: 20,
+                  color: MridaColors.primary.withValues(alpha: 0.25),
+                  offset: const Offset(0, 4),
+                  blurRadius: 12,
                 ),
               ],
-              border: Border.all(
-                color: MridaColors.surface.withOpacity(0.6),
-                width: 3,
+            ),
+            child: const Icon(Icons.add_rounded, color: Colors.white, size: 26),
+          ),
+          const SizedBox(height: 4),
+          FittedBox(
+            child: Text(
+              'SCAN',
+              style: GoogleFonts.inter(
+                fontSize: 9,
+                fontWeight: FontWeight.w900,
+                letterSpacing: 1.0,
+                color: MridaColors.primary,
               ),
             ),
-            child: const Icon(Icons.add_rounded, color: Colors.white, size: 32),
           ),
-        ),
+        ],
       ),
     );
   }
