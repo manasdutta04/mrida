@@ -136,6 +136,8 @@ class HistoryScreen extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 120),
+            ],
+          ),
         ),
       ],
     );

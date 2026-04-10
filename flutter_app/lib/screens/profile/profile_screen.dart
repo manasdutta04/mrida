@@ -156,12 +156,12 @@ class ProfileScreen extends StatelessWidget {
                 foregroundColor: MridaColors.error,
               ),
             ),
-          ],
+            ],
+          ),
         ),
       ),
-    ),
-  ],
-);
+    ],
+  );
 }
 
   Widget _buildStatCard(String value, String label) {
