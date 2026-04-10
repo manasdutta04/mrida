@@ -70,59 +70,30 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
               padding: const EdgeInsets.symmetric(horizontal: 32.0),
               child: Column(
                 children: [
-                  // Top Bar
-                  Align(
-                    alignment: Alignment.centerRight,
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 24.0),
-                      child: ClipRRect(
-                        borderRadius: BorderRadius.circular(100),
-                        child: BackdropFilter(
-                          filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
-                          child: Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                            decoration: BoxDecoration(
-                              color: Colors.white.withOpacity(0.1),
-                              borderRadius: BorderRadius.circular(100),
-                              border: Border.all(color: Colors.white.withOpacity(0.2)),
-                            ),
-                            child: Text(
-                              'ENGLISH',
-                              style: GoogleFonts.inter(
-                                fontSize: 10,
-                                fontWeight: FontWeight.bold,
-                                letterSpacing: 1.5,
-                                color: MridaColors.surface,
-                              ),
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
-                  
                   const Spacer(flex: 3),
                   
-                  // Center Branding (Matching Stitch EXACTLY)
+                  // Center Branding (Swapped Hierarchy)
                   Column(
                     children: [
                       Text(
                         'मृदा',
-                        style: GoogleFonts.inter(
-                          fontSize: 18,
-                          fontWeight: FontWeight.w500,
-                          color: MridaColors.surface.withOpacity(0.8),
-                          letterSpacing: -0.45,
-                        ),
-                      ),
-                      const SizedBox(height: 8),
-                      Text(
-                        'Know Your Soil',
                         style: GoogleFonts.sora(
-                          fontSize: 48, // Large impact as per user request
+                          fontSize: 72,
                           fontWeight: FontWeight.bold,
                           color: MridaColors.surface,
                           letterSpacing: -2.0,
+                          height: 1.1,
+                        ),
+                        textAlign: TextAlign.center,
+                      ),
+                      const SizedBox(height: 12),
+                      Text(
+                        'Know Your Soil',
+                        style: GoogleFonts.inter(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w500,
+                          color: MridaColors.surface.withOpacity(0.8),
+                          letterSpacing: 2.0,
                         ),
                       ),
                     ],
