@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:google_fonts/google_fonts.dart';
 import '../../theme/app_theme.dart';
 import '../../services/auth_service.dart';
 
@@ -11,141 +12,142 @@ class PhoneEntryScreen extends StatefulWidget {
 }
 
 class _PhoneEntryScreenState extends State<PhoneEntryScreen> {
-  final _phoneController = TextEditingController();
-  final _emailController = TextEditingController();
-  final _passwordController = TextEditingController();
-  final _auth = AuthService();
+  final controller = TextEditingController();
+  final auth = AuthService();
   bool loading = false;
-  bool isEmailMode = false;
-
-  Future<void> _showError(Object error) async {
-    if (!mounted) return;
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(error.toString())),
-    );
-  }
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    
     return Scaffold(
       backgroundColor: MridaColors.surface,
       appBar: AppBar(
-        title: const Text('LOGIN'),
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-        titleTextStyle: theme.textTheme.labelLarge?.copyWith(
-          letterSpacing: 2.0,
-          color: MridaColors.textSecondary,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back, color: MridaColors.primary),
+          onPressed: () => context.pop(),
         ),
       ),
       body: SingleChildScrollView(
-        padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 24),
+        padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 24),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            const SizedBox(height: 12),
             Text(
-              'Welcome back.',
+              'Enter your number',
               style: theme.textTheme.displayMedium,
             ),
-            const SizedBox(height: 8),
+            const SizedBox(height: 12),
             Text(
-              'Securely access your soil digital archive.',
-              style: theme.textTheme.bodyMedium?.copyWith(color: MridaColors.textSecondary),
+              "We'll send a 6-digit code",
+              style: theme.textTheme.bodyLarge?.copyWith(
+                color: MridaColors.onSecondaryContainer,
+              ),
             ),
             const SizedBox(height: 48),
-            SegmentedButton<bool>(
-              segments: const [
-                ButtonSegment<bool>(value: false, label: Text('PHONE')),
-                ButtonSegment<bool>(value: true, label: Text('EMAIL')),
+            
+            // Phone Input Cluster
+            Row(
+              children: [
+                // Country Selector Pill
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+                  decoration: BoxDecoration(
+                    color: MridaColors.surfaceContainerLow,
+                    borderRadius: BorderRadius.circular(100),
+                    border: Border.all(color: MridaColors.outlineVariant.withOpacity(0.15)),
+                    boxShadow: MridaColors.editorialShadow,
+                  ),
+                  child: Row(
+                    children: [
+                      const Text('🇮🇳', style: TextStyle(fontSize: 20)),
+                      const SizedBox(width: 8),
+                      Text(
+                        '+91',
+                        style: theme.textTheme.bodyLarge?.copyWith(fontWeight: FontWeight.bold),
+                      ),
+                      const SizedBox(width: 4),
+                      const Icon(Icons.expand_more, size: 18, color: MridaColors.onSecondaryContainer),
+                    ],
+                  ),
+                ),
+                const SizedBox(width: 12),
+                
+                // Main Input Field
+                Expanded(
+                  child: Container(
+                    decoration: BoxDecoration(
+                      boxShadow: MridaColors.editorialShadow,
+                      borderRadius: BorderRadius.circular(100),
+                    ),
+                    child: TextField(
+                      controller: controller,
+                      keyboardType: TextInputType.phone,
+                      style: theme.textTheme.bodyLarge?.copyWith(fontSize: 18),
+                      decoration: const InputDecoration(
+                        hintText: 'Phone number',
+                        border: InputBorder.none,
+                        enabledBorder: InputBorder.none,
+                        focusedBorder: InputBorder.none,
+                        fillColor: MridaColors.surfaceContainerLow,
+                      ),
+                    ),
+                  ),
+                ),
               ],
-              selected: {isEmailMode},
-              onSelectionChanged: (v) => setState(() => isEmailMode = v.first),
-              style: SegmentedButton.styleFrom(
-                selectedBackgroundColor: MridaColors.primary,
-                selectedForegroundColor: MridaColors.onPrimary,
+            ),
+            
+            const SizedBox(height: 32),
+            
+            // Action Button
+            ElevatedButton(
+              onPressed: loading ? null : () async {
+                try {
+                  setState(() => loading = true);
+                  final vid = await auth.sendOTP('+91${controller.text}');
+                  if (context.mounted) context.push('/login/otp', extra: vid);
+                } catch (e) {
+                  setState(() => loading = false);
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text(e.toString())),
+                  );
+                }
+              },
+              child: loading ? const CircularProgressIndicator(color: Colors.white) : const Text('SEND OTP'),
+            ),
+            
+            const SizedBox(height: 32),
+            Center(
+              child: Text(
+                'No account needed · Free forever',
+                style: theme.textTheme.bodySmall?.copyWith(
+                  color: MridaColors.onSecondaryContainer.withOpacity(0.6),
+                ),
               ),
             ),
-            const SizedBox(height: 32),
-            if (!isEmailMode)
-              TextField(
-                controller: _phoneController,
-                keyboardType: TextInputType.phone,
-                decoration: InputDecoration(
-                  labelText: 'PHONE NUMBER',
-                  hintText: '+91XXXXXXXXXX',
-                  labelStyle: theme.textTheme.labelLarge,
-                  filled: true,
-                  fillColor: MridaColors.surfaceVariant,
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(16),
-                    borderSide: BorderSide.none,
+            
+            // Brand Vignette
+            const SizedBox(height: 64),
+            Center(
+              child: Container(
+                width: 128,
+                height: 4,
+                decoration: BoxDecoration(
+                  color: MridaColors.surfaceContainerHighest.withOpacity(0.3),
+                  borderRadius: BorderRadius.circular(100),
+                ),
+                child: FractionallySizedBox(
+                  widthFactor: 0.33,
+                  alignment: Alignment.centerLeft,
+                  child: Container(
+                    decoration: BoxDecoration(
+                      color: MridaColors.primary,
+                      borderRadius: BorderRadius.circular(100),
+                    ),
                   ),
                 ),
               ),
-            if (isEmailMode) ...[
-              TextField(
-                controller: _emailController,
-                keyboardType: TextInputType.emailAddress,
-                decoration: InputDecoration(
-                  labelText: 'EMAIL ADDRESS',
-                  labelStyle: theme.textTheme.labelLarge,
-                  filled: true,
-                  fillColor: MridaColors.surfaceVariant,
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(16),
-                    borderSide: BorderSide.none,
-                  ),
-                ),
-              ),
-              const SizedBox(height: 16),
-              TextField(
-                controller: _passwordController,
-                obscureText: true,
-                decoration: InputDecoration(
-                  labelText: 'PASSWORD',
-                  labelStyle: theme.textTheme.labelLarge,
-                  filled: true,
-                  fillColor: MridaColors.surfaceVariant,
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(16),
-                    borderSide: BorderSide.none,
-                  ),
-                ),
-              ),
-            ],
-            const SizedBox(height: 40),
-            ElevatedButton(
-              onPressed: loading
-                  ? null
-                  : () async {
-                      try {
-                        setState(() => loading = true);
-                        if (!isEmailMode) {
-                          final raw = _phoneController.text.replaceAll(RegExp(r'\D'), '');
-                          if (raw.length != 10) {
-                            throw Exception('Enter a valid 10-digit phone number.');
-                          }
-                          final verificationId = await _auth.sendOTP('+91$raw');
-                          if (!context.mounted) return;
-                          context.go('/login/otp', extra: verificationId);
-                        } else {
-                          await _auth.authenticateWithEmailPassword(
-                            email: _emailController.text,
-                            password: _passwordController.text,
-                          );
-                          if (!context.mounted) return;
-                          context.go('/home');
-                        }
-                        setState(() => loading = false);
-                      } catch (e) {
-                        setState(() => loading = false);
-                        await _showError(e);
-                      }
-                    },
-              child: Text(loading 
-                ? (isEmailMode ? 'AUTHENTICATING...' : 'SENDING...') 
-                : (isEmailMode ? 'CONTINUE' : 'SEND OTP')),
             ),
           ],
         ),

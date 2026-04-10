@@ -13,26 +13,30 @@ import '../screens/home/home_screen.dart';
 import '../screens/scan/camera_screen.dart';
 import '../screens/scan/loading_screen.dart';
 import '../screens/scan/result_screen.dart';
-import '../screens/splash/splash_screen.dart';
+import 'package:mrida/screens/profile/profile_screen.dart';
 import '../screens/map/field_map_screen.dart';
 
 final appRouterProvider = Provider<GoRouter>((ref) {
   return GoRouter(
-    initialLocation: '/',
+    initialLocation: '/welcome',
     redirect: (context, state) {
       final user = FirebaseAuth.instance.currentUser;
       final isAuthFlow = state.matchedLocation.startsWith('/login') ||
           state.matchedLocation == '/welcome' ||
-          state.matchedLocation == '/' ||
           state.matchedLocation == '/demo';
 
       if (user == null && !isAuthFlow) {
         return '/welcome';
       }
+      
+      // If user is logged in and tries to go to welcome/login, redirect to home
+      if (user != null && isAuthFlow) {
+        return '/home';
+      }
+
       return null;
     },
     routes: [
-      GoRoute(path: '/', builder: (_, __) => const SplashScreen()),
       GoRoute(path: '/welcome', builder: (_, __) => const WelcomeScreen()),
       GoRoute(path: '/login', builder: (_, __) => const PhoneEntryScreen()),
       GoRoute(
@@ -55,6 +59,7 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         builder: (_, state) =>
             FieldDetailScreen(fieldId: state.pathParameters['fieldId'] ?? ''),
       ),
+      GoRoute(path: '/profile', builder: (_, __) => const ProfileScreen()),
       GoRoute(path: '/demo', builder: (_, __) => const DemoScreen()),
     ],
   );
