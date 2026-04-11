@@ -49,12 +49,10 @@ class _FieldMapScreenState extends ConsumerState<FieldMapScreen>
 
   final MapController _mapController = MapController();
   late final _AnimatedMapController _animatedMapController;
-  final TextEditingController _searchController = TextEditingController();
   final TextEditingController _fieldNameController = TextEditingController();
   final TextEditingController _fieldAreaController = TextEditingController();
 
   final Map<String, Field> _optimisticFields = <String, Field>{};
-  String _searchQuery = '';
   String _selectedCrop = _cropOptions.first;
   bool _isFetchingLocation = false;
   bool _isAwaitingFieldTap = false;
@@ -67,16 +65,10 @@ class _FieldMapScreenState extends ConsumerState<FieldMapScreen>
       mapController: _mapController,
       vsync: this,
     );
-    _searchController.addListener(() {
-      setState(() {
-        _searchQuery = _searchController.text.trim().toLowerCase();
-      });
-    });
   }
 
   @override
   void dispose() {
-    _searchController.dispose();
     _fieldNameController.dispose();
     _fieldAreaController.dispose();
     super.dispose();
@@ -485,15 +477,8 @@ class _FieldMapScreenState extends ConsumerState<FieldMapScreen>
       for (final field in streamFields) field.fieldId: field,
       ..._optimisticFields,
     };
-    final fields = merged.values.toList()
+    return merged.values.toList()
       ..sort((a, b) => a.name.toLowerCase().compareTo(b.name.toLowerCase()));
-
-    if (_searchQuery.isEmpty) {
-      return fields;
-    }
-    return fields
-        .where((field) => field.name.toLowerCase().contains(_searchQuery))
-        .toList();
   }
 
   List<Marker> _buildFieldMarkers(List<Field> fields) {
@@ -658,42 +643,8 @@ class _FieldMapScreenState extends ConsumerState<FieldMapScreen>
             ],
           ),
           Positioned(
-            top: 12,
-            left: 16,
             right: 16,
-            child: SafeArea(
-              child: Container(
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(999),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withValues(alpha: 0.08),
-                      blurRadius: 18,
-                      offset: const Offset(0, 6),
-                    ),
-                  ],
-                ),
-                child: TextField(
-                  controller: _searchController,
-                  decoration: InputDecoration(
-                    hintText: 'Search fields...',
-                    hintStyle: GoogleFonts.inter(
-                      color:
-                          MridaColors.onSurfaceVariant.withValues(alpha: 0.75),
-                    ),
-                    prefixIcon: const Icon(Icons.search),
-                    border: InputBorder.none,
-                    contentPadding: const EdgeInsets.symmetric(
-                        horizontal: 16, vertical: 14),
-                  ),
-                ),
-              ),
-            ),
-          ),
-          Positioned(
-            right: 16,
-            top: 96,
+            top: 16,
             child: SafeArea(
               child: Column(
                 children: [
@@ -710,8 +661,6 @@ class _FieldMapScreenState extends ConsumerState<FieldMapScreen>
               ),
             ),
           ),
-          if (mergedFields.isEmpty && fieldsAsync is AsyncData<List<Field>>)
-            const _EmptyMapState(),
         ],
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
@@ -857,60 +806,6 @@ class _FieldPinPainter extends CustomPainter {
   @override
   bool shouldRepaint(covariant _FieldPinPainter oldDelegate) {
     return oldDelegate.color != color;
-  }
-}
-
-class _EmptyMapState extends StatelessWidget {
-  const _EmptyMapState();
-
-  @override
-  Widget build(BuildContext context) {
-    return Positioned(
-      left: 24,
-      right: 24,
-      bottom: 140,
-      child: Column(
-        children: [
-          Container(
-            padding: const EdgeInsets.all(16),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(16),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withValues(alpha: 0.08),
-                  blurRadius: 14,
-                  offset: const Offset(0, 6),
-                ),
-              ],
-            ),
-            child: Column(
-              children: [
-                Text(
-                  'Pin your first field',
-                  style: GoogleFonts.sora(
-                    fontSize: 18,
-                    fontWeight: FontWeight.w700,
-                    color: MridaColors.onSurface,
-                  ),
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  "Tap 'Add Field' to mark your farm on the map",
-                  textAlign: TextAlign.center,
-                  style: GoogleFonts.inter(
-                    fontSize: 13,
-                    color: MridaColors.onSurfaceVariant,
-                  ),
-                ),
-              ],
-            ),
-          ),
-          const Icon(Icons.arrow_downward_rounded,
-              color: MridaColors.primary, size: 30),
-        ],
-      ),
-    );
   }
 }
 
