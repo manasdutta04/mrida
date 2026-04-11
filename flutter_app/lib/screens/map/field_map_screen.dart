@@ -664,36 +664,42 @@ class _FieldMapScreenState extends ConsumerState<FieldMapScreen>
         ],
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
-      floatingActionButton: Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.end,
-        children: [
-          FloatingActionButton(
-            heroTag: 'my_location_fab',
-            onPressed: _goToCurrentLocation,
-            backgroundColor: Colors.white,
-            foregroundColor: const Color(0xFF1D7A5F),
-            child: _isFetchingLocation
-                ? const SizedBox(
-                    width: 20,
-                    height: 20,
-                    child: CircularProgressIndicator(strokeWidth: 2),
-                  )
-                : const Icon(Icons.my_location),
-          ),
-          const SizedBox(height: 12),
-          FloatingActionButton.extended(
-            heroTag: 'add_field_fab',
-            onPressed: _openAddFieldSheet,
-            backgroundColor: const Color(0xFF1D7A5F),
-            foregroundColor: Colors.white,
-            icon: const Icon(Icons.add),
-            label: Text(
-              'Add Field',
-              style: GoogleFonts.inter(fontWeight: FontWeight.w600),
+      floatingActionButton: Padding(
+        // Keep FABs above the persistent bottom dock/nav.
+        padding: EdgeInsets.only(
+          bottom: 96 + MediaQuery.of(context).padding.bottom,
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.end,
+          children: [
+            FloatingActionButton(
+              heroTag: 'my_location_fab',
+              onPressed: _goToCurrentLocation,
+              backgroundColor: Colors.white,
+              foregroundColor: const Color(0xFF1D7A5F),
+              child: _isFetchingLocation
+                  ? const SizedBox(
+                      width: 20,
+                      height: 20,
+                      child: CircularProgressIndicator(strokeWidth: 2),
+                    )
+                  : const Icon(Icons.my_location),
             ),
-          ),
-        ],
+            const SizedBox(height: 12),
+            FloatingActionButton.extended(
+              heroTag: 'add_field_fab',
+              onPressed: _openAddFieldSheet,
+              backgroundColor: const Color(0xFF1D7A5F),
+              foregroundColor: Colors.white,
+              icon: const Icon(Icons.add),
+              label: Text(
+                'Add Field',
+                style: GoogleFonts.inter(fontWeight: FontWeight.w600),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
