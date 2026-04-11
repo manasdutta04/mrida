@@ -57,5 +57,7 @@
 			</array>
 		</dict>
 	</array>
+	<key>NSLocationWhenInUseUsageDescription</key>
+	<string>MRIDA uses your location to place your field and scan results on the India map.</string>
 </dict>
 </plist>

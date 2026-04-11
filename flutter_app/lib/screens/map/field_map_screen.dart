@@ -3,6 +3,7 @@ import 'package:go_router/go_router.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:latlong2/latlong.dart';
+import '../../core/utils/location_utils.dart';
 import '../../theme/app_theme.dart';
 import '../../widgets/grade_widget.dart';
 
@@ -21,6 +22,8 @@ class _FieldMapScreenState extends State<FieldMapScreen> {
   static const double _minZoom = 4.8;
   static const double _maxZoom = 16.0;
   final MapController _mapController = MapController();
+  LatLng? _currentUserLocation;
+  bool _isFetchingLocation = false;
 
   void _zoomBy(double delta) {
     final currentCamera = _mapController.camera;
@@ -48,6 +51,59 @@ class _FieldMapScreenState extends State<FieldMapScreen> {
     );
   }
 
+  Future<void> _showCurrentUserLocation() async {
+    if (_isFetchingLocation) {
+      return;
+    }
+
+    setState(() => _isFetchingLocation = true);
+    try {
+      final position = await LocationUtils.getCurrentPosition();
+      final userLocation = LatLng(position.latitude, position.longitude);
+
+      if (!mounted) {
+        return;
+      }
+
+      setState(() => _currentUserLocation = userLocation);
+
+      final currentZoom = _mapController.camera.zoom;
+      final targetZoom = currentZoom < 11 ? 11.0 : currentZoom;
+      _mapController.move(userLocation, targetZoom.clamp(_minZoom, _maxZoom));
+    } on LocationException catch (e) {
+      if (!mounted) {
+        return;
+      }
+
+      final snackBar = SnackBar(
+        content: Text(e.message),
+        action: e.type == LocationErrorType.permissionDeniedForever
+            ? SnackBarAction(
+                label: 'Settings',
+                onPressed: () {
+                  LocationUtils.openAppSettings();
+                },
+              )
+            : null,
+      );
+      ScaffoldMessenger.of(context).showSnackBar(snackBar);
+    } on Exception {
+      if (!mounted) {
+        return;
+      }
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Unable to fetch current location. Please try again.'),
+        ),
+      );
+    } finally {
+      if (mounted) {
+        setState(() => _isFetchingLocation = false);
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -67,8 +123,12 @@ class _FieldMapScreenState extends State<FieldMapScreen> {
                 bounds: _indiaBounds,
               ),
               interactionOptions: const InteractionOptions(
-                flags: InteractiveFlag.drag | InteractiveFlag.pinchZoom | InteractiveFlag.doubleTapZoom,
+                flags: InteractiveFlag.drag |
+                    InteractiveFlag.pinchZoom |
+                    InteractiveFlag.doubleTapZoom |
+                    InteractiveFlag.tap,
               ),
+              onTap: (_, __) => _showCurrentUserLocation(),
             ),
             children: [
               TileLayer(
@@ -76,6 +136,7 @@ class _FieldMapScreenState extends State<FieldMapScreen> {
                 urlTemplate: 'https://{s}.basemaps.cartocdn.com/light_nolabels/{z}/{x}/{y}{r}.png',
                 subdomains: const ['a', 'b', 'c', 'd'],
                 userAgentPackageName: 'com.mrida.app',
+                retinaMode: RetinaMode.isHighDensity,
               ),
               MarkerLayer(
                 markers: _buildMarkers(context),
@@ -123,7 +184,7 @@ class _FieldMapScreenState extends State<FieldMapScreen> {
       {'name': 'West Orchard', 'lat': 26.9124, 'lng': 75.7873, 'grade': 'C', 'date': '05 Aug 2024'},
     ];
 
-    return fieldLocations.map((field) {
+    final markers = fieldLocations.map((field) {
       final grade = field['grade'] as String;
       final color = _getGradeColor(grade);
 
@@ -160,6 +221,32 @@ class _FieldMapScreenState extends State<FieldMapScreen> {
         ),
       );
     }).toList();
+
+    if (_currentUserLocation != null) {
+      markers.add(
+        Marker(
+          point: _currentUserLocation!,
+          width: 48,
+          height: 48,
+          child: Container(
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              color: MridaColors.primary.withValues(alpha: 0.18),
+              border: Border.all(color: MridaColors.primary, width: 2),
+            ),
+            child: const Center(
+              child: Icon(
+                Icons.my_location,
+                color: MridaColors.primary,
+                size: 22,
+              ),
+            ),
+          ),
+        ),
+      );
+    }
+
+    return markers;
   }
 
   void _showFieldDetails(BuildContext context, Map<String, dynamic> field) {
