@@ -6,13 +6,47 @@ import 'package:latlong2/latlong.dart';
 import '../../theme/app_theme.dart';
 import '../../widgets/grade_widget.dart';
 
-class FieldMapScreen extends StatelessWidget {
+class FieldMapScreen extends StatefulWidget {
   const FieldMapScreen({super.key});
 
+  @override
+  State<FieldMapScreen> createState() => _FieldMapScreenState();
+}
+
+class _FieldMapScreenState extends State<FieldMapScreen> {
   static final LatLngBounds _indiaBounds = LatLngBounds(
-    const LatLng(6.0, 68.0),   // South-West India extent
+    const LatLng(6.0, 68.0), // South-West India extent
     const LatLng(37.6, 97.5),  // North-East India extent
   );
+  static const double _minZoom = 4.8;
+  static const double _maxZoom = 16.0;
+  final MapController _mapController = MapController();
+
+  void _zoomBy(double delta) {
+    final currentCamera = _mapController.camera;
+    final nextZoom = (currentCamera.zoom + delta).clamp(_minZoom, _maxZoom);
+    _mapController.move(currentCamera.center, nextZoom);
+  }
+
+  Widget _buildZoomButton({
+    required IconData icon,
+    required VoidCallback onPressed,
+  }) {
+    return SizedBox(
+      width: 44,
+      height: 44,
+      child: Material(
+        color: Colors.white,
+        elevation: 2,
+        borderRadius: BorderRadius.circular(12),
+        child: InkWell(
+          borderRadius: BorderRadius.circular(12),
+          onTap: onPressed,
+          child: Icon(icon, color: MridaColors.primary),
+        ),
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -21,13 +55,14 @@ class FieldMapScreen extends StatelessWidget {
       body: Stack(
         children: [
           FlutterMap(
+            mapController: _mapController,
             options: MapOptions(
               initialCameraFit: CameraFit.bounds(
                 bounds: _indiaBounds,
                 padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
               ),
-              minZoom: 4.8,
-              maxZoom: 16,
+              minZoom: _minZoom,
+              maxZoom: _maxZoom,
               cameraConstraint: CameraConstraint.contain(
                 bounds: _indiaBounds,
               ),
@@ -46,6 +81,25 @@ class FieldMapScreen extends StatelessWidget {
                 markers: _buildMarkers(context),
               ),
             ],
+          ),
+          Positioned(
+            right: 16,
+            top: 16,
+            child: SafeArea(
+              child: Column(
+                children: [
+                  _buildZoomButton(
+                    icon: Icons.add,
+                    onPressed: () => _zoomBy(1),
+                  ),
+                  const SizedBox(height: 10),
+                  _buildZoomButton(
+                    icon: Icons.remove,
+                    onPressed: () => _zoomBy(-1),
+                  ),
+                ],
+              ),
+            ),
           ),
         ],
       ),
@@ -195,10 +249,14 @@ class FieldMapScreen extends StatelessWidget {
 
   Color _getGradeColor(String grade) {
     switch (grade.toUpperCase()) {
-      case 'A': return MridaColors.gradeA;
-      case 'B': return MridaColors.gradeB;
-      case 'C': return MridaColors.gradeC;
-      default: return MridaColors.gradeD;
+      case 'A':
+        return MridaColors.gradeA;
+      case 'B':
+        return MridaColors.gradeB;
+      case 'C':
+        return MridaColors.gradeC;
+      default:
+        return MridaColors.gradeD;
     }
   }
 }
