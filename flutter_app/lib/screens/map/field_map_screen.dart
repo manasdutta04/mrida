@@ -9,6 +9,11 @@ import '../../widgets/grade_widget.dart';
 class FieldMapScreen extends StatelessWidget {
   const FieldMapScreen({super.key});
 
+  static final LatLngBounds _indiaBounds = LatLngBounds(
+    const LatLng(6.0, 68.0),   // South-West India extent
+    const LatLng(37.6, 97.5),  // North-East India extent
+  );
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -16,13 +21,25 @@ class FieldMapScreen extends StatelessWidget {
       body: Stack(
         children: [
           FlutterMap(
-            options: const MapOptions(
-              initialCenter: LatLng(20.5937, 78.9629),
-              initialZoom: 4.5,
+            options: MapOptions(
+              initialCameraFit: CameraFit.bounds(
+                bounds: _indiaBounds,
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
+              ),
+              minZoom: 4.8,
+              maxZoom: 16,
+              cameraConstraint: CameraConstraint.contain(
+                bounds: _indiaBounds,
+              ),
+              interactionOptions: const InteractionOptions(
+                flags: InteractiveFlag.drag | InteractiveFlag.pinchZoom | InteractiveFlag.doubleTapZoom,
+              ),
             ),
             children: [
               TileLayer(
-                urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+                // No-label tiles reduce geopolitical/country-label clutter for an India-focused map.
+                urlTemplate: 'https://{s}.basemaps.cartocdn.com/light_nolabels/{z}/{x}/{y}{r}.png',
+                subdomains: const ['a', 'b', 'c', 'd'],
                 userAgentPackageName: 'com.mrida.app',
               ),
               MarkerLayer(
