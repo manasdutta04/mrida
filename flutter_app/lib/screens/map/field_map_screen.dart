@@ -32,6 +32,7 @@ class _FieldMapScreenState extends ConsumerState<FieldMapScreen>
   static const LatLng _initialIndiaCenter = LatLng(22.5, 82.0);
   static const double _minZoom = 4.5;
   static const double _maxZoom = 16.0;
+  static const double _dockClearance = 96.0;
 
   static const List<String> _cropOptions = [
     'rice',
@@ -253,134 +254,147 @@ class _FieldMapScreenState extends ConsumerState<FieldMapScreen>
               Navigator.of(sheetContext).pop();
             }
 
-            return Padding(
+            return AnimatedPadding(
+              duration: const Duration(milliseconds: 180),
+              curve: Curves.easeOut,
               padding: EdgeInsets.only(
-                left: 20,
-                right: 20,
-                top: 16,
-                bottom: MediaQuery.of(context).viewInsets.bottom + 20,
+                bottom: MediaQuery.of(context).viewInsets.bottom,
               ),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Center(
-                    child: Container(
-                      width: 36,
-                      height: 4,
-                      decoration: BoxDecoration(
-                        color: MridaColors.outlineVariant,
-                        borderRadius: BorderRadius.circular(8),
+              child: Padding(
+                padding: EdgeInsets.fromLTRB(
+                  20,
+                  16,
+                  20,
+                  _dockOverlayPadding(context) + 20,
+                ),
+                child: SingleChildScrollView(
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Center(
+                        child: Container(
+                          width: 36,
+                          height: 4,
+                          decoration: BoxDecoration(
+                            color: MridaColors.outlineVariant,
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                        ),
                       ),
-                    ),
-                  ),
-                  const SizedBox(height: 16),
-                  Text(
-                    'Add Field',
-                    style: GoogleFonts.sora(
-                      fontSize: 20,
-                      fontWeight: FontWeight.w700,
-                      color: MridaColors.onSurface,
-                    ),
-                  ),
-                  const SizedBox(height: 16),
-                  TextField(
-                    controller: _fieldNameController,
-                    decoration: const InputDecoration(
-                      labelText: 'Field name',
-                    ),
-                  ),
-                  const SizedBox(height: 12),
-                  TextField(
-                    controller: _fieldAreaController,
-                    keyboardType:
-                        const TextInputType.numberWithOptions(decimal: true),
-                    decoration: const InputDecoration(
-                      labelText: 'Area in acres',
-                    ),
-                  ),
-                  const SizedBox(height: 12),
-                  DropdownButtonFormField<String>(
-                    initialValue: _selectedCrop,
-                    decoration:
-                        const InputDecoration(labelText: 'Primary crop'),
-                    items: _cropOptions
-                        .map(
-                          (crop) => DropdownMenuItem<String>(
-                            value: crop,
-                            child: Text(crop),
-                          ),
-                        )
-                        .toList(),
-                    onChanged: (value) {
-                      if (value == null) {
-                        return;
-                      }
-                      setState(() => _selectedCrop = value);
-                      setSheetState(() {});
-                    },
-                  ),
-                  const SizedBox(height: 12),
-                  Container(
-                    width: double.infinity,
-                    padding: const EdgeInsets.all(12),
-                    decoration: BoxDecoration(
-                      color: MridaColors.surfaceContainerLow,
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          'Tap the map to pin your field location',
-                          style: GoogleFonts.inter(
-                            fontSize: 13,
-                            color: MridaColors.onSurfaceVariant,
-                            fontWeight: FontWeight.w500,
-                          ),
+                      const SizedBox(height: 16),
+                      Text(
+                        'Add Field',
+                        style: GoogleFonts.sora(
+                          fontSize: 20,
+                          fontWeight: FontWeight.w700,
+                          color: MridaColors.onSurface,
                         ),
-                        const SizedBox(height: 8),
-                        if (_draftFieldLocation != null)
-                          Text(
-                            'Pinned at ${_draftFieldLocation!.latitude.toStringAsFixed(5)}, ${_draftFieldLocation!.longitude.toStringAsFixed(5)}',
-                            style: GoogleFonts.inter(
-                              fontSize: 12,
-                              color: MridaColors.primary,
-                              fontWeight: FontWeight.w600,
-                            ),
-                          ),
-                        const SizedBox(height: 8),
-                        OutlinedButton(
-                          onPressed: () {
-                            Navigator.of(sheetContext).pop();
-                            setState(() => _isAwaitingFieldTap = true);
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(
-                                content: Text(
-                                    'Tap anywhere on the map to set field location'),
+                      ),
+                      const SizedBox(height: 16),
+                      TextField(
+                        controller: _fieldNameController,
+                        decoration: const InputDecoration(
+                          labelText: 'Field name',
+                        ),
+                      ),
+                      const SizedBox(height: 12),
+                      TextField(
+                        controller: _fieldAreaController,
+                        keyboardType: const TextInputType.numberWithOptions(
+                            decimal: true),
+                        decoration: const InputDecoration(
+                          labelText: 'Area in acres',
+                        ),
+                      ),
+                      const SizedBox(height: 12),
+                      DropdownButtonFormField<String>(
+                        initialValue: _selectedCrop,
+                        decoration:
+                            const InputDecoration(labelText: 'Primary crop'),
+                        items: _cropOptions
+                            .map(
+                              (crop) => DropdownMenuItem<String>(
+                                value: crop,
+                                child: Text(crop),
                               ),
-                            );
-                          },
-                          child: const Text('Pin on map'),
+                            )
+                            .toList(),
+                        onChanged: (value) {
+                          if (value == null) {
+                            return;
+                          }
+                          setState(() => _selectedCrop = value);
+                          setSheetState(() {});
+                        },
+                      ),
+                      const SizedBox(height: 12),
+                      Container(
+                        width: double.infinity,
+                        padding: const EdgeInsets.all(12),
+                        decoration: BoxDecoration(
+                          color: MridaColors.surfaceContainerLow,
+                          borderRadius: BorderRadius.circular(12),
                         ),
-                      ],
-                    ),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              'Tap the map to pin your field location',
+                              style: GoogleFonts.inter(
+                                fontSize: 13,
+                                color: MridaColors.onSurfaceVariant,
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
+                            const SizedBox(height: 8),
+                            if (_draftFieldLocation != null)
+                              Text(
+                                'Pinned at ${_draftFieldLocation!.latitude.toStringAsFixed(5)}, ${_draftFieldLocation!.longitude.toStringAsFixed(5)}',
+                                style: GoogleFonts.inter(
+                                  fontSize: 12,
+                                  color: MridaColors.primary,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                            const SizedBox(height: 8),
+                            OutlinedButton(
+                              onPressed: () {
+                                Navigator.of(sheetContext).pop();
+                                setState(() => _isAwaitingFieldTap = true);
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  const SnackBar(
+                                    content: Text(
+                                        'Tap anywhere on the map to set field location'),
+                                  ),
+                                );
+                              },
+                              child: const Text('Pin on map'),
+                            ),
+                          ],
+                        ),
+                      ),
+                      const SizedBox(height: 16),
+                      SizedBox(
+                        width: double.infinity,
+                        child: ElevatedButton(
+                          onPressed: saveField,
+                          child: const Text('Save Field'),
+                        ),
+                      ),
+                    ],
                   ),
-                  const SizedBox(height: 16),
-                  SizedBox(
-                    width: double.infinity,
-                    child: ElevatedButton(
-                      onPressed: saveField,
-                      child: const Text('Save Field'),
-                    ),
-                  ),
-                ],
+                ),
               ),
             );
           },
         );
       },
     );
+  }
+
+  double _dockOverlayPadding(BuildContext context) {
+    return _dockClearance + MediaQuery.of(context).padding.bottom;
   }
 
   void _showFieldSheet(Field field) {
@@ -394,6 +408,7 @@ class _FieldMapScreenState extends ConsumerState<FieldMapScreen>
     showModalBottomSheet<void>(
       context: context,
       isScrollControlled: true,
+      useSafeArea: true,
       backgroundColor: Colors.transparent,
       builder: (context) {
         return DraggableScrollableSheet(
@@ -408,7 +423,12 @@ class _FieldMapScreenState extends ConsumerState<FieldMapScreen>
               ),
               child: ListView(
                 controller: controller,
-                padding: const EdgeInsets.all(20),
+                padding: EdgeInsets.fromLTRB(
+                  20,
+                  20,
+                  20,
+                  20 + _dockOverlayPadding(context),
+                ),
                 children: [
                   Row(
                     children: [
@@ -667,7 +687,7 @@ class _FieldMapScreenState extends ConsumerState<FieldMapScreen>
       floatingActionButton: Padding(
         // Keep FABs above the persistent bottom dock/nav.
         padding: EdgeInsets.only(
-          bottom: 96 + MediaQuery.of(context).padding.bottom,
+          bottom: _dockOverlayPadding(context),
         ),
         child: Column(
           mainAxisSize: MainAxisSize.min,
