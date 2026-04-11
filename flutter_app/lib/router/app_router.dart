@@ -31,7 +31,7 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       if (user == null && !isAuthFlow) {
         return '/welcome';
       }
-      
+
       if (user != null && isAuthFlow) {
         return '/home';
       }
@@ -41,7 +41,7 @@ final appRouterProvider = Provider<GoRouter>((ref) {
     routes: [
       GoRoute(path: '/welcome', builder: (_, __) => const WelcomeScreen()),
       GoRoute(path: '/login', builder: (_, __) => const PhoneEntryScreen()),
-      
+
       // Universal Navigation Shell (4 persistent tabs)
       StatefulShellRoute.indexedStack(
         builder: (context, state, navigationShell) {
@@ -76,22 +76,37 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         },
         branches: [
           StatefulShellBranch(
-            routes: [GoRoute(path: '/home', builder: (_, __) => const HomeScreen())],
+            routes: [
+              GoRoute(path: '/home', builder: (_, __) => const HomeScreen())
+            ],
           ),
           StatefulShellBranch(
-            routes: [GoRoute(path: '/history', builder: (_, __) => const HistoryScreen())],
+            routes: [
+              GoRoute(
+                  path: '/history', builder: (_, __) => const HistoryScreen())
+            ],
           ),
           StatefulShellBranch(
-            routes: [GoRoute(path: '/map', builder: (_, __) => const FieldMapScreen())],
+            routes: [
+              GoRoute(path: '/map', builder: (_, __) => const FieldMapScreen())
+            ],
           ),
           StatefulShellBranch(
-            routes: [GoRoute(path: '/profile', builder: (_, __) => const ProfileScreen())],
+            routes: [
+              GoRoute(
+                  path: '/profile', builder: (_, __) => const ProfileScreen())
+            ],
           ),
         ],
       ),
-      
+
       // Full-screen Scan Flow (outside shell)
-      GoRoute(path: '/scan/camera', builder: (_, __) => const CameraScreen()),
+      GoRoute(
+        path: '/scan/camera',
+        builder: (_, state) => CameraScreen(
+          fieldId: state.uri.queryParameters['fieldId'],
+        ),
+      ),
       GoRoute(path: '/scan/loading', builder: (_, __) => const LoadingScreen()),
       GoRoute(
         path: '/scan/result',

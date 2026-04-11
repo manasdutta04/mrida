@@ -7,13 +7,16 @@ import 'package:image_picker/image_picker.dart';
 import '../../theme/app_theme.dart';
 
 class CameraScreen extends StatefulWidget {
-  const CameraScreen({super.key});
+  const CameraScreen({super.key, this.fieldId});
+
+  final String? fieldId;
 
   @override
   State<CameraScreen> createState() => _CameraScreenState();
 }
 
-class _CameraScreenState extends State<CameraScreen> with WidgetsBindingObserver {
+class _CameraScreenState extends State<CameraScreen>
+    with WidgetsBindingObserver {
   CameraController? _controller;
   bool _isCameraInitialized = false;
   File? _capturedImage;
@@ -152,7 +155,8 @@ class _CameraScreenState extends State<CameraScreen> with WidgetsBindingObserver
               children: [
                 // Top bar with back button
                 Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
                   child: Row(
                     children: [
                       IconButton(
@@ -161,7 +165,8 @@ class _CameraScreenState extends State<CameraScreen> with WidgetsBindingObserver
                       ),
                       const Spacer(),
                       Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 12, vertical: 6),
                         decoration: BoxDecoration(
                           color: Colors.black.withValues(alpha: 0.3),
                           borderRadius: BorderRadius.circular(100),
@@ -198,13 +203,16 @@ class _CameraScreenState extends State<CameraScreen> with WidgetsBindingObserver
                 // Instruction text
                 Container(
                   margin: const EdgeInsets.symmetric(horizontal: 40),
-                  padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
                   decoration: BoxDecoration(
                     color: Colors.black.withValues(alpha: 0.6),
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: Text(
-                    'Place phone 30cm above soil\nin open shade',
+                    widget.fieldId == null
+                        ? 'Place phone 30cm above soil\nin open shade'
+                        : 'Field: ${widget.fieldId}\nPlace phone 30cm above soil',
                     textAlign: TextAlign.center,
                     style: GoogleFonts.inter(
                       color: Colors.white,
@@ -250,15 +258,16 @@ class _CameraScreenState extends State<CameraScreen> with WidgetsBindingObserver
                       ),
                       // Flash toggle
                       _ActionButton(
-                        icon: _controller?.value.flashMode == FlashMode.off 
-                            ? Icons.flash_off_outlined 
+                        icon: _controller?.value.flashMode == FlashMode.off
+                            ? Icons.flash_off_outlined
                             : Icons.flash_on_outlined,
                         label: 'Flash',
                         onTap: () async {
                           if (_controller == null) return;
-                          final newMode = _controller!.value.flashMode == FlashMode.off 
-                              ? FlashMode.torch 
-                              : FlashMode.off;
+                          final newMode =
+                              _controller!.value.flashMode == FlashMode.off
+                                  ? FlashMode.torch
+                                  : FlashMode.off;
                           await _controller!.setFlashMode(newMode);
                           setState(() {});
                         },
@@ -440,7 +449,8 @@ class _BracketPainter extends CustomPainter {
       Path()
         ..moveTo(size.width - len, size.height)
         ..lineTo(size.width - r, size.height)
-        ..quadraticBezierTo(size.width, size.height, size.width, size.height - r)
+        ..quadraticBezierTo(
+            size.width, size.height, size.width, size.height - r)
         ..lineTo(size.width, size.height - len),
       paint,
     );

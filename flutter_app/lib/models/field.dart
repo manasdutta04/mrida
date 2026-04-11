@@ -12,6 +12,7 @@ class Field {
     this.lastHealthScore,
     this.lastScannedAt,
   });
+
   final String fieldId;
   final String userId;
   final String name;
@@ -23,14 +24,51 @@ class Field {
   final DateTime? lastScannedAt;
 
   factory Field.fromJson(Map<String, dynamic> json) => Field(
-        fieldId: json['fieldId'] as String,
-        userId: json['userId'] as String,
-        name: json['name'] as String,
-        location: json['location'] as GeoPoint,
-        areaAcres: (json['areaAcres'] as num).toDouble(),
-        crops: (json['crops'] as List).map((e) => e.toString()).toList(),
+        fieldId: (json['fieldId'] ?? '') as String,
+        userId: (json['userId'] ?? '') as String,
+        name: (json['name'] ?? '') as String,
+        location: json['location'] as GeoPoint? ?? const GeoPoint(0, 0),
+        areaAcres: ((json['areaAcres'] as num?) ?? 0).toDouble(),
+        crops: ((json['crops'] as List?) ?? const [])
+            .map((e) => e.toString())
+            .toList(),
         lastScanId: json['lastScanId'] as String?,
         lastHealthScore: (json['lastHealthScore'] as num?)?.toDouble(),
-        lastScannedAt: json['lastScannedAt'] == null ? null : DateTime.parse(json['lastScannedAt'] as String),
+        lastScannedAt: _parseDate(json['lastScannedAt']),
       );
+
+  factory Field.fromFirestore(
+    String fieldId,
+    Map<String, dynamic> data,
+  ) {
+    return Field.fromJson({
+      ...data,
+      'fieldId': fieldId,
+    });
+  }
+
+  Map<String, dynamic> toFirestore() => {
+        'fieldId': fieldId,
+        'userId': userId,
+        'name': name,
+        'location': location,
+        'areaAcres': areaAcres,
+        'crops': crops,
+        'lastScanId': lastScanId,
+        'lastHealthScore': lastHealthScore,
+        'lastScannedAt': lastScannedAt?.toIso8601String(),
+      };
+
+  static DateTime? _parseDate(Object? value) {
+    if (value == null) {
+      return null;
+    }
+    if (value is Timestamp) {
+      return value.toDate();
+    }
+    if (value is String && value.isNotEmpty) {
+      return DateTime.tryParse(value);
+    }
+    return null;
+  }
 }
