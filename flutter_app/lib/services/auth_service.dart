@@ -58,7 +58,14 @@ class AuthService {
     );
   }
 
-  Future<void> signOut() => _auth.signOut();
+  Future<void> signOut() async {
+    await _auth.signOut();
+    try {
+      await _googleSignIn.signOut();
+    } catch (_) {
+      // Ignore Google sign-out failures when the user is not signed in with Google.
+    }
+  }
 
   Stream<User?> get authStateChanges => _auth.authStateChanges();
 

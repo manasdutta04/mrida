@@ -1,14 +1,16 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../theme/app_theme.dart';
 import '../../widgets/universal_app_bar.dart';
+import '../../providers/auth_provider.dart';
 
-class SettingsScreen extends StatelessWidget {
+class SettingsScreen extends ConsumerWidget {
   const SettingsScreen({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     return Scaffold(
       backgroundColor: MridaColors.surface,
       appBar: UniversalAppBar(title: 'PREFERENCES', showSettings: false),
@@ -48,7 +50,22 @@ class SettingsScreen extends StatelessWidget {
             SizedBox(
               width: double.infinity,
               child: TextButton(
-                onPressed: () => context.go('/welcome'),
+                onPressed: () async {
+                  try {
+                    await ref.read(authServiceProvider).signOut();
+                    if (context.mounted) {
+                      context.go('/welcome');
+                    }
+                  } catch (_) {
+                    if (context.mounted) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text('Unable to sign out. Please try again.'),
+                        ),
+                      );
+                    }
+                  }
+                },
                 style: TextButton.styleFrom(
                   foregroundColor: MridaColors.gradeD,
                   padding: const EdgeInsets.symmetric(vertical: 16),
