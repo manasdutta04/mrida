@@ -12,286 +12,345 @@ class HomeScreen extends StatelessWidget {
     final theme = Theme.of(context);
     
     return CustomScrollView(
+      physics: const BouncingScrollPhysics(),
       slivers: [
-        // Consistently spaced top padding
-        const SliverToBoxAdapter(child: SizedBox(height: 32)),
-        
-        // Main Content
-        SliverPadding(
-          padding: const EdgeInsets.symmetric(horizontal: 24),
-          sliver: SliverList(
-            delegate: SliverChildListDelegate([
-              // Greeting with Profile Info
-              Row(
-                crossAxisAlignment: CrossAxisAlignment.end,
+        // Premium Hero Section
+        SliverToBoxAdapter(
+          child: Container(
+            height: 440,
+            width: double.infinity,
+            margin: const EdgeInsets.fromLTRB(16, 16, 16, 32),
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(32),
+              image: const DecorationImage(
+                image: AssetImage('assets/demo/hero_field.png'),
+                fit: BoxFit.cover,
+                alignment: Alignment.center,
+              ),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withValues(alpha: 0.1),
+                  blurRadius: 30,
+                  offset: const Offset(0, 15),
+                ),
+              ],
+            ),
+            child: Container(
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(32),
+                gradient: LinearGradient(
+                  begin: Alignment.topCenter,
+                  end: Alignment.bottomCenter,
+                  colors: [
+                    Colors.transparent,
+                    Colors.black.withValues(alpha: 0.6),
+                  ],
+                ),
+              ),
+              padding: const EdgeInsets.all(32),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisAlignment: MainAxisAlignment.end,
                 children: [
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        'Namaste, Rajan',
-                        style: theme.textTheme.headlineLarge,
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                    decoration: BoxDecoration(
+                      color: MridaColors.onPrimary.withValues(alpha: 0.2),
+                      borderRadius: BorderRadius.circular(8),
+                      border: Border.all(color: Colors.white.withValues(alpha: 0.3)),
+                    ),
+                    child: Text(
+                      'PRECISION MONITORING',
+                      style: theme.textTheme.labelMedium?.copyWith(
+                        color: Colors.white,
+                        fontSize: 9,
+                        letterSpacing: 2.0,
                       ),
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  Text(
+                    'BEYOND THE\nSURFACE',
+                    style: theme.textTheme.displayLarge?.copyWith(
+                      color: Colors.white,
+                      height: 0.9,
+                    ),
+                  ),
+                  const SizedBox(height: 24),
+                  Row(
+                    children: [
+                      CircleAvatar(
+                        radius: 12,
+                        backgroundColor: Colors.white,
+                        child: Icon(Icons.check, size: 14, color: MridaColors.primary),
+                      ),
+                      const SizedBox(width: 12),
                       Text(
-                        'Thursday, 24 October',
-                        style: theme.textTheme.bodySmall?.copyWith(
+                        'Soil Vitals: Optimal',
+                        style: theme.textTheme.bodyMedium?.copyWith(
+                          color: Colors.white.withValues(alpha: 0.9),
                           fontWeight: FontWeight.w600,
                         ),
                       ),
                     ],
                   ),
-                  const Spacer(),
-                  CircleAvatar(
-                    radius: 20,
-                    backgroundColor: MridaColors.primary,
-                    child: const Text('RK', style: TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold)),
-                  ),
                 ],
               ),
-              const SizedBox(height: 32),
-                  
-                  // Hero Card (Bento)
-                  Container(
-                    height: 180,
-                    padding: const EdgeInsets.all(32),
-                    decoration: BoxDecoration(
-                      color: const Color(0xFF1D7A5F),
-                      borderRadius: BorderRadius.circular(32),
-                      boxShadow: [
-                        BoxShadow(
-                          color: const Color(0xFF1D7A5F).withValues(alpha: 0.15),
-                          offset: const Offset(0, 20),
-                          blurRadius: 40,
-                        ),
-                      ],
-                    ),
-                    child: Stack(
-                      children: [
-                        Positioned(
-                          right: -20,
-                          top: -20,
-                          child: Container(
-                            width: 100,
-                            height: 100,
-                            decoration: BoxDecoration(
-                              shape: BoxShape.circle,
-                              color: Colors.white.withValues(alpha: 0.05),
-                            ),
-                          ),
-                        ),
-                        Row(
-                          children: [
-                            Text(
-                              'B',
-                              style: GoogleFonts.sora(
-                                fontSize: 64, // Reduced slightly to avoid cramped feel
-                                fontWeight: FontWeight.w800,
-                                color: Colors.white.withValues(alpha: 0.9),
-                                height: 1,
-                              ),
-                            ),
-                            const SizedBox(width: 20),
-                            Expanded(
-                              flex: 3,
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  Text(
-                                    'North Plot',
-                                    style: GoogleFonts.sora(
-                                      fontSize: 18,
-                                      fontWeight: FontWeight.bold,
-                                      color: Colors.white,
-                                    ),
-                                    maxLines: 1,
-                                    overflow: TextOverflow.ellipsis,
-                                  ),
-                                  Text(
-                                    '3 days ago',
-                                    style: GoogleFonts.inter(
-                                      fontSize: 13,
-                                      color: Colors.white.withValues(alpha: 0.7),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                            const SizedBox(width: 12),
-                            Expanded(
-                              flex: 2,
-                              child: Column(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                crossAxisAlignment: CrossAxisAlignment.end,
-                                children: [
-                                  Container(
-                                    width: double.infinity,
-                                    height: 4,
-                                    decoration: BoxDecoration(
-                                      color: Colors.white.withValues(alpha: 0.2),
-                                      borderRadius: BorderRadius.circular(100),
-                                    ),
-                                    child: FractionallySizedBox(
-                                      widthFactor: 0.72,
-                                      alignment: Alignment.centerLeft,
-                                      child: Container(
-                                        decoration: BoxDecoration(
-                                          color: Colors.white,
-                                          borderRadius: BorderRadius.circular(100),
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                  const SizedBox(height: 8),
-                                  FittedBox(
-                                    child: Text(
-                                      '72% CONFIDENCE',
-                                      style: theme.textTheme.labelMedium?.copyWith(
-                                        color: Colors.white.withValues(alpha: 0.8),
-                                        fontSize: 9,
-                                        fontWeight: FontWeight.w900,
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ],
-                        ),
-                      ],
-                    ),
+            ),
+          ),
+        ),
+
+        // Quick Actions - "The Bento Row"
+        SliverPadding(
+          padding: const EdgeInsets.symmetric(horizontal: 16),
+          sliver: SliverToBoxAdapter(
+            child: Row(
+              children: [
+                Expanded(
+                  flex: 3,
+                  child: _buildActionTile(
+                    context,
+                    title: 'SCAN NOW',
+                    subtitle: 'AI Soil Analysis',
+                    icon: Icons.camera_alt_outlined,
+                    color: MridaColors.primary,
+                    isDark: true,
+                    onTap: () => context.go('/scan/camera'),
                   ),
-                  const SizedBox(height: 16),
-                  
-                  // Quick Actions
-                  Row(
-                    children: [
-                      Expanded(
-                        child: ElevatedButton.icon(
-                          onPressed: () => context.go('/scan/camera'),
-                          icon: const Icon(Icons.photo_camera_outlined),
-                          label: const Text('SCAN SOIL'),
-                        ),
-                      ),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: OutlinedButton.icon(
-                          onPressed: () => context.go('/map'),
-                          icon: const Icon(Icons.location_on_outlined),
-                          label: const Text('MY FIELDS'),
-                          style: OutlinedButton.styleFrom(
-                            side: BorderSide(color: MridaColors.primary.withOpacity(0.1), width: 2),
-                          ),
-                        ),
-                      ),
-                    ],
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  flex: 2,
+                  child: _buildActionTile(
+                    context,
+                    title: 'MAPS',
+                    subtitle: 'View Fields',
+                    icon: Icons.map_outlined,
+                    color: Colors.white,
+                    isDark: false,
+                    onTap: () => context.go('/map'),
                   ),
-                  const SizedBox(height: 48),
-                  
-                  // Recent Scans Section
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text(
-                        'RECENT SCANS',
-                        style: theme.textTheme.labelMedium,
-                      ),
-                      Text(
-                        'SEE ALL',
-                        style: theme.textTheme.labelMedium?.copyWith(color: MridaColors.primary),
-                      ),
-                    ],
+                ),
+              ],
+            ),
+          ),
+        ),
+
+        const SliverToBoxAdapter(child: SizedBox(height: 48)),
+
+        // Recent Activity Header
+        SliverPadding(
+          padding: const EdgeInsets.symmetric(horizontal: 24),
+          sliver: SliverToBoxAdapter(
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              crossAxisAlignment: CrossAxisAlignment.end,
+              children: [
+                Text(
+                  'RECENT SCANS',
+                  style: theme.textTheme.labelLarge,
+                ),
+                Text(
+                  'SEE ALL',
+                  style: theme.textTheme.labelSmall?.copyWith(
+                    color: MridaColors.primary,
+                    fontWeight: FontWeight.w900,
                   ),
-                  const SizedBox(height: 24),
-                  SizedBox(
-                    height: 80,
-                    child: ListView(
-                      scrollDirection: Axis.horizontal,
-                      children: [
-                        _buildScanCard('West Orchard', 'Wheat', 'Oct 21', 'A', const Color(0xFF1D7A5F)),
-                        const SizedBox(width: 16),
-                        _buildScanCard('South Plateau', 'Cotton', 'Oct 19', 'B', const Color(0xFF8A8A42)),
-                        const SizedBox(width: 16),
-                        _buildScanCard('East Valley', 'Corn', 'Oct 15', 'C', const Color(0xFFD97706)),
-                      ],
-                    ),
-                  ),
-                  const SizedBox(height: 48),
-                  
-                  // Secondary Insights
-                  Row(
-                    children: [
-                      Expanded(child: _buildInsightCard(Icons.wb_sunny_outlined, '28°C', 'IDEAL SOWING')),
-                      const SizedBox(width: 16),
-                      Expanded(child: _buildInsightCard(Icons.opacity_outlined, '12%', 'SOIL MOISTURE')),
-                    ],
-                  ),
-                  const SizedBox(height: 120), // Padding for nav
-                ]),
+                ),
+              ],
+            ),
+          ),
+        ),
+
+        const SliverToBoxAdapter(child: SizedBox(height: 24)),
+
+        // horizontal scan list
+        SliverToBoxAdapter(
+          child: SizedBox(
+            height: 100,
+            child: ListView(
+              scrollDirection: Axis.horizontal,
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              physics: const BouncingScrollPhysics(),
+              children: [
+                _buildModernScanCard('North Plot', 'Oct 24', 'Grade A', MridaColors.gradeA),
+                _buildModernScanCard('West Hill', 'Oct 21', 'Grade B', MridaColors.gradeB),
+                _buildModernScanCard('South Rim', 'Oct 19', 'Grade A', MridaColors.gradeA),
+              ],
+            ),
+          ),
+        ),
+
+        const SliverToBoxAdapter(child: SizedBox(height: 48)),
+
+        // Insights Section
+        SliverPadding(
+          padding: const EdgeInsets.symmetric(horizontal: 16),
+          sliver: SliverToBoxAdapter(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'ENVIRONMENTAL INSIGHTS',
+                  style: theme.textTheme.labelLarge,
+                ),
+                const SizedBox(height: 24),
+                Row(
+                  children: [
+                    Expanded(child: _buildInsightTile('28°C', 'SUNNY', Icons.wb_sunny_outlined)),
+                    const SizedBox(width: 12),
+                    Expanded(child: _buildInsightTile('12%', 'MOISTURE', Icons.opacity_outlined)),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        ),
+
+        const SliverToBoxAdapter(child: SizedBox(height: 120)),
+      ],
+    );
+  }
+
+  Widget _buildActionTile(
+    BuildContext context, {
+    required String title,
+    required String subtitle,
+    required IconData icon,
+    required Color color,
+    required bool isDark,
+    required VoidCallback onTap,
+  }) {
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(24),
+      child: Container(
+        height: 120,
+        padding: const EdgeInsets.all(20),
+        decoration: BoxDecoration(
+          color: color,
+          borderRadius: BorderRadius.circular(24),
+          border: isDark ? null : Border.all(color: MridaColors.outline.withValues(alpha: 0.1)),
+          boxShadow: [
+            if (isDark)
+              BoxShadow(
+                color: color.withValues(alpha: 0.3),
+                blurRadius: 20,
+                offset: const Offset(0, 10),
               ),
+          ],
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Icon(icon, color: isDark ? Colors.white : MridaColors.primary, size: 28),
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  title,
+                  style: TextStyle(
+                    color: isDark ? Colors.white : MridaColors.primary,
+                    fontWeight: FontWeight.w900,
+                    fontSize: 14,
+                    letterSpacing: 1.0,
+                  ),
+                ),
+                Text(
+                  subtitle,
+                  style: TextStyle(
+                    color: isDark ? Colors.white.withValues(alpha: 0.6) : MridaColors.onSurfaceVariant,
+                    fontSize: 10,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ],
             ),
           ],
-        );
-      }
+        ),
+      ),
+    );
+  }
 
-  Widget _buildScanCard(String title, String crop, String date, String grade, Color color) {
+  Widget _buildModernScanCard(String title, String date, String grade, Color color) {
     return Container(
-      width: 260,
+      width: 200,
+      margin: const EdgeInsets.only(right: 12),
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.03),
-            offset: const Offset(0, 4),
-            blurRadius: 20,
-          ),
-        ],
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: MridaColors.outline.withValues(alpha: 0.1)),
       ),
       child: Row(
         children: [
           Container(
-            width: 44,
-            height: 44,
+            width: 8,
+            height: 48,
             decoration: BoxDecoration(
               color: color,
-              shape: BoxShape.circle,
-            ),
-            alignment: Alignment.center,
-            child: Text(
-              grade,
-              style: GoogleFonts.sora(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 18),
+              borderRadius: BorderRadius.circular(4),
             ),
           ),
           const SizedBox(width: 16),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Text(title, style: GoogleFonts.sora(fontSize: 14, fontWeight: FontWeight.bold)),
-              Text('$crop • $date', style: GoogleFonts.inter(fontSize: 12, color: MridaColors.onSurfaceVariant)),
-            ],
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text(
+                  title,
+                  style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 13),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+                Text(
+                  '$date • $grade',
+                  style: TextStyle(color: MridaColors.onSurfaceVariant, fontSize: 10, fontWeight: FontWeight.bold),
+                ),
+              ],
+            ),
           ),
         ],
       ),
     );
   }
 
-  Widget _buildInsightCard(IconData icon, String value, String label) {
+  Widget _buildInsightTile(String value, String label, IconData icon) {
     return Container(
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
-        color: MridaColors.surfaceContainerLow,
-        borderRadius: BorderRadius.circular(16),
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(24),
+        border: Border.all(color: MridaColors.outline.withValues(alpha: 0.1)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Icon(icon, color: MridaColors.primary.withValues(alpha: 0.4)),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                label,
+                style: const TextStyle(
+                  fontSize: 9,
+                  fontWeight: FontWeight.w900,
+                  letterSpacing: 2.0,
+                ),
+              ),
+              Icon(icon, size: 16, color: MridaColors.primary.withValues(alpha: 0.3)),
+            ],
+          ),
           const SizedBox(height: 16),
-          Text(value, style: GoogleFonts.sora(fontSize: 24, fontWeight: FontWeight.bold, color: MridaColors.primary)),
-          Text(label, style: GoogleFonts.inter(fontSize: 10, fontWeight: FontWeight.bold, letterSpacing: 1.5, color: MridaColors.onSurface.withValues(alpha: 0.4))),
+          Text(
+            value,
+            style: GoogleFonts.sora(
+              fontSize: 28,
+              fontWeight: FontWeight.w900,
+              color: MridaColors.primary,
+            ),
+          ),
         ],
       ),
     );

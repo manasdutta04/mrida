@@ -62,31 +62,34 @@ class AppTheme {
   static TextTheme buildTextTheme() {
     return GoogleFonts.interTextTheme().copyWith(
       displayLarge: GoogleFonts.sora(
+        fontSize: 48,
+        fontWeight: FontWeight.w900,
+        color: MridaColors.onSurface,
+        letterSpacing: -1.5,
+        height: 1.1,
+      ),
+      displayMedium: GoogleFonts.sora(
         fontSize: 32,
         fontWeight: FontWeight.w800,
         color: MridaColors.onSurface,
-        letterSpacing: -0.02,
-      ),
-      displayMedium: GoogleFonts.sora(
-        fontSize: 28,
-        fontWeight: FontWeight.bold,
-        color: MridaColors.onSurface,
-        letterSpacing: -0.01,
+        letterSpacing: -1.0,
+        height: 1.2,
       ),
       headlineLarge: GoogleFonts.sora(
-        fontSize: 22,
-        fontWeight: FontWeight.bold,
+        fontSize: 24,
+        fontWeight: FontWeight.w800,
         color: MridaColors.onSurface,
+        letterSpacing: -0.5,
       ),
       headlineMedium: GoogleFonts.epilogue(
-        fontSize: 18,
-        fontWeight: FontWeight.w600,
+        fontSize: 20,
+        fontWeight: FontWeight.bold,
         color: MridaColors.onSurface,
       ),
       bodyLarge: GoogleFonts.inter(
         fontSize: 16,
         color: MridaColors.onSurface,
-        height: 1.5,
+        height: 1.6,
       ),
       bodyMedium: GoogleFonts.inter(
         fontSize: 14,
@@ -98,14 +101,14 @@ class AppTheme {
       ),
       labelLarge: GoogleFonts.inter(
         fontSize: 12,
-        fontWeight: FontWeight.bold,
-        letterSpacing: 1.5,
+        fontWeight: FontWeight.w900,
+        letterSpacing: 2.0,
         color: MridaColors.onSurface,
       ),
       labelMedium: GoogleFonts.inter(
         fontSize: 10,
-        fontWeight: FontWeight.bold,
-        letterSpacing: 1.5,
+        fontWeight: FontWeight.w900,
+        letterSpacing: 2.5,
         color: MridaColors.onSurfaceVariant,
       ),
     );
