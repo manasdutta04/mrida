@@ -26,46 +26,82 @@ class ResultScreen extends StatelessWidget {
     return Scaffold(
       backgroundColor: MridaColors.surface,
       body: CustomScrollView(
+        physics: const BouncingScrollPhysics(),
         slivers: [
-          // Collapsing app bar with grade
-          SliverAppBar(
-            pinned: true,
-            expandedHeight: 220,
-            backgroundColor: MridaColors.surface,
-            leading: IconButton(
-              icon: const Icon(Icons.arrow_back),
-              onPressed: () => context.go('/home'),
-            ),
-            actions: [
-              IconButton(
-                icon: const Icon(Icons.share_outlined),
-                onPressed: () {},
+          // High-Impact Hero Header
+          SliverToBoxAdapter(
+            child: Container(
+              height: 380,
+              width: double.infinity,
+              decoration: const BoxDecoration(
+                image: DecorationImage(
+                  image: AssetImage('assets/demo/hero_field.png'),
+                  fit: BoxFit.cover,
+                ),
               ),
-              const SizedBox(width: 8),
-            ],
-            flexibleSpace: FlexibleSpaceBar(
-              background: SafeArea(
+              child: Container(
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    begin: Alignment.topCenter,
+                    end: Alignment.bottomCenter,
+                    colors: [
+                      Colors.transparent,
+                      Colors.black.withValues(alpha: 0.8),
+                    ],
+                  ),
+                ),
+                padding: const EdgeInsets.all(32),
                 child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   mainAxisAlignment: MainAxisAlignment.end,
                   children: [
-                    const SizedBox(height: 48),
-                    // Grade badge
-                    GradeWidget(grade: grade, size: 80),
-                    const SizedBox(height: 12),
-                    Text(
-                      r?.fieldId ?? 'North Plot',
-                      style: GoogleFonts.sora(
-                        fontSize: 18,
-                        fontWeight: FontWeight.w700,
-                        color: MridaColors.onSurface,
-                      ),
-                    ),
-                    Text(
-                      _formatDate(r?.scannedAt),
-                      style: GoogleFonts.inter(
-                        fontSize: 13,
-                        color: MridaColors.onSurfaceVariant,
-                      ),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      crossAxisAlignment: CrossAxisAlignment.end,
+                      children: [
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              r?.fieldId?.toUpperCase() ?? 'NORTH PLOT',
+                              style: theme.textTheme.labelLarge?.copyWith(
+                                color: Colors.white,
+                                fontSize: 10,
+                                letterSpacing: 3.0,
+                              ),
+                            ),
+                            const SizedBox(height: 8),
+                            Text(
+                              'ANALYSIS\nCOMPLETE',
+                              style: theme.textTheme.displayLarge?.copyWith(
+                                color: Colors.white,
+                                fontSize: 40,
+                                height: 0.9,
+                              ),
+                            ),
+                          ],
+                        ),
+                        Container(
+                          padding: const EdgeInsets.all(24),
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(24),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.white.withValues(alpha: 0.3),
+                                blurRadius: 20,
+                              ),
+                            ],
+                          ),
+                          child: Text(
+                            grade,
+                            style: theme.textTheme.displayLarge?.copyWith(
+                              fontSize: 48,
+                              color: MridaColors.primary,
+                            ),
+                          ),
+                        ),
+                      ],
                     ),
                     const SizedBox(height: 16),
                   ],
@@ -74,243 +110,196 @@ class ResultScreen extends StatelessWidget {
             ),
           ),
 
-          // Main content
           SliverPadding(
-            padding: const EdgeInsets.symmetric(horizontal: 24),
+            padding: const EdgeInsets.all(16),
             sliver: SliverList(
               delegate: SliverChildListDelegate([
-                // Confidence bar
-                ConfidenceBar(confidence: confidence),
-                const SizedBox(height: 16),
-
-                // Warning banner
-                if (confidence < 0.75) ...[
-                  WarningBanner(
-                    message: confidence < 0.60
-                        ? (r?.warningNote ?? 'Low confidence. Consider retaking in natural daylight with better lighting.')
-                        : 'Moderate confidence. Results may vary from lab tests. Consider soil testing for precise values.',
-                    level: confidence < 0.60 ? WarningLevel.low : WarningLevel.medium,
-                  ),
-                  const SizedBox(height: 24),
-                ],
-
-                // ─── What we detected ───
-                _SectionCard(
-                  title: 'What we detected',
-                  child: Column(
-                    children: [
-                      _DetectedRow(
-                        icon: Icons.palette_outlined,
-                        label: 'Color',
-                        value: r?.signals.colorDescription ?? 'Dark brown (10YR 3/2)',
-                      ),
-                      _DetectedRow(
-                        icon: Icons.grain,
-                        label: 'Texture',
-                        value: r?.signals.textureObservation ?? 'Fine granular',
-                      ),
-                      _DetectedRow(
-                        icon: Icons.water_drop_outlined,
-                        label: 'Moisture',
-                        value: r?.signals.moistureLevel ?? 'Moist',
-                      ),
-                      _DetectedRow(
-                        icon: Icons.eco_outlined,
-                        label: 'Organic Matter',
-                        value: r?.signals.organicMatterHint ?? 'Medium',
-                        isLast: true,
-                      ),
-                    ],
-                  ),
-                ),
-                const SizedBox(height: 16),
-
-                // ─── NPK Status ───
-                _SectionCard(
-                  title: 'NPK Status',
-                  child: Column(
-                    children: [
-                      NPKRow(
-                        nutrient: 'N',
-                        level: r?.npk.nitrogen ?? 'Low',
-                        range: r?.npk.nitrogenRaw ?? '< 140 kg/ha',
-                      ),
-                      NPKRow(
-                        nutrient: 'P',
-                        level: r?.npk.phosphorus ?? 'Medium',
-                        range: r?.npk.phosphorusRaw ?? '25–50 kg/ha',
-                      ),
-                      NPKRow(
-                        nutrient: 'K',
-                        level: r?.npk.potassium ?? 'High',
-                        range: r?.npk.potassiumRaw ?? '> 280 kg/ha',
-                      ),
-                    ],
-                  ),
-                ),
-                const SizedBox(height: 16),
-
-                // ─── pH Range ───
-                _SectionCard(
-                  title: 'pH Range',
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
-                        children: [
-                          Text(
-                            '${r?.ph.min ?? 6.2} – ${r?.ph.max ?? 7.0}',
-                            style: GoogleFonts.sora(
-                              fontSize: 28,
-                              fontWeight: FontWeight.w800,
-                              color: MridaColors.primary,
+                // Confidence & Warning
+                Row(
+                  children: [
+                    Expanded(
+                      flex: 2,
+                      child: Container(
+                        padding: const EdgeInsets.all(20),
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(24),
+                          border: Border.all(color: MridaColors.outline.withValues(alpha: 0.1)),
+                        ),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              'CONFIDENCE',
+                              style: theme.textTheme.labelLarge?.copyWith(fontSize: 8, letterSpacing: 2.0),
                             ),
-                          ),
-                          const Spacer(),
-                          Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                            decoration: BoxDecoration(
-                              color: MridaColors.confMedium.withValues(alpha: 0.12),
-                              borderRadius: BorderRadius.circular(100),
+                            const SizedBox(height: 8),
+                            Text(
+                              '${(confidence * 100).toInt()}%',
+                              style: theme.textTheme.displayMedium,
                             ),
-                            child: Text(
-                              _phLabel(r?.ph.min ?? 6.2),
-                              style: GoogleFonts.inter(
-                                fontSize: 12,
-                                fontWeight: FontWeight.w600,
-                                color: MridaColors.confMedium,
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 8),
-                      // pH scale visualization
-                      _PHScaleBar(min: r?.ph.min ?? 6.2, max: r?.ph.max ?? 7.0),
-                      const SizedBox(height: 12),
-                      Text(
-                        r?.ph.interpretation ?? 'Slightly acidic — suitable for most kharif crops',
-                        style: GoogleFonts.inter(
-                          fontSize: 13,
-                          color: MridaColors.onSurfaceVariant,
-                          height: 1.4,
+                          ],
                         ),
                       ),
-                    ],
-                  ),
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      flex: 3,
+                      child: Container(
+                        height: 100,
+                        padding: const EdgeInsets.all(16),
+                        decoration: BoxDecoration(
+                          color: confidence < 0.75 ? MridaColors.gradeD.withValues(alpha: 0.05) : MridaColors.gradeA.withValues(alpha: 0.05),
+                          borderRadius: BorderRadius.circular(24),
+                        ),
+                        alignment: Alignment.center,
+                        child: Text(
+                          confidence < 0.75 ? 'FOLLOW-UP RECOMMENDED' : 'PRECISION VERIFIED',
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                            fontSize: 9,
+                            fontWeight: FontWeight.w900,
+                            letterSpacing: 1.0,
+                            color: confidence < 0.75 ? MridaColors.gradeD : MridaColors.gradeA,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 32),
+
+                // Bento Section: Signals
+                Text(
+                  'OBSERVED SIGNALS',
+                  style: theme.textTheme.labelLarge,
                 ),
                 const SizedBox(height: 16),
+                Row(
+                  children: [
+                    Expanded(child: _buildBentoTile('COLOR', r?.signals.colorDescription ?? 'Brown', Icons.palette_outlined)),
+                    const SizedBox(width: 12),
+                    Expanded(child: _buildBentoTile('TEXTURE', r?.signals.textureObservation ?? 'Granular', Icons.grain)),
+                  ],
+                ),
+                const SizedBox(height: 12),
+                Row(
+                  children: [
+                    Expanded(child: _buildBentoTile('MOISTURE', r?.signals.moistureLevel ?? 'Moist', Icons.water_drop_outlined)),
+                    const SizedBox(width: 12),
+                    Expanded(child: _buildBentoTile('ORGANIC', r?.signals.organicMatterHint ?? 'Medium', Icons.eco_outlined)),
+                  ],
+                ),
+                const SizedBox(height: 32),
 
-                // ─── Deficiencies ───
-                if ((r?.deficiencies ?? ['nitrogen', 'zinc']).isNotEmpty)
-                  _SectionCard(
-                    title: 'Likely Deficiencies',
-                    child: Wrap(
-                      spacing: 8,
-                      runSpacing: 8,
-                      children: (r?.deficiencies ?? ['nitrogen', 'zinc']).map((d) {
-                        return Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
-                          decoration: BoxDecoration(
-                            color: MridaColors.gradeD.withValues(alpha: 0.08),
-                            borderRadius: BorderRadius.circular(100),
-                            border: Border.all(
-                              color: MridaColors.gradeD.withValues(alpha: 0.2),
-                            ),
-                          ),
-                          child: Text(
-                            d[0].toUpperCase() + d.substring(1),
-                            style: GoogleFonts.inter(
-                              fontSize: 13,
-                              fontWeight: FontWeight.w600,
-                              color: MridaColors.gradeD,
-                            ),
-                          ),
-                        );
-                      }).toList(),
-                    ),
-                  ),
+                // NPK Performance Grid
+                Text(
+                  'NUTRIENT PERFORMANCE',
+                  style: theme.textTheme.labelLarge,
+                ),
                 const SizedBox(height: 16),
-
-                // ─── Prescription ───
                 Container(
-                  padding: const EdgeInsets.all(20),
+                  padding: const EdgeInsets.all(24),
                   decoration: BoxDecoration(
-                    color: const Color(0xFFE8F5EE),
-                    borderRadius: BorderRadius.circular(20),
-                    border: Border.all(
-                      color: MridaColors.gradeA.withValues(alpha: 0.15),
-                    ),
+                    color: MridaColors.primary,
+                    borderRadius: BorderRadius.circular(32),
+                  ),
+                  child: Column(
+                    children: [
+                      _buildNPKPerformanceRow('Nitrogen', r?.npk.nitrogen ?? 'Low', Colors.white),
+                      const Divider(color: Colors.white24, height: 32),
+                      _buildNPKPerformanceRow('Phosphorus', r?.npk.phosphorus ?? 'Medium', Colors.white),
+                      const Divider(color: Colors.white24, height: 32),
+                      _buildNPKPerformanceRow('Potassium', r?.npk.potassium ?? 'High', Colors.white),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 32),
+
+                // Prescription Card
+                Container(
+                  padding: const EdgeInsets.all(32),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(32),
+                    border: Border.all(color: MridaColors.outline.withValues(alpha: 0.1)),
                   ),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Row(
-                        children: [
-                          const Icon(Icons.local_pharmacy_outlined, color: MridaColors.gradeA, size: 20),
-                          const SizedBox(width: 8),
-                          Text(
-                            'Fertilizer Prescription',
-                            style: GoogleFonts.sora(
-                              fontSize: 15,
-                              fontWeight: FontWeight.w700,
-                              color: MridaColors.gradeA,
-                            ),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 16),
                       Text(
-                        r?.prescriptionText ??
-                            'Apply 120 kg/ha Urea in 3 splits: 50% basal, 25% at tillering, 25% at panicle initiation. Apply 60 kg/ha DAP and 40 kg/ha MOP as basal. Correct zinc with 25 kg/ha ZnSO4.',
-                        style: GoogleFonts.inter(
-                          fontSize: 14,
-                          color: MridaColors.onSurface,
-                          height: 1.6,
-                        ),
+                        'PRESCRIPTION',
+                        style: theme.textTheme.labelLarge,
                       ),
-                      const SizedBox(height: 16),
+                      const SizedBox(height: 24),
+                      Text(
+                        r?.prescriptionText ?? 'Apply Urea and Potash as prescribed...',
+                        style: theme.textTheme.bodyLarge,
+                      ),
+                      const SizedBox(height: 32),
                       VoiceButton(
-                        text: r?.prescriptionAudio ??
-                            'Apply Urea in 3 doses. First 50% at sowing, then 25% each at tillering and panicle. Add DAP and potash as basal.',
+                        text: r?.prescriptionAudio ?? 'Audio prescription...',
                         languageCode: r?.languageCode ?? 'hi-IN',
                       ),
                     ],
                   ),
                 ),
-                const SizedBox(height: 24),
+                const SizedBox(height: 48),
 
-                // Save to field button
+                // Action Buttons
                 ElevatedButton(
-                  onPressed: () {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
-                        content: Text('Scan saved to field'),
-                        backgroundColor: MridaColors.gradeA,
-                      ),
-                    );
-                  },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: MridaColors.primary,
-                    foregroundColor: Colors.white,
-                    minimumSize: const Size(double.infinity, 56),
-                    shape: const StadiumBorder(),
-                  ),
-                  child: Text(
-                    'Save to Field',
-                    style: GoogleFonts.inter(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
+                  onPressed: () {},
+                  child: const Text('SAVE TO FIELD'),
                 ),
-                const SizedBox(height: 120), // Bottom nav padding
+                const SizedBox(height: 120),
               ]),
             ),
           ),
         ],
       ),
     );
+  }
+
+  Widget _buildBentoTile(String label, String value, IconData icon) {
+    return Container(
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(24),
+        border: Border.all(color: MridaColors.outline.withValues(alpha: 0.1)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Icon(icon, size: 20, color: MridaColors.primary.withValues(alpha: 0.3)),
+          const SizedBox(height: 16),
+          Text(
+            label,
+            style: const TextStyle(fontSize: 8, fontWeight: FontWeight.w900, letterSpacing: 2.0),
+          ),
+          const SizedBox(height: 4),
+          Text(
+            value,
+            style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 14),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildNPKPerformanceRow(String label, String value, Color color) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        Text(
+          label.toUpperCase(),
+          style: TextStyle(color: color.withValues(alpha: 0.6), fontWeight: FontWeight.w900, fontSize: 10, letterSpacing: 1.5),
+        ),
+        Text(
+          value.toUpperCase(),
+          style: TextStyle(color: color, fontWeight: FontWeight.w900, fontSize: 16),
+        ),
+      ],
   }
 
   String _formatDate(DateTime? date) {

@@ -10,206 +10,146 @@ class ProfileScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final theme = Theme.of(context);
     return Scaffold(
       backgroundColor: MridaColors.surface,
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.fromLTRB(24, 24, 24, 120),
-        child: Column(
-          children: [
-            // User Avatar & Name
-            Center(
-              child: Column(
-                children: [
-                  Container(
-                    width: 80,
-                    height: 80,
-                    decoration: const BoxDecoration(
-                      color: MridaColors.primary,
-                      shape: BoxShape.circle,
-                    ),
-                    alignment: Alignment.center,
-                    child: Text(
-                      'RK',
-                      style: GoogleFonts.sora(
-                        fontSize: 28,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.white,
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 16),
-                  Text(
-                    'Rajan Kumar',
-                    style: GoogleFonts.sora(
-                      fontSize: 22,
-                      fontWeight: FontWeight.bold,
-                      color: MridaColors.onSurface,
-                    ),
-                  ),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Text(
-                        '+91 98765 43210',
-                        style: GoogleFonts.inter(
-                          fontSize: 14,
-                          color: MridaColors.onSurfaceVariant,
-                        ),
-                      ),
-                      const SizedBox(width: 8),
-                      Text(
-                        '·',
-                        style: TextStyle(color: MridaColors.onSurfaceVariant),
-                      ),
-                      const SizedBox(width: 8),
-                      GestureDetector(
-                        onTap: () {},
-                        child: Text(
-                          'Edit',
-                          style: GoogleFonts.inter(
-                            fontSize: 14,
-                            fontWeight: FontWeight.bold,
-                            color: MridaColors.primary,
-                          ),
-                        ),
-                      ),
+      body: CustomScrollView(
+        slivers: [
+          // Cinematic Profile Header
+          SliverToBoxAdapter(
+            child: Container(
+              height: 340,
+              width: double.infinity,
+              decoration: const BoxDecoration(
+                image: DecorationImage(
+                  image: AssetImage('assets/demo/profile_hero.png'),
+                  fit: BoxFit.cover,
+                ),
+              ),
+              child: Container(
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    begin: Alignment.topCenter,
+                    end: Alignment.bottomCenter,
+                    colors: [
+                      Colors.transparent,
+                      Colors.black.withValues(alpha: 0.8),
                     ],
                   ),
-                ],
+                ),
+                padding: const EdgeInsets.all(32),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    Container(
+                      width: 80,
+                      height: 80,
+                      decoration: BoxDecoration(
+                        border: Border.all(color: Colors.white, width: 2),
+                        shape: BoxShape.circle,
+                      ),
+                      alignment: Alignment.center,
+                      child: Text(
+                        'RK',
+                        style: theme.textTheme.displayLarge?.copyWith(fontSize: 32, color: Colors.white),
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+                    Text(
+                      'RAJAN KUMAR',
+                      style: theme.textTheme.displayLarge?.copyWith(color: Colors.white, fontSize: 32),
+                    ),
+                    Text(
+                      '+91 98765 43210',
+                      style: TextStyle(
+                        color: Colors.white.withValues(alpha: 0.7),
+                        fontWeight: FontWeight.bold,
+                        fontSize: 12,
+                        letterSpacing: 1.0,
+                      ),
+                    ),
+                  ],
+                ),
               ),
             ),
-            const SizedBox(height: 32),
+          ),
 
-            // Stats row: 3 metric cards
-            Row(
-              children: [
-                _buildStatCard('12', 'SCANS'),
-                const SizedBox(width: 12),
-                _buildStatCard('3', 'FIELDS'),
-                const SizedBox(width: 12),
-                _buildStatCard('4', 'CROPS'),
-              ],
-            ),
-            const SizedBox(height: 32),
-
-            // Preferences Section
-            _buildSectionHeader('PREFERENCES'),
-            const SizedBox(height: 12),
-            _buildSettingsGroup([
-              _buildSettingsTile(Icons.language, 'Language', trailing: 'Hindi (IN)'),
-              _buildSettingsTile(Icons.notifications_none, 'Notifications', hasSwitch: true),
-              _buildSettingsTile(Icons.eco_outlined, 'Default Crop', trailing: 'Rice (Paddy)'),
-            ]),
-            const SizedBox(height: 24),
-
-            // My Farm Section
-            _buildSectionHeader('MY FARM'),
-            const SizedBox(height: 12),
-            _buildSettingsGroup([
-              _buildSettingsTile(Icons.map_outlined, 'Manage Fields', hasChevron: true),
-              _buildSettingsTile(Icons.history, 'Full Scan History', hasChevron: true),
-            ]),
-            const SizedBox(height: 24),
-
-            // Support Section
-            _buildSectionHeader('SUPPORT'),
-            const SizedBox(height: 12),
-            _buildSettingsGroup([
-              _buildSettingsTile(Icons.info_outline, 'About MRIDA', hasChevron: true),
-              _buildSettingsTile(Icons.star_outline, 'Rate the App', hasChevron: true),
-            ]),
-            const SizedBox(height: 48),
-
-            // Sign Out
-            SizedBox(
-              width: double.infinity,
-              child: TextButton(
-                onPressed: () async {
-                  try {
-                    await ref.read(authServiceProvider).signOut();
-                    if (context.mounted) {
-                      context.go('/welcome');
-                    }
-                  } catch (_) {
-                    if (context.mounted) {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(
-                          content: Text('Unable to sign out. Please try again.'),
-                        ),
-                      );
-                    }
-                  }
-                },
-                style: TextButton.styleFrom(
-                  foregroundColor: MridaColors.gradeD,
-                  padding: const EdgeInsets.symmetric(vertical: 16),
+          SliverPadding(
+            padding: const EdgeInsets.all(16),
+            sliver: SliverList(
+              delegate: SliverChildListDelegate([
+                // High-Contrast Bento Stats
+                Row(
+                  children: [
+                    _buildBentoStat('12', 'SCANS', theme),
+                    const SizedBox(width: 12),
+                    _buildBentoStat('3', 'FIELDS', theme),
+                    const SizedBox(width: 12),
+                    _buildBentoStat('4', 'CROPS', theme),
+                  ],
                 ),
-                child: Text(
-                  'Sign Out',
-                  style: GoogleFonts.inter(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w700,
+                const SizedBox(height: 32),
+
+                // Preferences
+                Text('PREFERENCES', style: theme.textTheme.labelLarge),
+                const SizedBox(height: 16),
+                _buildSettingsGroup([
+                  _buildSettingsTile(Icons.language, 'Language', trailing: 'Hindi (IN)'),
+                  _buildSettingsTile(Icons.notifications_none, 'Notifications', hasSwitch: true),
+                ]),
+                const SizedBox(height: 32),
+
+                // My Farm
+                Text('MY FARM', style: theme.textTheme.labelLarge),
+                const SizedBox(height: 16),
+                _buildSettingsGroup([
+                  _buildSettingsTile(Icons.map_outlined, 'Manage Fields', hasChevron: true),
+                  _buildSettingsTile(Icons.history, 'Full Scan History', hasChevron: true),
+                ]),
+                const SizedBox(height: 48),
+
+                // Sign Out
+                TextButton(
+                  onPressed: () {},
+                  style: TextButton.styleFrom(foregroundColor: MridaColors.gradeD),
+                  child: Text(
+                    'SECURE SIGN OUT',
+                    style: theme.textTheme.labelLarge?.copyWith(color: MridaColors.gradeD),
                   ),
                 ),
-              ),
+                const SizedBox(height: 120),
+              ]),
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
 
-
-  Widget _buildStatCard(String value, String label) {
+  Widget _buildBentoStat(String value, String label, ThemeData theme) {
     return Expanded(
       child: Container(
-        padding: const EdgeInsets.symmetric(vertical: 24),
+        padding: const EdgeInsets.all(24),
         decoration: BoxDecoration(
           color: Colors.white,
-          borderRadius: BorderRadius.circular(20),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withValues(alpha: 0.03),
-              offset: const Offset(0, 4),
-              blurRadius: 20,
-            ),
-          ],
+          borderRadius: BorderRadius.circular(24),
+          border: Border.all(color: MridaColors.outline.withValues(alpha: 0.1)),
         ),
         child: Column(
           children: [
             Text(
               value,
-              style: GoogleFonts.sora(
-                fontSize: 24,
-                fontWeight: FontWeight.w800,
-                color: MridaColors.primary,
-              ),
+              style: theme.textTheme.displayMedium?.copyWith(color: MridaColors.primary),
             ),
+            const SizedBox(height: 4),
             Text(
               label,
-              style: GoogleFonts.inter(
-                fontSize: 10,
-                fontWeight: FontWeight.w800,
-                letterSpacing: 1.0,
-                color: MridaColors.onSurfaceVariant,
-              ),
+              style: const TextStyle(fontSize: 8, fontWeight: FontWeight.w900, letterSpacing: 1.5),
             ),
           ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildSectionHeader(String title) {
-    return Align(
-      alignment: Alignment.centerLeft,
-      child: Text(
-        title,
-        style: GoogleFonts.inter(
-          fontSize: 11,
-          fontWeight: FontWeight.w800,
-          letterSpacing: 2.0,
-          color: MridaColors.onSurfaceVariant,
         ),
       ),
     );
@@ -219,14 +159,8 @@ class ProfileScreen extends ConsumerWidget {
     return Container(
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(20),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.02),
-            offset: const Offset(0, 2),
-            blurRadius: 10,
-          ),
-        ],
+        borderRadius: BorderRadius.circular(24),
+        border: Border.all(color: MridaColors.outline.withValues(alpha: 0.1)),
       ),
       child: Column(children: children),
     );
@@ -239,44 +173,27 @@ class ProfileScreen extends ConsumerWidget {
     bool hasSwitch = false,
     bool hasChevron = false,
   }) {
-    return InkWell(
-      onTap: () {},
-      child: Container(
-        height: 56, // 56px tap height as requested
-        padding: const EdgeInsets.symmetric(horizontal: 16),
-        child: Row(
-          children: [
-            Icon(icon, color: MridaColors.primary, size: 22),
-            const SizedBox(width: 16),
-            Expanded(
-              child: Text(
-                title,
-                style: GoogleFonts.inter(
-                  fontSize: 15,
-                  fontWeight: FontWeight.w600,
-                  color: MridaColors.onSurface,
-                ),
-              ),
+    return Container(
+      height: 64,
+      padding: const EdgeInsets.symmetric(horizontal: 20),
+      child: Row(
+        children: [
+          Icon(icon, color: MridaColors.primary.withValues(alpha: 0.4), size: 20),
+          const SizedBox(width: 16),
+          Expanded(
+            child: Text(
+              title.toUpperCase(),
+              style: const TextStyle(fontWeight: FontWeight.w900, fontSize: 11, letterSpacing: 0.5),
             ),
-            if (trailing != null)
-              Text(
-                trailing,
-                style: GoogleFonts.inter(
-                  fontSize: 13,
-                  fontWeight: FontWeight.w700,
-                  color: MridaColors.primary,
-                ),
-              ),
-            if (hasSwitch)
-              Switch(
-                value: true,
-                onChanged: (_) {},
-                activeThumbColor: MridaColors.primary,
-              ),
-            if (hasChevron)
-              const Icon(Icons.chevron_right, color: MridaColors.outlineVariant),
-          ],
-        ),
+          ),
+          if (trailing != null)
+            Text(
+              trailing,
+              style: TextStyle(color: MridaColors.primary, fontWeight: FontWeight.bold, fontSize: 12),
+            ),
+          if (hasSwitch) Switch(value: true, onChanged: (_) {}),
+          if (hasChevron) const Icon(Icons.chevron_right, size: 16, color: MridaColors.outlineVariant),
+        ],
       ),
     );
   }
