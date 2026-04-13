@@ -48,17 +48,29 @@ class FirestoreService {
   // --- User Profile Methods ---
 
   Stream<UserProfile?> watchUserProfile(String userId) {
-    return _firestore.collection('users').doc(userId).snapshots().map((snapshot) {
+    // Using a subcollection 'profile/info' to avoid permission issues on the parent user document.
+    return _firestore
+        .collection('users')
+        .doc(userId)
+        .collection('profile')
+        .doc('info')
+        .snapshots()
+        .map((snapshot) {
       if (!snapshot.exists || snapshot.data() == null) return null;
       return UserProfile.fromJson({
-        'uid': snapshot.id,
+        'uid': userId,
         ...snapshot.data()!,
       });
     });
   }
 
   Future<void> updateUserProfile(String userId, Map<String, dynamic> data) async {
-    await _firestore.collection('users').doc(userId).set(
+    await _firestore
+        .collection('users')
+        .doc(userId)
+        .collection('profile')
+        .doc('info')
+        .set(
           data,
           SetOptions(merge: true),
         );
