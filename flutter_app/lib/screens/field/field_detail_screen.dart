@@ -11,8 +11,6 @@ class FieldDetailScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-  @override
-  Widget build(BuildContext context) {
     final theme = Theme.of(context);
     
     return Scaffold(
@@ -118,17 +116,17 @@ class FieldDetailScreen extends StatelessWidget {
                 const SizedBox(height: 16),
                 Row(
                   children: [
-                    Expanded(child: _buildBentoTile('COLOR', 'Dark Brown', Icons.palette_outlined)),
+                    Expanded(child: _BentoInfoTile(label: 'COLOR', value: 'Dark Brown', icon: Icons.palette_outlined)),
                     const SizedBox(width: 12),
-                    Expanded(child: _buildBentoTile('TEXTURE', 'Loamy', Icons.grain)),
+                    Expanded(child: _BentoInfoTile(label: 'TEXTURE', value: 'Loamy', icon: Icons.grain)),
                   ],
                 ),
                 const SizedBox(height: 12),
                 Row(
                   children: [
-                    Expanded(child: _buildBentoTile('MOISTURE', '12%', Icons.water_drop_outlined)),
+                    Expanded(child: _BentoInfoTile(label: 'MOISTURE', value: '12%', icon: Icons.water_drop_outlined)),
                     const SizedBox(width: 12),
-                    Expanded(child: _buildBentoTile('ORGANIC', 'High', Icons.eco_outlined)),
+                    Expanded(child: _BentoInfoTile(label: 'ORGANIC', value: 'High', icon: Icons.eco_outlined)),
                   ],
                 ),
                 const SizedBox(height: 48),
@@ -136,9 +134,9 @@ class FieldDetailScreen extends StatelessWidget {
                 // NPK Status
                 Text('NUTRIENT LEVELS', style: theme.textTheme.labelLarge),
                 const SizedBox(height: 16),
-                _buildNPKRow('NITROGEN', 0.25, 'LOW', MridaColors.gradeD),
-                _buildNPKRow('PHOSPHORUS', 0.85, 'HIGH', MridaColors.gradeA),
-                _buildNPKRow('POTASSIUM', 0.55, 'MEDIUM', MridaColors.confMedium),
+                _NPKStatusRow(label: 'NITROGEN', value: 0.25, status: 'LOW', color: MridaColors.gradeD),
+                _NPKStatusRow(label: 'PHOSPHORUS', value: 0.85, status: 'HIGH', color: MridaColors.gradeA),
+                _NPKStatusRow(label: 'POTASSIUM', value: 0.55, status: 'MEDIUM', color: MridaColors.confMedium),
                 
                 const SizedBox(height: 48),
 
@@ -155,7 +153,7 @@ class FieldDetailScreen extends StatelessWidget {
                       Text('PH BALANCE', style: theme.textTheme.labelLarge),
                       const SizedBox(height: 16),
                       Text('6.2 – 7.0', style: theme.textTheme.displayLarge?.copyWith(color: MridaColors.primary)),
-                      Text('SLIGHTLY ACIDIC', style: TextStyle(fontWeight: FontWeight.w900, color: MridaColors.onSurfaceVariant, fontSize: 10)),
+                      Text('SLIGHTLY ACIDIC', style: const TextStyle(fontWeight: FontWeight.w900, color: MridaColors.onSurfaceVariant, fontSize: 10)),
                     ],
                   ),
                 ),
@@ -167,8 +165,16 @@ class FieldDetailScreen extends StatelessWidget {
       ),
     );
   }
+}
 
-  Widget _buildBentoTile(String label, String value, IconData icon) {
+class _BentoInfoTile extends StatelessWidget {
+  const _BentoInfoTile({required this.label, required this.value, required this.icon});
+  final String label;
+  final String value;
+  final IconData icon;
+
+  @override
+  Widget build(BuildContext context) {
     return Container(
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
@@ -188,8 +194,17 @@ class FieldDetailScreen extends StatelessWidget {
       ),
     );
   }
+}
 
-  Widget _buildNPKRow(String label, double value, String status, Color color) {
+class _NPKStatusRow extends StatelessWidget {
+  const _NPKStatusRow({required this.label, required this.value, required this.status, required this.color});
+  final String label;
+  final double value;
+  final String status;
+  final Color color;
+
+  @override
+  Widget build(BuildContext context) {
     return Container(
       margin: const EdgeInsets.only(bottom: 24),
       child: Column(
