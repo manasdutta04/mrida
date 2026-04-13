@@ -182,12 +182,29 @@ class ProfileScreen extends ConsumerWidget {
                 onPressed: () async {
                   final userId = ref.read(currentUserIdProvider);
                   if (userId != null) {
-                    await ref.read(firestoreServiceProvider).updateUserProfile(userId, {
-                      'displayName': nameController.text.trim(),
-                      'phoneNumber': phoneController.text.trim(),
-                    });
+                    try {
+                      await ref.read(firestoreServiceProvider).updateUserProfile(userId, {
+                        'displayName': nameController.text.trim(),
+                        'phoneNumber': phoneController.text.trim(),
+                      });
+                      if (context.mounted) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(content: Text('Profile updated successfully!')),
+                        );
+                        Navigator.pop(context);
+                      }
+                    } catch (e) {
+                      if (context.mounted) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            content: Text('Permission Denied: Update Firestore Rules in Firebase Console'),
+                            backgroundColor: Colors.red,
+                            duration: Duration(seconds: 5),
+                          ),
+                        );
+                      }
+                    }
                   }
-                  if (context.mounted) Navigator.pop(context);
                 },
                 child: const Text('SAVE CHANGES'),
               ),
