@@ -182,14 +182,21 @@ class ProfileScreen extends ConsumerWidget {
                 onPressed: () async {
                   final userId = ref.read(currentUserIdProvider);
                   if (userId != null) {
+                    final name = nameController.text.trim();
+                    final phone = phoneController.text.trim();
+
+                    // 1. Update Local Storage immediately for instant UI feedback
+                    ref.read(localStorageServiceProvider).saveProfile(name: name, phone: phone);
+
                     try {
+                      // 2. Attempt Firestore sync
                       await ref.read(firestoreServiceProvider).updateUserProfile(userId, {
-                        'displayName': nameController.text.trim(),
-                        'phoneNumber': phoneController.text.trim(),
+                        'displayName': name,
+                        'phoneNumber': phone,
                       });
                       if (context.mounted) {
                         ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(content: Text('Profile updated successfully!')),
+                          const SnackBar(content: Text('Profile synced to cloud!')),
                         );
                         Navigator.pop(context);
                       }
@@ -197,11 +204,11 @@ class ProfileScreen extends ConsumerWidget {
                       if (context.mounted) {
                         ScaffoldMessenger.of(context).showSnackBar(
                           const SnackBar(
-                            content: Text('Permission Denied: Update Firestore Rules in Firebase Console'),
-                            backgroundColor: Colors.red,
-                            duration: Duration(seconds: 5),
+                            content: Text('Saved locally. Cloud sync failed (Permission Denied).'),
+                            backgroundColor: Colors.orange,
                           ),
                         );
+                        Navigator.pop(context);
                       }
                     }
                   }
@@ -246,9 +253,17 @@ class _LanguageSettingTile extends ConsumerWidget {
             ],
             onChanged: (val) async {
               if (val != null) {
+                // 1. Update Local Storage immediately
+                ref.read(localStorageServiceProvider).saveProfile(language: val);
+
                 final userId = ref.read(currentUserIdProvider);
                 if (userId != null) {
-                  await ref.read(firestoreServiceProvider).updateUserProfile(userId, {'languageCode': val});
+                  try {
+                    // 2. Attempt Firestore sync
+                    await ref.read(firestoreServiceProvider).updateUserProfile(userId, {'languageCode': val});
+                  } catch (_) {
+                    // Ignore silently, local state is already changed and UI will show update
+                  }
                 }
               }
             },
