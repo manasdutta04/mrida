@@ -654,12 +654,6 @@ class _FieldMapScreenState extends ConsumerState<FieldMapScreen>
                   },
                 ),
               ),
-              RichAttributionWidget(
-                showFlutterMapAttribution: false,
-                attributions: const [
-                  TextSourceAttribution('© OpenStreetMap © CartoDB'),
-                ],
-              ),
             ],
           ),
           Positioned(
