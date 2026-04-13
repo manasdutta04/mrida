@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 import '../models/field.dart';
+import '../models/user_profile.dart';
 
 class FirestoreService {
   FirestoreService({FirebaseFirestore? firestore})
@@ -42,5 +43,24 @@ class FirestoreService {
 
     await ref.set(field.toFirestore());
     return field;
+  }
+
+  // --- User Profile Methods ---
+
+  Stream<UserProfile?> watchUserProfile(String userId) {
+    return _firestore.collection('users').doc(userId).snapshots().map((snapshot) {
+      if (!snapshot.exists || snapshot.data() == null) return null;
+      return UserProfile.fromJson({
+        'uid': snapshot.id,
+        ...snapshot.data()!,
+      });
+    });
+  }
+
+  Future<void> updateUserProfile(String userId, Map<String, dynamic> data) async {
+    await _firestore.collection('users').doc(userId).set(
+          data,
+          SetOptions(merge: true),
+        );
   }
 }

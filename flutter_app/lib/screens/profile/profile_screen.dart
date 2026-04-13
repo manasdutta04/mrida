@@ -3,6 +3,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../theme/app_theme.dart';
 import '../../providers/auth_provider.dart';
+import '../../providers/user_provider.dart';
+import '../../providers/field_provider.dart';
+import '../../models/user_profile.dart';
 
 class ProfileScreen extends ConsumerWidget {
   const ProfileScreen({super.key});
@@ -10,6 +13,9 @@ class ProfileScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
+    final userProfileAsync = ref.watch(userProfileProvider);
+    final profile = userProfileAsync.value;
+
     return Scaffold(
       backgroundColor: MridaColors.surface,
       body: CustomScrollView(
@@ -53,11 +59,11 @@ class ProfileScreen extends ConsumerWidget {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              'RAJAN KUMAR',
+                              profile?.displayName?.toUpperCase() ?? 'ADD NAME',
                               style: theme.textTheme.displayLarge?.copyWith(color: Colors.white, fontSize: 32),
                             ),
                             Text(
-                              '+91 98765 43210',
+                              profile?.phoneNumber ?? '+91 XXXXX XXXXX',
                               style: TextStyle(
                                 color: Colors.white.withValues(alpha: 0.7),
                                 fontWeight: FontWeight.bold,
@@ -80,12 +86,12 @@ class ProfileScreen extends ConsumerWidget {
             sliver: SliverList(
               delegate: SliverChildListDelegate([
                 // High-Contrast Bento Stats
-                Row(
+                const Row(
                   children: [
                     _BentoStatCard(value: '12', label: 'SCANS'),
-                    const SizedBox(width: 12),
+                    SizedBox(width: 12),
                     _BentoStatCard(value: '3', label: 'FIELDS'),
-                    const SizedBox(width: 12),
+                    SizedBox(width: 12),
                     _BentoStatCard(value: '4', label: 'CROPS'),
                   ],
                 ),
@@ -95,8 +101,13 @@ class ProfileScreen extends ConsumerWidget {
                 Text('PREFERENCES', style: theme.textTheme.labelLarge),
                 const SizedBox(height: 16),
                 _SettingsGroup(children: [
-                  _SettingsTile(icon: Icons.language, title: 'Language', trailing: 'Hindi (IN)'),
-                  _SettingsTile(icon: Icons.notifications_none, title: 'Notifications', hasSwitch: true),
+                  _LanguageSettingTile(currentCode: profile?.languageCode ?? 'en'),
+                  _SettingsTile(
+                    icon: Icons.edit_outlined,
+                    title: 'Edit Profile',
+                    hasChevron: true,
+                    onTap: () => _showEditProfileModal(context, ref, profile),
+                  ),
                 ]),
                 const SizedBox(height: 24),
 
@@ -108,7 +119,7 @@ class ProfileScreen extends ConsumerWidget {
 
                 // Sign Out
                 TextButton(
-                  onPressed: () {},
+                  onPressed: () => ref.read(authServiceProvider).signOut(),
                   style: TextButton.styleFrom(foregroundColor: MridaColors.gradeD),
                   child: Text(
                     'SECURE SIGN OUT',
@@ -118,6 +129,112 @@ class ProfileScreen extends ConsumerWidget {
                 const SizedBox(height: 120),
               ]),
             ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _showEditProfileModal(BuildContext context, WidgetRef ref, UserProfile? profile) {
+    final nameController = TextEditingController(text: profile?.displayName);
+    final phoneController = TextEditingController(text: profile?.phoneNumber);
+
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (context) => Container(
+        padding: EdgeInsets.fromLTRB(24, 24, 24, MediaQuery.of(context).viewInsets.bottom + 48),
+        decoration: const BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.vertical(top: Radius.circular(32)),
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Center(
+              child: Container(
+                width: 40,
+                height: 4,
+                decoration: BoxDecoration(color: MridaColors.outlineVariant, borderRadius: BorderRadius.circular(2)),
+              ),
+            ),
+            const SizedBox(height: 32),
+            const Text('EDIT PROFILE', style: TextStyle(fontWeight: FontWeight.w900, fontSize: 12, letterSpacing: 2.0)),
+            const SizedBox(height: 24),
+            TextField(
+              controller: nameController,
+              decoration: const InputDecoration(labelText: 'FULL NAME', hintText: 'Enter your name'),
+              style: const TextStyle(fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(height: 16),
+            TextField(
+              controller: phoneController,
+              decoration: const InputDecoration(labelText: 'PHONE NUMBER', hintText: '+91 ...'),
+              keyboardType: TextInputType.phone,
+              style: const TextStyle(fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(height: 32),
+            SizedBox(
+              width: double.infinity,
+              child: ElevatedButton(
+                onPressed: () async {
+                  final userId = ref.read(currentUserIdProvider);
+                  if (userId != null) {
+                    await ref.read(firestoreServiceProvider).updateUserProfile(userId, {
+                      'displayName': nameController.text.trim(),
+                      'phoneNumber': phoneController.text.trim(),
+                    });
+                  }
+                  if (context.mounted) Navigator.pop(context);
+                },
+                child: const Text('SAVE CHANGES'),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _LanguageSettingTile extends ConsumerWidget {
+  const _LanguageSettingTile({required this.currentCode});
+  final String currentCode;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    return Container(
+      height: 64,
+      padding: const EdgeInsets.symmetric(horizontal: 20),
+      child: Row(
+        children: [
+          Icon(Icons.language, color: MridaColors.primary.withValues(alpha: 0.4), size: 20),
+          const SizedBox(width: 16),
+          const Expanded(
+            child: Text(
+              'LANGUAGE',
+              style: TextStyle(fontWeight: FontWeight.w900, fontSize: 11, letterSpacing: 0.5),
+            ),
+          ),
+          DropdownButton<String>(
+            value: currentCode,
+            underline: const SizedBox(),
+            icon: const Icon(Icons.keyboard_arrow_down, size: 18),
+            style: const TextStyle(color: MridaColors.primary, fontWeight: FontWeight.bold, fontSize: 13),
+            items: const [
+              DropdownMenuItem(value: 'en', child: Text('ENGLISH')),
+              DropdownMenuItem(value: 'hi', child: Text('HINDI')),
+            ],
+            onChanged: (val) async {
+              if (val != null) {
+                final userId = ref.read(currentUserIdProvider);
+                if (userId != null) {
+                  await ref.read(firestoreServiceProvider).updateUserProfile(userId, {'languageCode': val});
+                }
+              }
+            },
           ),
         ],
       ),
