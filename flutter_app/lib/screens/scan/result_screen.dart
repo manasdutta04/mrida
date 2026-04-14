@@ -1,24 +1,16 @@
-import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
-import 'package:google_fonts/google_fonts.dart';
-
-import '../../models/scan_result.dart';
-import '../../theme/app_theme.dart';
-import '../../widgets/confidence_bar.dart';
-import '../../widgets/grade_widget.dart';
-import '../../widgets/npk_row.dart';
-import '../../widgets/voice_button.dart';
-import '../../widgets/warning_banner.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../providers/field_provider.dart';
+import '../../services/firestore_service.dart';
 
 /// Full scrollable result screen — the most critical screen in the app.
 /// Shows grade, confidence, detected signals, NPK, pH, deficiencies,
 /// prescription with voice output, and save button.
-class ResultScreen extends StatelessWidget {
+class ResultScreen extends ConsumerWidget {
   const ResultScreen({super.key, this.result});
   final ScanResult? result;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
     final r = result;
     final confidence = r?.confidenceScore ?? 0.78;
@@ -64,7 +56,7 @@ class ResultScreen extends StatelessWidget {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              r?.fieldId?.toUpperCase() ?? 'NORTH PLOT',
+                              r?.fieldId.toUpperCase() ?? 'NEW SCAN',
                               style: theme.textTheme.labelLarge?.copyWith(
                                 color: Colors.white,
                                 fontSize: 10,
@@ -153,17 +145,17 @@ class ResultScreen extends StatelessWidget {
                 const SizedBox(height: 16),
                 Row(
                   children: [
-                    Expanded(child: _SignalBentoTile(label: 'COLOR', value: 'Dark Brown', icon: Icons.palette_outlined)),
+                    Expanded(child: _SignalBentoTile(label: 'COLOR', value: r?.signals.colorDescription ?? '-', icon: Icons.palette_outlined)),
                     const SizedBox(width: 12),
-                    Expanded(child: _SignalBentoTile(label: 'TEXTURE', value: 'Loamy', icon: Icons.grain_outlined)),
+                    Expanded(child: _SignalBentoTile(label: 'TEXTURE', value: r?.signals.textureObservation ?? '-', icon: Icons.grain_outlined)),
                   ],
                 ),
                 const SizedBox(height: 12),
                 Row(
                   children: [
-                    Expanded(child: _SignalBentoTile(label: 'MOISTURE', value: '12%', icon: Icons.water_drop_outlined)),
+                    Expanded(child: _SignalBentoTile(label: 'MOISTURE', value: r?.signals.moistureLevel ?? '-', icon: Icons.water_drop_outlined)),
                     const SizedBox(width: 12),
-                    Expanded(child: _SignalBentoTile(label: 'ORGANIC', value: 'High', icon: Icons.eco_outlined)),
+                    Expanded(child: _SignalBentoTile(label: 'ORGANIC', value: r?.signals.organicMatterHint ?? '-', icon: Icons.eco_outlined)),
                   ],
                 ),
                 const SizedBox(height: 48),
@@ -209,7 +201,31 @@ class ResultScreen extends StatelessWidget {
       bottomNavigationBar: Container(
         padding: const EdgeInsets.fromLTRB(24, 0, 24, 40),
         child: ElevatedButton(
-          onPressed: () => context.pop(),
+          onPressed: r == null 
+            ? null 
+            : () async {
+                try {
+                  // Show loading
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('Saving analysis...'), duration: Duration(seconds: 1)),
+                  );
+                  
+                  await ref.read(firestoreServiceProvider).saveScanResult(r);
+                  
+                  if (context.mounted) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text('Analysis saved successfully!')),
+                    );
+                    context.go('/home');
+                  }
+                } catch (e) {
+                  if (context.mounted) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(content: Text('Failed to save: $e'), backgroundColor: Colors.red),
+                    );
+                  }
+                }
+              },
           child: const Text('SAVE TO FIELD'),
         ),
       ),

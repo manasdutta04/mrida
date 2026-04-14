@@ -86,14 +86,27 @@ class ProfileScreen extends ConsumerWidget {
             sliver: SliverList(
               delegate: SliverChildListDelegate([
                 // High-Contrast Bento Stats
-                const Row(
-                  children: [
-                    _BentoStatCard(value: '12', label: 'SCANS'),
-                    SizedBox(width: 12),
-                    _BentoStatCard(value: '3', label: 'FIELDS'),
-                    SizedBox(width: 12),
-                    _BentoStatCard(value: '4', label: 'CROPS'),
-                  ],
+                // High-Contrast Bento Stats
+                statsAsync.when(
+                  data: (stats) => Row(
+                    children: [
+                      _BentoStatCard(value: stats['scans'].toString(), label: 'SCANS'),
+                      const SizedBox(width: 12),
+                      _BentoStatCard(value: stats['fields'].toString(), label: 'FIELDS'),
+                      const SizedBox(width: 12),
+                      _BentoStatCard(value: stats['crops'].toString(), label: 'CROPS'),
+                    ],
+                  ),
+                  loading: () => const Row(
+                    children: [
+                      _BentoStatCard(value: '...', label: 'SCANS'),
+                      SizedBox(width: 12),
+                      _BentoStatCard(value: '...', label: 'FIELDS'),
+                      SizedBox(width: 12),
+                      _BentoStatCard(value: '...', label: 'CROPS'),
+                    ],
+                  ),
+                  error: (_, __) => const SizedBox.shrink(),
                 ),
                 const SizedBox(height: 32),
 

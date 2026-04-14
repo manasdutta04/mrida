@@ -1,25 +1,16 @@
-import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
-import 'package:google_fonts/google_fonts.dart';
-import '../../theme/app_theme.dart';
-import '../../widgets/grade_widget.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../providers/scan_provider.dart';
+import '../../providers/field_provider.dart';
+import 'package:intl/intl.dart';
 
-class HistoryScreen extends StatelessWidget {
+class HistoryScreen extends ConsumerWidget {
   const HistoryScreen({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
-    // Mock data for grouping scans by field
-    final historyData = {
-      'North Plot': [
-        _ScanHistoryItem(grade: 'B', crop: 'Wheat', season: 'Rabi', date: '24 Oct 2024'),
-        _ScanHistoryItem(grade: 'A', crop: 'Soybean', season: 'Kharif', date: '12 Sep 2024'),
-      ],
-      'East Ridge': [
-        _ScanHistoryItem(grade: 'C', crop: 'Mustard', season: 'Rabi', date: '05 Aug 2024'),
-      ],
-    };
+    final fieldsAsync = ref.watch(fieldsStreamProvider);
+    final scansAsync = ref.watch(scansStreamProvider);
 
     return Scaffold(
       backgroundColor: MridaColors.surface,
@@ -37,29 +28,58 @@ class HistoryScreen extends StatelessWidget {
           ),
 
           // Sections
-          for (var fieldName in historyData.keys) ...[
-            SliverToBoxAdapter(
-              child: Padding(
-                padding: const EdgeInsets.fromLTRB(24, 16, 24, 16),
-                child: Text(
-                  fieldName.toUpperCase(),
-                  style: theme.textTheme.labelLarge,
-                ),
-              ),
+          fieldsAsync.when(
+            data: (fields) => scansAsync.when(
+              data: (scans) {
+                if (scans.isEmpty) {
+                  return const SliverFillRemaining(
+                    child: Center(child: Text('No scans found. Take your first scan to see history.')),
+                  );
+                }
+
+                // Map field names for quick lookup
+                final fieldNames = {for (var f in fields) f.fieldId: f.name};
+
+                // Group scans by fieldId
+                final groupedScans = <String, List<ScanResult>>{};
+                for (var scan in scans) {
+                  groupedScans.putIfAbsent(scan.fieldId, () => []).add(scan);
+                }
+
+                return SliverList(
+                  delegate: SliverChildBuilderDelegate(
+                    (context, index) {
+                      final fieldId = groupedScans.keys.elementAt(index);
+                      final fieldName = fieldNames[fieldId] ?? 'Unknown Field';
+                      final scansInField = groupedScans[fieldId]!;
+
+                      return Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Padding(
+                            padding: const EdgeInsets.fromLTRB(24, 32, 24, 16),
+                            child: Text(
+                              fieldName.toUpperCase(),
+                              style: theme.textTheme.labelLarge,
+                            ),
+                          ),
+                          ...scansInField.map((scan) => Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 16),
+                            child: _buildActionRow(context, scan, theme),
+                          )),
+                        ],
+                      );
+                    },
+                    childCount: groupedScans.length,
+                  ),
+                );
+              },
+              loading: () => const SliverFillRemaining(child: Center(child: CircularProgressIndicator())),
+              error: (e, __) => SliverFillRemaining(child: Center(child: Text('Error: $e'))),
             ),
-            SliverPadding(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              sliver: SliverList(
-                delegate: SliverChildBuilderDelegate(
-                  (context, index) {
-                    final scan = historyData[fieldName]![index];
-                    return _buildActionRow(context, scan, theme);
-                  },
-                  childCount: historyData[fieldName]!.length,
-                ),
-              ),
-            ),
-          ],
+            loading: () => const SliverFillRemaining(child: Center(child: CircularProgressIndicator())),
+            error: (e, __) => SliverFillRemaining(child: Center(child: Text('Error: $e'))),
+          ),
           
           const SliverToBoxAdapter(child: SizedBox(height: 120)),
         ],
@@ -67,14 +87,14 @@ class HistoryScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildActionRow(BuildContext context, _ScanHistoryItem scan, ThemeData theme) {
+  Widget _buildActionRow(BuildContext context, ScanResult scan, ThemeData theme) {
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
       child: Material(
         color: Colors.white,
         borderRadius: BorderRadius.circular(24),
         child: InkWell(
-          onTap: () => context.push('/scan/result'),
+          onTap: () => context.push('/scan/result', extra: scan),
           borderRadius: BorderRadius.circular(24),
           child: Container(
             padding: const EdgeInsets.all(20),
@@ -93,7 +113,7 @@ class HistoryScreen extends StatelessWidget {
                   ),
                   alignment: Alignment.center,
                   child: Text(
-                    scan.grade,
+                    scan.grade.name.toUpperCase(),
                     style: TextStyle(
                       fontWeight: FontWeight.w900,
                       color: MridaColors.primary,
@@ -107,11 +127,11 @@ class HistoryScreen extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        scan.crop.toUpperCase(),
+                        'GRADE ${scan.grade.name.toUpperCase()}',
                         style: const TextStyle(fontWeight: FontWeight.w900, fontSize: 13, letterSpacing: 0.5),
                       ),
                       Text(
-                        '${scan.season} • ${scan.date}',
+                        DateFormat('MMM dd, yyyy').format(scan.scannedAt),
                         style: TextStyle(color: MridaColors.onSurfaceVariant, fontSize: 11, fontWeight: FontWeight.bold),
                       ),
                     ],
@@ -125,18 +145,4 @@ class HistoryScreen extends StatelessWidget {
       ),
     );
   }
-}
-
-class _ScanHistoryItem {
-  final String grade;
-  final String crop;
-  final String season;
-  final String date;
-
-  _ScanHistoryItem({
-    required this.grade,
-    required this.crop,
-    required this.season,
-    required this.date,
-  });
 }

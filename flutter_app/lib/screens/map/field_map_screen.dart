@@ -462,8 +462,22 @@ class _FieldMapScreenState extends ConsumerState<FieldMapScreen>
                   ConfidenceBar(confidence: confidence),
                   const SizedBox(height: 16),
                   ElevatedButton(
-                    onPressed: () {
-                      context.push('/scan/result');
+                    onPressed: () async {
+                      final userId = ref.read(currentUserIdProvider);
+                      if (userId == null) return;
+                      // Fetch latest scan snapshot
+                      final scans = await ref.read(firestoreServiceProvider).watchScans(userId).first;
+                      final fieldScan = scans.where((s) => s.fieldId == field.fieldId).firstOrNull;
+                      
+                      if (context.mounted) {
+                        if (fieldScan != null) {
+                          context.push('/scan/result', extra: fieldScan);
+                        } else {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(content: Text('No reports found for this field.')),
+                          );
+                        }
+                      }
                     },
                     style: ElevatedButton.styleFrom(
                       shape: const StadiumBorder(),

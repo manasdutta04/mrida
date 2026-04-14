@@ -1,15 +1,16 @@
-import 'dart:ui';
-import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
-import 'package:google_fonts/google_fonts.dart';
-import '../../theme/app_theme.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../providers/scan_provider.dart';
+import '../../models/scan_result.dart';
+import 'package:intl/intl.dart';
 
-class HomeScreen extends StatelessWidget {
+class HomeScreen extends ConsumerWidget {
   const HomeScreen({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
+    final scansAsync = ref.watch(scansStreamProvider);
+    final statsAsync = ref.watch(statsProvider);
     
     return CustomScrollView(
       physics: const BouncingScrollPhysics(),
@@ -100,6 +101,27 @@ class HomeScreen extends StatelessWidget {
           ),
         ),
 
+        // Dynamic Stats Row
+        SliverPadding(
+          padding: const EdgeInsets.symmetric(horizontal: 24),
+          sliver: SliverToBoxAdapter(
+            child: statsAsync.when(
+              data: (stats) => Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  _buildStatItem('SCANS', stats['scans'].toString()),
+                  _buildStatItem('FIELDS', stats['fields'].toString()),
+                  _buildStatItem('CROPS', stats['crops'].toString()),
+                ],
+              ),
+              loading: () => const Center(child: CircularProgressIndicator()),
+              error: (_, __) => const SizedBox.shrink(),
+            ),
+          ),
+        ),
+
+        const SliverToBoxAdapter(child: SizedBox(height: 32)),
+
         // Quick Actions - "The Bento Row"
         SliverPadding(
           padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -168,15 +190,39 @@ class HomeScreen extends StatelessWidget {
         SliverToBoxAdapter(
           child: SizedBox(
             height: 100,
-            child: ListView(
-              scrollDirection: Axis.horizontal,
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              physics: const BouncingScrollPhysics(),
-              children: [
-                _buildModernScanCard('North Plot', 'Oct 24', 'Grade A', MridaColors.gradeA),
-                _buildModernScanCard('West Hill', 'Oct 21', 'Grade B', MridaColors.gradeB),
-                _buildModernScanCard('South Rim', 'Oct 19', 'Grade A', MridaColors.gradeA),
-              ],
+            child: scansAsync.when(
+              data: (scans) {
+                if (scans.isEmpty) {
+                  return Center(
+                    child: Text(
+                      'No scans yet. Start by scanning your soil!',
+                      style: theme.textTheme.bodySmall,
+                    ),
+                  );
+                }
+                final recentScans = scans.take(5).toList();
+                final fields = ref.watch(fieldsStreamProvider).value ?? [];
+                final fieldMap = {for (var f in fields) f.fieldId: f.name};
+
+                return ListView.builder(
+                  scrollDirection: Axis.horizontal,
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  physics: const BouncingScrollPhysics(),
+                  itemCount: recentScans.length,
+                  itemBuilder: (context, index) {
+                    final scan = recentScans[index];
+                    return _buildModernScanCard(
+                      context,
+                      fieldMap[scan.fieldId] ?? scan.fieldId.toUpperCase(),
+                      DateFormat('MMM dd').format(scan.scannedAt),
+                      'Grade ${scan.grade.name.toUpperCase()}',
+                      _getColorForGrade(scan.grade.name),
+                    );
+                  },
+                );
+              },
+              loading: () => const Center(child: CircularProgressIndicator()),
+              error: (e, __) => Center(child: Text('Error: $e')),
             ),
           ),
         ),
@@ -273,7 +319,7 @@ class HomeScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildModernScanCard(String title, String date, String grade, Color color) {
+  Widget _buildModernScanCard(BuildContext context, String title, String date, String grade, Color color) {
     return Container(
       width: 200,
       margin: const EdgeInsets.only(right: 12),
@@ -315,6 +361,42 @@ class HomeScreen extends StatelessWidget {
         ],
       ),
     );
+  }
+
+  Widget _buildStatItem(String label, String value) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          label,
+          style: GoogleFonts.inter(
+            fontSize: 10,
+            fontWeight: FontWeight.w900,
+            letterSpacing: 1.5,
+            color: MridaColors.onSurfaceVariant,
+          ),
+        ),
+        const SizedBox(height: 4),
+        Text(
+          value,
+          style: GoogleFonts.sora(
+            fontSize: 24,
+            fontWeight: FontWeight.w900,
+            color: MridaColors.primary,
+          ),
+        ),
+      ],
+    );
+  }
+
+  Color _getColorForGrade(String grade) {
+    switch (grade.toUpperCase()) {
+      case 'A': return MridaColors.gradeA;
+      case 'B': return MridaColors.gradeB;
+      case 'C': return MridaColors.gradeC;
+      case 'D': return MridaColors.gradeD;
+      default: return MridaColors.primary;
+    }
   }
 
   Widget _buildInsightTile(String value, String label, IconData icon) {

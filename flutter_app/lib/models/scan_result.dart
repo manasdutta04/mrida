@@ -38,9 +38,17 @@ class ScanResult {
   final DateTime scannedAt;
   final String? warningNote;
 
-  /// Parse backend response (Mode 2 — Cloud Run / Firestore document)
+  /// Parse backend response
   factory ScanResult.fromJson(Map<String, dynamic> json) {
     final loc = json['location'];
+    
+    // Handle Firestore Timestamp vs ISO String
+    DateTime parseTime(dynamic val) {
+      if (val is Timestamp) return val.toDate();
+      if (val is String) return DateTime.parse(val);
+      return DateTime.now();
+    }
+
     return ScanResult(
       scanId: (json['scanId'] ?? json['scan_id'] ?? '') as String,
       fieldId: (json['fieldId'] ?? json['field_id'] ?? '') as String,
@@ -49,7 +57,7 @@ class ScanResult {
       grade: _parseGrade(json['grade'] as String? ?? 'C'),
       npk: NPKEstimate.fromJson(Map<String, dynamic>.from(json['npk'] as Map)),
       ph: PHRange.fromJson(Map<String, dynamic>.from(json['ph'] as Map)),
-      deficiencies: (json['deficiencies'] as List).map((e) => e.toString()).toList(),
+      deficiencies: (json['deficiencies'] as List?)?.map((e) => e.toString()).toList() ?? [],
       prescriptionText: _extractPrescriptionText(json),
       prescriptionAudio: _extractPrescriptionAudio(json),
       confidenceScore: (json['confidenceScore'] ?? json['confidence'] as num? ?? 0.0).toDouble(),
@@ -57,15 +65,51 @@ class ScanResult {
       languageCode: (json['languageCode'] ?? json['language'] ?? 'en') as String,
       location: loc != null
           ? GeoPoint(
-              (loc['_latitude'] ?? loc['latitude'] as num? ?? 0.0).toDouble(),
-              (loc['_longitude'] ?? loc['longitude'] as num? ?? 0.0).toDouble(),
+              (loc['latitude'] ?? loc['_latitude'] as num? ?? 0.0).toDouble(),
+              (loc['longitude'] ?? loc['_longitude'] as num? ?? 0.0).toDouble(),
             )
           : const GeoPoint(0, 0),
-      scannedAt: json['scannedAt'] != null
-          ? DateTime.parse(json['scannedAt'] as String)
-          : DateTime.now(),
+      scannedAt: parseTime(json['scannedAt'] ?? json['scanned_at']),
       warningNote: (json['warningNote'] ?? json['warning_note']) as String?,
     );
+  }
+
+  Map<String, dynamic> toFirestore() {
+    return {
+      'scanId': scanId,
+      'fieldId': fieldId,
+      'userId': userId,
+      'imageUrl': imageUrl,
+      'grade': grade.name.toUpperCase(),
+      'npk': {
+        'nitrogen': npk.nitrogen,
+        'phosphorus': npk.phosphorus,
+        'potassium': npk.potassium,
+        'nitrogenRaw': npk.nitrogenRaw,
+        'phosphorusRaw': npk.phosphorusRaw,
+        'potassiumRaw': npk.potassiumRaw,
+      },
+      'ph': {
+        'min': ph.min,
+        'max': ph.max,
+        'interpretation': ph.interpretation,
+      },
+      'deficiencies': deficiencies,
+      'prescriptionText': prescriptionText,
+      'prescriptionAudio': prescriptionAudio,
+      'confidenceScore': confidenceScore,
+      'signals': {
+        'colorDescription': signals.colorDescription,
+        'textureObservation': signals.textureObservation,
+        'crackPattern': signals.crackPattern,
+        'moistureLevel': signals.moistureLevel,
+        'organicMatterHint': signals.organicMatterHint,
+      },
+      'languageCode': languageCode,
+      'location': location,
+      'scannedAt': Timestamp.fromDate(scannedAt),
+      'warningNote': warningNote,
+    };
   }
 
   /// Parse direct Gemini API response (Mode 1 — direct call)

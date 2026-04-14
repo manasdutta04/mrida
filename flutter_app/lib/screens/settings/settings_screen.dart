@@ -11,6 +11,9 @@ class SettingsScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final profile = ref.watch(userProfileProvider).value;
+    final lang = profile?.languageCode == 'hi' ? 'Hindi (IN)' : 'English (US)';
+    
     return Scaffold(
       backgroundColor: MridaColors.surface,
       appBar: UniversalAppBar(title: 'PREFERENCES', showSettings: false),
@@ -21,9 +24,14 @@ class SettingsScreen extends ConsumerWidget {
             const SizedBox(height: 24),
             const SizedBox(height: 12),
             _buildSettingsGroup([
-              _buildSettingsTile(Icons.language, 'Language', trailing: 'Hindi (IN)'),
+              _buildSettingsTile(
+                Icons.language, 
+                'Language', 
+                trailing: lang,
+                onTap: () => context.push('/profile'), // Navigate to profile to change language
+              ),
               _buildSettingsTile(Icons.notifications_none, 'Notifications', hasSwitch: true),
-              _buildSettingsTile(Icons.eco_outlined, 'Default Crop', trailing: 'Rice (Paddy)'),
+              _buildSettingsTile(Icons.eco_outlined, 'Status', trailing: 'Connected'),
               _buildSettingsTile(Icons.straighten_outlined, 'Measurement Units', trailing: 'Metric (kg, m)'),
             ]),
             const SizedBox(height: 32),
