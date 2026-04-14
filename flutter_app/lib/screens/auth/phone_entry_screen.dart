@@ -117,6 +117,22 @@ class _PhoneEntryScreenState extends State<PhoneEntryScreen> {
                 ),
               ),
               
+              if (isLoginMode)
+                Align(
+                  alignment: Alignment.centerRight,
+                  child: TextButton(
+                    onPressed: _handleForgotPassword,
+                    child: Text(
+                      'Forgot Password?',
+                      style: GoogleFonts.inter(
+                        fontSize: 13,
+                        fontWeight: FontWeight.w600,
+                        color: MridaColors.primary,
+                      ),
+                    ),
+                  ),
+                ),
+              
               // Confirm Password field (only for signup)
               if (!isLoginMode) ...[
                 const SizedBox(height: 24),
@@ -270,6 +286,44 @@ class _PhoneEntryScreenState extends State<PhoneEntryScreen> {
       setState(() => loading = true);
       await auth.signInWithGoogle();
       if (context.mounted) context.go('/home');
+    } catch (e) {
+      setState(() => loading = false);
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(e.toString())),
+        );
+      }
+    }
+  }
+
+  Future<void> _handleForgotPassword() async {
+    final email = emailController.text.trim();
+    if (email.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Please enter your email to reset password')),
+      );
+      return;
+    }
+
+    try {
+      setState(() => loading = true);
+      await auth.sendPasswordResetEmail(email);
+      setState(() => loading = false);
+      if (mounted) {
+        showDialog(
+          context: context,
+          builder: (context) => AlertDialog(
+            title: const Text('Reset Link Sent'),
+            content: Text('A password reset link has been sent to $email. Please check your inbox.'),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(context),
+                child: const Text('OK'),
+              ),
+            ],
+          ),
+        );
+      }
     } catch (e) {
       setState(() => loading = false);
       if (mounted) {

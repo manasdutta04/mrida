@@ -41,6 +41,12 @@ class SettingsScreen extends ConsumerWidget {
             _buildSectionHeader('ACCOUNT'),
             const SizedBox(height: 12),
             _buildSettingsGroup([
+              _buildSettingsTile(
+                Icons.lock_reset_outlined, 
+                'Change Password', 
+                hasChevron: true,
+                onTap: () => _showChangePasswordModal(context, ref),
+              ),
               _buildSettingsTile(Icons.delete_outline, 'Delete Account', color: MridaColors.gradeD),
             ]),
             const SizedBox(height: 48),
@@ -79,6 +85,127 @@ class SettingsScreen extends ConsumerWidget {
               ),
             ),
           ],
+        ),
+      ),
+    );
+  }
+
+  void _showChangePasswordModal(BuildContext context, WidgetRef ref) {
+    final currentPasswordController = TextEditingController();
+    final newPasswordController = TextEditingController();
+    final confirmPasswordController = TextEditingController();
+    bool loading = false;
+
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (context) => StatefulBuilder(
+        builder: (context, setModalState) => Container(
+          padding: EdgeInsets.fromLTRB(24, 24, 24, MediaQuery.of(context).viewInsets.bottom + 48),
+          decoration: const BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.vertical(top: Radius.circular(32)),
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Center(
+                child: Container(
+                  width: 40,
+                  height: 4,
+                  decoration: BoxDecoration(color: MridaColors.outlineVariant, borderRadius: BorderRadius.circular(2)),
+                ),
+              ),
+              const SizedBox(height: 32),
+              Text(
+                'CHANGE PASSWORD',
+                style: GoogleFonts.inter(
+                  fontWeight: FontWeight.w900,
+                  fontSize: 12,
+                  letterSpacing: 2.0,
+                  color: MridaColors.primary,
+                ),
+              ),
+              const SizedBox(height: 24),
+              TextField(
+                controller: currentPasswordController,
+                obscureText: true,
+                decoration: const InputDecoration(
+                  labelText: 'CURRENT PASSWORD',
+                  prefixIcon: Icon(Icons.lock_open_rounded),
+                ),
+              ),
+              const SizedBox(height: 16),
+              TextField(
+                controller: newPasswordController,
+                obscureText: true,
+                decoration: const InputDecoration(
+                  labelText: 'NEW PASSWORD',
+                  prefixIcon: Icon(Icons.lock_outline),
+                ),
+              ),
+              const SizedBox(height: 16),
+              TextField(
+                controller: confirmPasswordController,
+                obscureText: true,
+                decoration: const InputDecoration(
+                  labelText: 'CONFIRM NEW PASSWORD',
+                  prefixIcon: Icon(Icons.shield_outlined),
+                ),
+              ),
+              const SizedBox(height: 32),
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton(
+                  onPressed: loading ? null : () async {
+                    final current = currentPasswordController.text;
+                    final next = newPasswordController.text;
+                    final confirm = confirmPasswordController.text;
+
+                    if (current.isEmpty || next.isEmpty || confirm.isEmpty) {
+                      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Please fill all fields')));
+                      return;
+                    }
+
+                    if (next != confirm) {
+                      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('New passwords do not match')));
+                      return;
+                    }
+
+                    try {
+                      setModalState(() => loading = true);
+                      final auth = ref.read(authServiceProvider);
+                      
+                      // 1. Re-authenticate
+                      await auth.reauthenticate(current);
+                      
+                      // 2. Update Password
+                      await auth.updatePassword(next);
+                      
+                      if (context.mounted) {
+                        Navigator.pop(context);
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(content: Text('Password updated successfully!')),
+                        );
+                      }
+                    } catch (e) {
+                      setModalState(() => loading = false);
+                      if (context.mounted) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(content: Text('Error: ${e.toString().split(']').last.trim()}')),
+                        );
+                      }
+                    }
+                  },
+                  child: loading 
+                      ? const SizedBox(height: 20, width: 20, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2))
+                      : const Text('UPDATE PASSWORD'),
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );
