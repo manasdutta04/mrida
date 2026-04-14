@@ -17,6 +17,10 @@ import '../screens/scan/result_screen.dart';
 import '../screens/profile/profile_screen.dart';
 import '../screens/map/field_map_screen.dart';
 import '../screens/settings/settings_screen.dart';
+import '../screens/settings/support/about_screen.dart';
+import '../screens/settings/support/help_center_screen.dart';
+import '../screens/settings/support/terms_screen.dart';
+import '../screens/settings/support/privacy_screen.dart';
 import '../widgets/modern_nav_bar.dart';
 import '../widgets/universal_app_bar.dart';
 
@@ -113,7 +117,16 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         builder: (_, state) => ResultScreen(result: state.extra as ScanResult?),
       ),
 
-      GoRoute(path: '/settings', builder: (_, __) => const SettingsScreen()),
+      GoRoute(
+        path: '/settings',
+        builder: (_, __) => const SettingsScreen(),
+        routes: [
+          GoRoute(path: 'about', builder: (_, __) => const AboutScreen()),
+          GoRoute(path: 'help', builder: (_, __) => const HelpCenterScreen()),
+          GoRoute(path: 'terms', builder: (_, __) => const TermsScreen()),
+          GoRoute(path: 'privacy', builder: (_, __) => const PrivacyScreen()),
+        ],
+      ),
 
       GoRoute(path: '/field/add', builder: (_, __) => const AddFieldScreen()),
 

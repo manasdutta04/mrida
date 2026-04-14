@@ -31,17 +31,16 @@ class SettingsScreen extends ConsumerWidget {
             _buildSectionHeader('SUPPORT'),
             const SizedBox(height: 12),
             _buildSettingsGroup([
-              _buildSettingsTile(Icons.info_outline, 'About MRIDA', hasChevron: true),
-              _buildSettingsTile(Icons.help_outline, 'Help Center', hasChevron: true),
-              _buildSettingsTile(Icons.description_outlined, 'Terms of Service', hasChevron: true),
-              _buildSettingsTile(Icons.privacy_tip_outlined, 'Privacy Policy', hasChevron: true),
+              _buildSettingsTile(Icons.info_outline, 'About MRIDA', hasChevron: true, onTap: () => context.push('/settings/about')),
+              _buildSettingsTile(Icons.help_outline, 'Help Center', hasChevron: true, onTap: () => context.push('/settings/help')),
+              _buildSettingsTile(Icons.description_outlined, 'Terms of Service', hasChevron: true, onTap: () => context.push('/settings/terms')),
+              _buildSettingsTile(Icons.privacy_tip_outlined, 'Privacy Policy', hasChevron: true, onTap: () => context.push('/settings/privacy')),
             ]),
             const SizedBox(height: 32),
 
             _buildSectionHeader('ACCOUNT'),
             const SizedBox(height: 12),
             _buildSettingsGroup([
-              _buildSettingsTile(Icons.phone_android, 'Change Phone Number', hasChevron: true),
               _buildSettingsTile(Icons.delete_outline, 'Delete Account', color: MridaColors.gradeD),
             ]),
             const SizedBox(height: 48),
@@ -123,9 +122,11 @@ class SettingsScreen extends ConsumerWidget {
     bool hasSwitch = false,
     bool hasChevron = false,
     Color? color,
+    VoidCallback? onTap,
   }) {
     return InkWell(
-      onTap: () {},
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(12),
       child: Container(
         height: 56,
         padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -137,7 +138,7 @@ class SettingsScreen extends ConsumerWidget {
               child: Text(
                 title,
                 style: GoogleFonts.inter(
-                  fontSize: 15,
+                   fontSize: 15,
                   fontWeight: FontWeight.w600,
                   color: color ?? MridaColors.onSurface,
                 ),
