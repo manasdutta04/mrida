@@ -1,17 +1,25 @@
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
+    
+    // Helper function to check if the user is the owner of the data tree
+    function isOwner(userId) {
+      return request.auth != null && request.auth.uid == userId;
+    }
+
+    // Match any document under the 'users' collection for the owner
     match /users/{userId} {
-      allow read, write: if request.auth != null && request.auth.uid == userId;
-
-      match /fields/{fieldId} {
-        allow read, write: if request.auth != null && request.auth.uid == userId;
+      allow read, write: if isOwner(userId);
+      
+      // Recursively match all subcollections (fields, scans, profile, etc.)
+      match /{allSubcollections=**} {
+        allow read, write: if isOwner(userId);
       }
+    }
 
-      match /scans/{scanId} {
-        allow read: if request.auth != null && request.auth.uid == userId;
-        allow write: if false;
-      }
+    // Explicitly deny everything else (default behavior, but good for clarity)
+    match /{document=**} {
+      allow read, write: if false;
     }
   }
 }

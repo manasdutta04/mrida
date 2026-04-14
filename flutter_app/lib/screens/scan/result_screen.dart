@@ -1,6 +1,12 @@
+import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import '../../providers/field_provider.dart';
 import '../../services/firestore_service.dart';
+import '../../models/scan_result.dart';
+import '../../theme/app_theme.dart';
+import '../../widgets/voice_button.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 /// Full scrollable result screen — the most critical screen in the app.
 /// Shows grade, confidence, detected signals, NPK, pH, deficiencies,

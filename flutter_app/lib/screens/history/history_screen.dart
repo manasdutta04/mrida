@@ -1,6 +1,10 @@
+import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import '../../providers/scan_provider.dart';
 import '../../providers/field_provider.dart';
+import '../../theme/app_theme.dart';
+import '../../models/scan_result.dart';
 import 'package:intl/intl.dart';
 
 class HistoryScreen extends ConsumerWidget {

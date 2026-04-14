@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import '../../theme/app_theme.dart';
 import '../../providers/auth_provider.dart';
 import '../../providers/user_provider.dart';
+import '../../providers/scan_provider.dart';
 import '../../providers/field_provider.dart';
 import '../../models/user_profile.dart';
 
@@ -13,6 +14,7 @@ class ProfileScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
+    final statsAsync = ref.watch(statsProvider);
     final userProfileAsync = ref.watch(userProfileProvider);
     final profile = userProfileAsync.value;
 
