@@ -35,14 +35,19 @@ final userProfileProvider = StreamProvider<UserProfile?>((ref) async* {
   );
 
   // Watch remote and update local cache
-  await for (final remote in ref.watch(firestoreServiceProvider).watchUserProfile(userId)) {
-    if (remote != null) {
-      ref.read(localStorageServiceProvider).saveProfile(
-            name: remote.displayName,
-            phone: remote.phoneNumber,
-            language: remote.languageCode,
-          );
+  try {
+    await for (final remote in ref.watch(firestoreServiceProvider).watchUserProfile(userId)) {
+      if (remote != null) {
+        ref.read(localStorageServiceProvider).saveProfile(
+              name: remote.displayName,
+              phone: remote.phoneNumber,
+              language: remote.languageCode,
+            );
+      }
+      yield remote;
     }
-    yield remote;
+  } catch (e) {
+    // Keep yielding the local version if remote fails
+    return;
   }
 });

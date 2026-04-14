@@ -11,9 +11,9 @@ class UserProfile {
   final String? displayName;
 
   factory UserProfile.fromJson(Map<String, dynamic> json) => UserProfile(
-        uid: json['uid'] as String,
-        phoneNumber: json['phoneNumber'] as String,
-        languageCode: json['languageCode'] as String,
+        uid: json['uid'] as String? ?? '',
+        phoneNumber: json['phoneNumber'] as String? ?? '+91 XXXXX XXXXX',
+        languageCode: json['languageCode'] as String? ?? 'en',
         displayName: json['displayName'] as String?,
       );
 }

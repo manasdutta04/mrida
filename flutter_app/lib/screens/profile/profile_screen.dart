@@ -209,6 +209,10 @@ class ProfileScreen extends ConsumerWidget {
                         'displayName': name,
                         'phoneNumber': phone,
                       });
+                      
+                      // 3. Force provider refresh to show immediate changes
+                      ref.invalidate(userProfileProvider);
+
                       if (context.mounted) {
                         ScaffoldMessenger.of(context).showSnackBar(
                           const SnackBar(content: Text('Profile synced to cloud!')),
