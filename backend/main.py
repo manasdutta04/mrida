@@ -28,6 +28,10 @@ app.add_middleware(
 root = Path(__file__).resolve().parent.parent
 with (root / "data" / "regional_soil_profiles.json").open("r", encoding="utf-8") as f:
     REGIONAL_PROFILES: dict[str, Any] = json.load(f)
+with (root / "data" / "crop_advisory_profiles.json").open("r", encoding="utf-8") as f:
+    CROP_ADVISORY_PROFILES: dict[str, Any] = json.load(f)
+with (root / "data" / "pest_disease_risk_matrix.json").open("r", encoding="utf-8") as f:
+    PEST_DISEASE_MATRIX: dict[str, Any] = json.load(f)
 with (root / "prompts" / "system_prompt.txt").open("r", encoding="utf-8") as f:
     SYSTEM_PROMPT = f.read()
 
@@ -40,6 +44,24 @@ model = genai.GenerativeModel(
     model_name="gemini-2.5-flash",
     system_instruction=SYSTEM_PROMPT,
 )
+
+
+def _ensure_advisory_shape(result: dict) -> dict:
+    result.setdefault("crop_advisory", {})
+    advisory = result["crop_advisory"]
+    advisory.setdefault("recommended_crops", [])
+    advisory.setdefault(
+        "water_plan",
+        {
+            "total_requirement_mm": "approximate",
+            "critical_irrigation_stages": [],
+            "field_note": "Use local weather and soil moisture for final scheduling.",
+            "confidence": 0.4,
+        },
+    )
+    advisory.setdefault("pre_sowing_plan", {"steps": [], "confidence": 0.4})
+    advisory.setdefault("pest_disease_risk", [])
+    return result
 
 
 class ScanRequest(BaseModel):
@@ -65,6 +87,7 @@ class ScanResponse(BaseModel):
     ph: dict
     deficiencies: list
     prescription: dict
+    crop_advisory: dict
     warning_note: str | None
     image_url: str
 
@@ -97,9 +120,16 @@ async def analyze_soil(request: ScanRequest) -> ScanResponse:
 
         # 4. Parse structured JSON response
         result = json.loads(response.text)
+        result = _ensure_advisory_shape(result)
 
         # 5. Validate against regional profiles
-        result = validate_against_regional_profile(result, request.state, REGIONAL_PROFILES)
+        result = validate_against_regional_profile(
+            result,
+            request.state,
+            REGIONAL_PROFILES,
+            crop_profiles=CROP_ADVISORY_PROFILES,
+            risk_matrix=PEST_DISEASE_MATRIX,
+        )
 
         # 6. Confidence gate — reject if too low
         if result["confidence"] < 0.40:

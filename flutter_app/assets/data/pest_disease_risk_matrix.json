@@ -1,0 +1,114 @@
+{
+  "rules": [
+    {
+      "crop": "rice",
+      "season": "kharif",
+      "moisture_surrogate": "wet",
+      "soil_condition": "high_nitrogen_dense_canopy",
+      "risk_level": "high",
+      "likely_attack": ["blast", "brown planthopper"],
+      "early_symptoms": ["spindle lesions", "hopper burn patches"],
+      "preventive_spray_or_ipm": ["balanced nitrogen", "early scouting", "need-based fungicide/insecticide as per local advisory"],
+      "confidence": 0.82
+    },
+    {
+      "crop": "wheat",
+      "season": "rabi",
+      "moisture_surrogate": "moist",
+      "soil_condition": "dense_late_sown",
+      "risk_level": "medium",
+      "likely_attack": ["rust", "aphids"],
+      "early_symptoms": ["orange/brown pustules", "sticky honeydew and colonies"],
+      "preventive_spray_or_ipm": ["timely sowing", "resistant variety", "border scouting from tillering"],
+      "confidence": 0.76
+    },
+    {
+      "crop": "cotton",
+      "season": "kharif",
+      "moisture_surrogate": "dry",
+      "soil_condition": "continuous_cotton",
+      "risk_level": "high",
+      "likely_attack": ["pink bollworm", "whitefly"],
+      "early_symptoms": ["rosette flowers", "honeydew and sooty mold"],
+      "preventive_spray_or_ipm": ["pheromone traps", "refuge compliance", "staggered sowing avoidance"],
+      "confidence": 0.81
+    },
+    {
+      "crop": "maize",
+      "season": "kharif",
+      "moisture_surrogate": "moist",
+      "soil_condition": "young_crop_stage",
+      "risk_level": "high",
+      "likely_attack": ["fall armyworm"],
+      "early_symptoms": ["window pane feeding", "frass in whorl"],
+      "preventive_spray_or_ipm": ["early whorl scouting", "pheromone traps", "biocontrol where possible"],
+      "confidence": 0.88
+    },
+    {
+      "crop": "groundnut",
+      "season": "kharif",
+      "moisture_surrogate": "moist",
+      "soil_condition": "humid_canopy",
+      "risk_level": "medium",
+      "likely_attack": ["tikka leaf spot", "rust"],
+      "early_symptoms": ["dark leaf lesions", "rust pustules on lower surface"],
+      "preventive_spray_or_ipm": ["timely fungicide rotation", "aeration with spacing", "avoid overhead irrigation late day"],
+      "confidence": 0.74
+    },
+    {
+      "crop": "soybean",
+      "season": "kharif",
+      "moisture_surrogate": "moist",
+      "soil_condition": "cloudy_humid",
+      "risk_level": "medium",
+      "likely_attack": ["charcoal rot", "girdle beetle"],
+      "early_symptoms": ["stem darkening", "girdled petiole/stem"],
+      "preventive_spray_or_ipm": ["seed treatment", "crop rotation", "timely IPM"],
+      "confidence": 0.71
+    },
+    {
+      "crop": "potato",
+      "season": "rabi",
+      "moisture_surrogate": "wet",
+      "soil_condition": "cool_humid",
+      "risk_level": "high",
+      "likely_attack": ["late blight"],
+      "early_symptoms": ["water-soaked lesions", "rapid foliar blighting"],
+      "preventive_spray_or_ipm": ["prophylactic fungicide schedule", "avoid prolonged leaf wetness", "remove infected foliage"],
+      "confidence": 0.9
+    },
+    {
+      "crop": "mustard",
+      "season": "rabi",
+      "moisture_surrogate": "dry",
+      "soil_condition": "warm_winter_spells",
+      "risk_level": "medium",
+      "likely_attack": ["mustard aphid", "alternaria blight"],
+      "early_symptoms": ["clusters on inflorescence", "concentric dark spots"],
+      "preventive_spray_or_ipm": ["yellow sticky traps", "timely spray when threshold crosses", "balanced sulfur nutrition"],
+      "confidence": 0.72
+    },
+    {
+      "crop": "onion",
+      "season": "rabi",
+      "moisture_surrogate": "moist",
+      "soil_condition": "dense_humid_canopy",
+      "risk_level": "high",
+      "likely_attack": ["thrips", "purple blotch"],
+      "early_symptoms": ["silvery streaking", "purple elongated lesions"],
+      "preventive_spray_or_ipm": ["canopy ventilation", "need-based spray", "avoid water stress swings"],
+      "confidence": 0.79
+    },
+    {
+      "crop": "tur_dal",
+      "season": "kharif",
+      "moisture_surrogate": "moist",
+      "soil_condition": "flowering_stage",
+      "risk_level": "medium",
+      "likely_attack": ["pod borer", "wilt"],
+      "early_symptoms": ["flower/pod damage", "sudden yellowing and wilting"],
+      "preventive_spray_or_ipm": ["pheromone traps", "seed treatment", "soil drainage"],
+      "confidence": 0.73
+    }
+  ]
+}

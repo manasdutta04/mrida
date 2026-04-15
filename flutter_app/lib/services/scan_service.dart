@@ -3,6 +3,7 @@ import 'dart:io';
 
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
+import 'package:flutter/services.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:http/http.dart' as http;
 
@@ -15,6 +16,8 @@ import '../models/scan_result.dart';
 class ScanService {
   ScanService({http.Client? client}) : _client = client ?? http.Client();
   final http.Client _client;
+  static Map<String, dynamic>? _cropProfiles;
+  static Map<String, dynamic>? _riskMatrix;
 
   Future<ScanResult> analyzeSoil({
     required File imageFile,
@@ -26,6 +29,7 @@ class ScanService {
     required String language,
     required Position location,
   }) async {
+    await _ensureAdvisoryDataLoaded();
     switch (ApiConstants.scanMode) {
       case ScanMode.direct:
         return _analyzeDirect(
@@ -137,13 +141,15 @@ class ScanService {
       );
     }
 
-    return ScanResult.fromGeminiJson(
+    var parsed = ScanResult.fromGeminiJson(
       scanJson,
       userId: FirebaseAuth.instance.currentUser?.uid ?? 'demo-user',
       fieldId: fieldId,
       latitude: location.latitude,
       longitude: location.longitude,
     );
+    parsed = _validateCropAdvisory(parsed, state: state, season: season);
+    return parsed;
   }
 
   /// Mode 2: Backend API call (Phase 2 — Cloud Run)
@@ -186,7 +192,9 @@ class ScanService {
     }
 
     final data = jsonDecode(response.body) as Map<String, dynamic>;
-    return ScanResult.fromJson(data);
+    var parsed = ScanResult.fromJson(data);
+    parsed = _validateCropAdvisory(parsed, state: state, season: season);
+    return parsed;
   }
 
   /// Build the user prompt matching the AGENT_02 spec exactly.
@@ -247,6 +255,18 @@ Step 7: CONFIDENCE SCORE
 Give an overall confidence score from 0.0 to 1.0.
 If score < 0.60, add a warning explaining what made analysis uncertain.
 
+Step 8: CROP ADVISORY
+Recommend top 3 crops for this soil + season + state with fit score, reasons and water need.
+
+Step 9: WATER PLAN
+Provide total requirement (mm range), critical irrigation stages, and one practical field note.
+
+Step 10: PRE-SOWING PLAN
+Provide 3-5 actionable preparation instructions before sowing.
+
+Step 11: PEST/DISEASE RISK
+List likely pest/disease attacks for recommended crops in this season with confidence.
+
 ## Output format — respond ONLY with this JSON, nothing else
 
 {
@@ -282,7 +302,100 @@ If score < 0.60, add a warning explaining what made analysis uncertain.
     "audio_short": "Shorter version for TTS, 1-2 sentences in $language"
   },
   "warning_note": null
+  "crop_advisory": {
+    "recommended_crops": [
+      {
+        "crop": "string",
+        "fit_score": 0.0,
+        "why": "string",
+        "season_fit": "string",
+        "expected_water_need": "string",
+        "confidence": 0.0
+      }
+    ],
+    "water_plan": {
+      "total_requirement_mm": "string",
+      "critical_irrigation_stages": ["string"],
+      "field_note": "string",
+      "confidence": 0.0
+    },
+    "pre_sowing_plan": {
+      "steps": ["string"],
+      "confidence": 0.0
+    },
+    "pest_disease_risk": [
+      {
+        "name": "string",
+        "type": "pest|disease",
+        "risk_level": "low|medium|high",
+        "why_likely": "string",
+        "early_signs": ["string"],
+        "prevention": ["string"],
+        "confidence": 0.0
+      }
+    ]
+  }
 }
 ''';
+  }
+
+  Future<void> _ensureAdvisoryDataLoaded() async {
+    if (_cropProfiles != null && _riskMatrix != null) return;
+    final cropRaw = await rootBundle.loadString('assets/data/crop_advisory_profiles.json');
+    final riskRaw = await rootBundle.loadString('assets/data/pest_disease_risk_matrix.json');
+    _cropProfiles = jsonDecode(cropRaw) as Map<String, dynamic>;
+    _riskMatrix = jsonDecode(riskRaw) as Map<String, dynamic>;
+  }
+
+  ScanResult _validateCropAdvisory(ScanResult input, {required String state, required String season}) {
+    var confidence = input.confidenceScore;
+    final advisory = input.cropAdvisory;
+    if (advisory == null) {
+      return input;
+    }
+    final warnings = <String>[];
+    for (final rec in advisory.recommendedCrops) {
+      final profile = _cropProfiles?[rec.crop.toLowerCase().replaceAll(' ', '_')] as Map<String, dynamic>?;
+      if (profile == null) {
+        confidence -= 0.03;
+        warnings.add('No profile for ${rec.crop}.');
+        continue;
+      }
+      final orders = (profile['suitable_soil_orders'] as List).map((e) => e.toString()).toSet();
+      if (!orders.contains(input.signals.colorDescription.contains('black') ? 'Vertisols' : input.grade.name)) {
+        confidence -= 0.02;
+      }
+      final range = (profile['suitable_ph_range'] as List).map((e) => (e as num).toDouble()).toList();
+      if (input.ph.max < range.first || input.ph.min > range.last) {
+        confidence -= 0.03;
+        warnings.add('${rec.crop} has weak pH fit.');
+      }
+      final windows = ((profile['season_windows_by_state'] as Map<String, dynamic>)[state] as List?)?.map((e) => e.toString().toLowerCase()).toList() ?? [];
+      if (windows.isNotEmpty && !windows.contains(season.toLowerCase())) {
+        confidence -= 0.03;
+        warnings.add('${rec.crop} is atypical for $season in $state.');
+      }
+    }
+    final adjusted = confidence.clamp(0.0, 1.0);
+    if (warnings.isEmpty) return input;
+    return ScanResult(
+      scanId: input.scanId,
+      fieldId: input.fieldId,
+      userId: input.userId,
+      imageUrl: input.imageUrl,
+      grade: input.grade,
+      npk: input.npk,
+      ph: input.ph,
+      deficiencies: input.deficiencies,
+      prescriptionText: input.prescriptionText,
+      prescriptionAudio: input.prescriptionAudio,
+      confidenceScore: adjusted,
+      signals: input.signals,
+      languageCode: input.languageCode,
+      location: input.location,
+      scannedAt: input.scannedAt,
+      cropAdvisory: input.cropAdvisory,
+      warningNote: ((input.warningNote ?? '') + ' ' + warnings.join(' ')).trim(),
+    );
   }
 }

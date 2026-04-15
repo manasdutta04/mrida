@@ -1,22 +1,23 @@
 import 'dart:async';
 import 'dart:math' as math;
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
-import '../../models/scan_result.dart';
-import '../../models/soil_grade.dart';
+import 'package:geolocator/geolocator.dart';
+import '../../providers/scan_flow_provider.dart';
+import '../../services/scan_service.dart';
 import '../../theme/app_theme.dart';
 
 /// Shown during AI analysis. Cycles through progressive messages
 /// with a pulsing animated green circle.
-class LoadingScreen extends StatefulWidget {
+class LoadingScreen extends ConsumerStatefulWidget {
   const LoadingScreen({super.key});
   @override
-  State<LoadingScreen> createState() => _LoadingScreenState();
+  ConsumerState<LoadingScreen> createState() => _LoadingScreenState();
 }
 
-class _LoadingScreenState extends State<LoadingScreen>
+class _LoadingScreenState extends ConsumerState<LoadingScreen>
     with TickerProviderStateMixin {
   static const _messages = [
     'Reading soil color...',
@@ -30,6 +31,7 @@ class _LoadingScreenState extends State<LoadingScreen>
   late AnimationController _pulseController;
   late AnimationController _rotateController;
   late Animation<double> _pulseAnimation;
+  bool _analysisStarted = false;
 
   @override
   void initState() {
@@ -41,9 +43,6 @@ class _LoadingScreenState extends State<LoadingScreen>
 
       if (_messageIndex < _messages.length - 1) {
         setState(() => _messageIndex++);
-      } else {
-        timer.cancel();
-        _navigateToResult();
       }
     });
 
@@ -63,44 +62,53 @@ class _LoadingScreenState extends State<LoadingScreen>
     )..repeat();
   }
 
-  void _navigateToResult() {
-    // Generate a high-quality mock result for the demo
-    final mockResult = ScanResult(
-      scanId: 'demo-${DateTime.now().millisecondsSinceEpoch}',
-      fieldId: 'North Plot',
-      userId: 'demo-user',
-      imageUrl: '',
-      grade: SoilGrade.a,
-      npk: const NPKEstimate(
-        nitrogen: 'High',
-        phosphorus: 'Medium',
-        potassium: 'High',
-        nitrogenRaw: '185 kg/ha',
-        phosphorusRaw: '42 kg/ha',
-        potassiumRaw: '290 kg/ha',
-      ),
-      ph: const PHRange(
-        min: 6.5,
-        max: 7.2,
-        interpretation: 'Ideal neutral range — excellent for cereal crops.',
-      ),
-      deficiencies: ['Zinc', 'Boron'],
-      prescriptionText: 'Apply 110 kg/ha Urea in three splits. Use 50 kg/ha DAP as basal. For micronutrients, apply 20 kg/ha Zinc Sulphate due to visible deficiency signs in soil texture.',
-      prescriptionAudio: 'Soil health is good. Apply Urea in three doses and use DAP at sowing. Add Zinc Sulphate to correct minor deficiencies.',
-      confidenceScore: 0.88,
-      signals: const SoilSignals(
-        colorDescription: 'Dark Chrome Brown (7.5YR 3/2)',
-        textureObservation: 'Fine granular with good crumb structure',
-        crackPattern: 'No significant surface cracking',
-        moistureLevel: 'Optimal field capacity',
-        organicMatterHint: 'High (3.5% estimated)',
-      ),
-      languageCode: 'en',
-      location: const GeoPoint(28.6139, 77.2090),
-      scannedAt: DateTime.now(),
-    );
-
-    context.go('/scan/result', extra: mockResult);
+  Future<void> _analyze() async {
+    if (_analysisStarted) return;
+    _analysisStarted = true;
+    final request = ref.read(scanFlowRequestProvider);
+    if (request == null) {
+      if (!mounted) return;
+      context.go('/scan/camera');
+      return;
+    }
+    try {
+      Position pos;
+      try {
+        pos = await Geolocator.getCurrentPosition();
+      } catch (_) {
+        pos = Position(
+          longitude: 0,
+          latitude: 0,
+          timestamp: DateTime.now(),
+          accuracy: 100,
+          altitude: 0,
+          altitudeAccuracy: 0,
+          heading: 0,
+          headingAccuracy: 0,
+          speed: 0,
+          speedAccuracy: 0,
+        );
+      }
+      final result = await ScanService().analyzeSoil(
+        imageFile: request.imageFile,
+        fieldId: request.fieldId,
+        state: request.state,
+        district: request.district,
+        season: request.season,
+        crop: request.crop,
+        language: request.language,
+        location: pos,
+      );
+      ref.read(scanFlowRequestProvider.notifier).state = null;
+      if (!mounted) return;
+      context.go('/scan/result', extra: result);
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Analysis failed: $e')),
+      );
+      context.go('/scan/camera');
+    }
   }
 
   @override
@@ -113,6 +121,9 @@ class _LoadingScreenState extends State<LoadingScreen>
 
   @override
   Widget build(BuildContext context) {
+    if (!_analysisStarted) {
+      Future.microtask(_analyze);
+    }
     return Scaffold(
       backgroundColor: MridaColors.surface,
       body: Center(

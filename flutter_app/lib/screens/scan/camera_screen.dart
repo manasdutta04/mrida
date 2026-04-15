@@ -1,26 +1,32 @@
 import 'dart:io';
 import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:image_picker/image_picker.dart';
+import '../../providers/scan_flow_provider.dart';
 import '../../theme/app_theme.dart';
 
-class CameraScreen extends StatefulWidget {
+class CameraScreen extends ConsumerStatefulWidget {
   const CameraScreen({super.key, this.fieldId});
 
   final String? fieldId;
 
   @override
-  State<CameraScreen> createState() => _CameraScreenState();
+  ConsumerState<CameraScreen> createState() => _CameraScreenState();
 }
 
-class _CameraScreenState extends State<CameraScreen>
+class _CameraScreenState extends ConsumerState<CameraScreen>
     with WidgetsBindingObserver {
   CameraController? _controller;
   bool _isCameraInitialized = false;
   File? _capturedImage;
   final ImagePicker _picker = ImagePicker();
+  final _stateController = TextEditingController(text: 'Maharashtra');
+  final _districtController = TextEditingController(text: 'Pune');
+  final _cropController = TextEditingController(text: 'soybean');
+  String _season = 'kharif';
 
   @override
   void initState() {
@@ -104,9 +110,19 @@ class _CameraScreenState extends State<CameraScreen>
   void _retake() => setState(() => _capturedImage = null);
 
   void _usePhoto() {
-    if (_capturedImage != null) {
-      context.go('/scan/loading');
-    }
+    if (_capturedImage == null) return;
+    if (_season.trim().isEmpty) return;
+    final request = ScanFlowRequest(
+      imageFile: _capturedImage!,
+      fieldId: widget.fieldId ?? 'default-field',
+      state: _stateController.text.trim(),
+      district: _districtController.text.trim(),
+      season: _season,
+      crop: _cropController.text.trim().isEmpty ? 'auto' : _cropController.text.trim(),
+      language: 'en',
+    );
+    ref.read(scanFlowRequestProvider.notifier).state = request;
+    context.go('/scan/loading');
   }
 
   @override
@@ -328,6 +344,40 @@ class _CameraScreenState extends State<CameraScreen>
               ),
             ),
 
+            // Advisory input form
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 24),
+              child: Column(
+                children: [
+                  DropdownButtonFormField<String>(
+                    value: _season,
+                    decoration: const InputDecoration(labelText: 'Season'),
+                    items: const [
+                      DropdownMenuItem(value: 'kharif', child: Text('Kharif')),
+                      DropdownMenuItem(value: 'rabi', child: Text('Rabi')),
+                      DropdownMenuItem(value: 'zaid', child: Text('Zaid')),
+                    ],
+                    onChanged: (v) => setState(() => _season = v ?? 'kharif'),
+                  ),
+                  const SizedBox(height: 8),
+                  TextField(
+                    controller: _stateController,
+                    decoration: const InputDecoration(labelText: 'State'),
+                  ),
+                  const SizedBox(height: 8),
+                  TextField(
+                    controller: _districtController,
+                    decoration: const InputDecoration(labelText: 'District'),
+                  ),
+                  const SizedBox(height: 8),
+                  TextField(
+                    controller: _cropController,
+                    decoration: const InputDecoration(labelText: 'Intended crop (optional)'),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 16),
             // Action buttons
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 24),

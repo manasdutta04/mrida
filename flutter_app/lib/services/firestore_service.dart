@@ -73,17 +73,24 @@ class FirestoreService {
   }
 
   Future<void> saveScanResult(ScanResult result) async {
-    // 1. Save scan document
-    final scanDoc = _scansRef(result.userId).doc(result.scanId);
-    await scanDoc.set(result.toFirestore());
+    // Attempt scan write first (may be blocked by rules in direct/demo mode).
+    try {
+      final scanDoc = _scansRef(result.userId).doc(result.scanId);
+      await scanDoc.set(result.toFirestore());
+    } on FirebaseException catch (e) {
+      if (e.code != 'permission-denied') rethrow;
+    }
 
-    // 2. Update the field with latest scan summary
+    // Always persist field summary with merge so field doc can be created safely.
     final fieldDoc = _fieldsRef(result.userId).doc(result.fieldId);
-    await fieldDoc.update({
+    await fieldDoc.set({
+      'fieldId': result.fieldId,
+      'userId': result.userId,
+      'name': result.fieldId,
       'lastScanId': result.scanId,
       'lastHealthScore': result.confidenceScore,
       'lastScannedAt': Timestamp.fromDate(result.scannedAt),
-    });
+    }, SetOptions(merge: true));
   }
 
   // --- User Profile Methods ---

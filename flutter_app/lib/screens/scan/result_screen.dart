@@ -1,12 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:go_router/go_router.dart';
 import '../../providers/field_provider.dart';
-import '../../services/firestore_service.dart';
 import '../../models/scan_result.dart';
 import '../../theme/app_theme.dart';
 import '../../widgets/voice_button.dart';
-import 'package:google_fonts/google_fonts.dart';
 
 /// Full scrollable result screen — the most critical screen in the app.
 /// Shows grade, confidence, detected signals, NPK, pH, deficiencies,
@@ -21,6 +20,9 @@ class ResultScreen extends ConsumerWidget {
     final r = result;
     final confidence = r?.confidenceScore ?? 0.78;
     final grade = r?.grade.name.toUpperCase() ?? 'B';
+    final canSave = FirebaseAuth.instance.currentUser != null &&
+        r != null &&
+        r.userId != 'demo-user';
 
     return Scaffold(
       backgroundColor: MridaColors.surface,
@@ -55,33 +57,42 @@ class ResultScreen extends ConsumerWidget {
                   mainAxisAlignment: MainAxisAlignment.end,
                   children: [
                     Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       crossAxisAlignment: CrossAxisAlignment.end,
                       children: [
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              r?.fieldId.toUpperCase() ?? 'NEW SCAN',
-                              style: theme.textTheme.labelLarge?.copyWith(
-                                color: Colors.white,
-                                fontSize: 10,
-                                letterSpacing: 3.0,
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                r?.fieldId.toUpperCase() ?? 'NEW SCAN',
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                                style: theme.textTheme.labelLarge?.copyWith(
+                                  color: Colors.white,
+                                  fontSize: 10,
+                                  letterSpacing: 3.0,
+                                ),
                               ),
-                            ),
-                            const SizedBox(height: 8),
-                            Text(
-                              'ANALYSIS\nCOMPLETE',
-                              style: theme.textTheme.displayLarge?.copyWith(
-                                color: Colors.white,
-                                fontSize: 40,
-                                height: 0.9,
+                              const SizedBox(height: 8),
+                              Text(
+                                'ANALYSIS\nCOMPLETE',
+                                maxLines: 2,
+                                overflow: TextOverflow.ellipsis,
+                                style: theme.textTheme.displayLarge?.copyWith(
+                                  color: Colors.white,
+                                  fontSize: 34,
+                                  height: 0.9,
+                                ),
                               ),
-                            ),
-                          ],
+                            ],
+                          ),
                         ),
+                        const SizedBox(width: 12),
                         Container(
-                          padding: const EdgeInsets.all(24),
+                          width: 108,
+                          height: 108,
+                          alignment: Alignment.center,
+                          padding: const EdgeInsets.all(10),
                           decoration: BoxDecoration(
                             color: Colors.white,
                             borderRadius: BorderRadius.circular(24),
@@ -95,7 +106,7 @@ class ResultScreen extends ConsumerWidget {
                           child: Text(
                             grade,
                             style: theme.textTheme.displayLarge?.copyWith(
-                              fontSize: 48,
+                              fontSize: 42,
                               color: MridaColors.primary,
                             ),
                           ),
@@ -198,6 +209,72 @@ class ResultScreen extends ConsumerWidget {
                   ),
                 ),
 
+                if (r?.cropAdvisory != null) ...[
+                  const SizedBox(height: 32),
+                  Text('RECOMMENDED CROPS', style: theme.textTheme.labelLarge),
+                  const SizedBox(height: 12),
+                  Wrap(
+                    spacing: 8,
+                    runSpacing: 8,
+                    children: r!.cropAdvisory!.recommendedCrops.take(3).map((c) {
+                      return Chip(
+                        label: Text('${c.crop} ${(c.fitScore * 100).round()}%'),
+                        backgroundColor: MridaColors.primary.withValues(alpha: 0.08),
+                      );
+                    }).toList(),
+                  ),
+                  const SizedBox(height: 16),
+                  Text('WATER PLAN', style: theme.textTheme.labelLarge),
+                  const SizedBox(height: 8),
+                  Text('Total need: ${r.cropAdvisory!.waterPlan.totalRequirementMm} mm'),
+                  Text('Critical: ${r.cropAdvisory!.waterPlan.criticalIrrigationStages.join(', ')}'),
+                  const SizedBox(height: 16),
+                  Text('PRE-SOWING INSTRUCTIONS', style: theme.textTheme.labelLarge),
+                  const SizedBox(height: 8),
+                  ...r.cropAdvisory!.preSowingPlan.steps.take(5).map((s) => Padding(
+                        padding: const EdgeInsets.only(bottom: 6),
+                        child: Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            const Text('• '),
+                            Expanded(child: Text(s)),
+                          ],
+                        ),
+                      )),
+                  const SizedBox(height: 16),
+                  Text('PEST / DISEASE RISK', style: theme.textTheme.labelLarge),
+                  const SizedBox(height: 8),
+                  ...r.cropAdvisory!.pestDiseaseRisk.take(4).map((risk) {
+                    final level = risk.riskLevel.toLowerCase();
+                    final color = level == 'high'
+                        ? MridaColors.gradeD
+                        : level == 'medium'
+                            ? MridaColors.gradeC
+                            : MridaColors.gradeA;
+                    return Container(
+                      margin: const EdgeInsets.only(bottom: 10),
+                      padding: const EdgeInsets.all(12),
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(12),
+                        color: color.withValues(alpha: 0.08),
+                        border: Border.all(color: color.withValues(alpha: 0.25)),
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text('${risk.name} (${risk.type}) - ${risk.riskLevel.toUpperCase()}',
+                              style: const TextStyle(fontWeight: FontWeight.w700)),
+                          const SizedBox(height: 4),
+                          Text(risk.whyLikely),
+                          if (risk.earlySigns.isNotEmpty) Text('Early signs: ${risk.earlySigns.join(', ')}'),
+                          if (risk.prevention.isNotEmpty) Text('Prevention: ${risk.prevention.join(', ')}'),
+                          Text('Confidence: ${(risk.confidence * 100).round()}%'),
+                        ],
+                      ),
+                    );
+                  }),
+                ],
+
                 const SizedBox(height: 120),
               ]),
             ),
@@ -207,7 +284,7 @@ class ResultScreen extends ConsumerWidget {
       bottomNavigationBar: Container(
         padding: const EdgeInsets.fromLTRB(24, 0, 24, 40),
         child: ElevatedButton(
-          onPressed: r == null 
+          onPressed: !canSave
             ? null 
             : () async {
                 try {
@@ -232,7 +309,7 @@ class ResultScreen extends ConsumerWidget {
                   }
                 }
               },
-          child: const Text('SAVE TO FIELD'),
+          child: Text(canSave ? 'SAVE TO FIELD' : 'SIGN IN TO SAVE'),
         ),
       ),
     );
@@ -313,11 +390,25 @@ class _NPKRow extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Text(label, style: const TextStyle(fontWeight: FontWeight.w900, fontSize: 10, letterSpacing: 1.0)),
-            Text(status.toUpperCase(), 
-                style: TextStyle(fontWeight: FontWeight.w900, fontSize: 10, color: color)),
+            Expanded(
+              child: Text(
+                label,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: const TextStyle(fontWeight: FontWeight.w900, fontSize: 10, letterSpacing: 1.0),
+              ),
+            ),
+            const SizedBox(width: 8),
+            Flexible(
+              child: Text(
+                status.toUpperCase(),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                textAlign: TextAlign.right,
+                style: TextStyle(fontWeight: FontWeight.w900, fontSize: 10, color: color),
+              ),
+            ),
           ],
         ),
         const SizedBox(height: 12),
@@ -357,7 +448,12 @@ class _SignalBentoTile extends StatelessWidget {
           const SizedBox(height: 16),
           Text(label, style: const TextStyle(fontSize: 8, fontWeight: FontWeight.w900, letterSpacing: 2.0)),
           const SizedBox(height: 4),
-          Text(value, style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 14)),
+          Text(
+            value,
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
+            style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 14),
+          ),
         ],
       ),
     );

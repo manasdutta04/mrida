@@ -19,6 +19,7 @@ class ScanResult {
     required this.languageCode,
     required this.location,
     required this.scannedAt,
+    this.cropAdvisory,
     this.warningNote,
   });
   final String scanId;
@@ -36,6 +37,7 @@ class ScanResult {
   final String languageCode;
   final GeoPoint location;
   final DateTime scannedAt;
+  final CropAdvisory? cropAdvisory;
   final String? warningNote;
 
   /// Parse backend response
@@ -70,6 +72,13 @@ class ScanResult {
             )
           : const GeoPoint(0, 0),
       scannedAt: parseTime(json['scannedAt'] ?? json['scanned_at']),
+      cropAdvisory: json['crop_advisory'] != null || json['cropAdvisory'] != null
+          ? CropAdvisory.fromJson(
+              Map<String, dynamic>.from(
+                (json['crop_advisory'] ?? json['cropAdvisory']) as Map,
+              ),
+            )
+          : null,
       warningNote: (json['warningNote'] ?? json['warning_note']) as String?,
     );
   }
@@ -108,6 +117,7 @@ class ScanResult {
       'languageCode': languageCode,
       'location': location,
       'scannedAt': Timestamp.fromDate(scannedAt),
+      if (cropAdvisory != null) 'cropAdvisory': cropAdvisory!.toJson(),
       'warningNote': warningNote,
     };
   }
@@ -141,6 +151,9 @@ class ScanResult {
       location: GeoPoint(latitude, longitude),
       scannedAt: DateTime.now(),
       warningNote: json['warning_note'] as String?,
+      cropAdvisory: json['crop_advisory'] != null
+          ? CropAdvisory.fromJson(Map<String, dynamic>.from(json['crop_advisory'] as Map))
+          : null,
     );
   }
 
@@ -164,6 +177,164 @@ class ScanResult {
     if (prescription is Map) return (prescription['audio_short'] ?? '') as String;
     return '';
   }
+}
+
+class CropAdvisory {
+  const CropAdvisory({
+    required this.recommendedCrops,
+    required this.waterPlan,
+    required this.preSowingPlan,
+    required this.pestDiseaseRisk,
+  });
+
+  final List<RecommendedCrop> recommendedCrops;
+  final WaterPlan waterPlan;
+  final PreSowingPlan preSowingPlan;
+  final List<PestDiseaseRisk> pestDiseaseRisk;
+
+  factory CropAdvisory.fromJson(Map<String, dynamic> json) => CropAdvisory(
+        recommendedCrops: ((json['recommended_crops'] ?? json['recommendedCrops']) as List? ?? [])
+            .map((e) => RecommendedCrop.fromJson(Map<String, dynamic>.from(e as Map)))
+            .toList(),
+        waterPlan: WaterPlan.fromJson(
+          Map<String, dynamic>.from((json['water_plan'] ?? json['waterPlan'] ?? {}) as Map),
+        ),
+        preSowingPlan: PreSowingPlan.fromJson(
+          Map<String, dynamic>.from((json['pre_sowing_plan'] ?? json['preSowingPlan'] ?? {}) as Map),
+        ),
+        pestDiseaseRisk: ((json['pest_disease_risk'] ?? json['pestDiseaseRisk']) as List? ?? [])
+            .map((e) => PestDiseaseRisk.fromJson(Map<String, dynamic>.from(e as Map)))
+            .toList(),
+      );
+
+  Map<String, dynamic> toJson() => {
+        'recommendedCrops': recommendedCrops.map((e) => e.toJson()).toList(),
+        'waterPlan': waterPlan.toJson(),
+        'preSowingPlan': preSowingPlan.toJson(),
+        'pestDiseaseRisk': pestDiseaseRisk.map((e) => e.toJson()).toList(),
+      };
+}
+
+class RecommendedCrop {
+  const RecommendedCrop({
+    required this.crop,
+    required this.fitScore,
+    required this.why,
+    required this.seasonFit,
+    required this.expectedWaterNeed,
+    required this.confidence,
+  });
+  final String crop;
+  final double fitScore;
+  final String why;
+  final String seasonFit;
+  final String expectedWaterNeed;
+  final double confidence;
+
+  factory RecommendedCrop.fromJson(Map<String, dynamic> json) => RecommendedCrop(
+        crop: (json['crop'] ?? '') as String,
+        fitScore: ((json['fit_score'] ?? json['fitScore'] ?? 0) as num).toDouble(),
+        why: (json['why'] ?? '') as String,
+        seasonFit: (json['season_fit'] ?? json['seasonFit'] ?? '') as String,
+        expectedWaterNeed: (json['expected_water_need'] ?? json['expectedWaterNeed'] ?? '') as String,
+        confidence: ((json['confidence'] ?? 0.5) as num).toDouble(),
+      );
+
+  Map<String, dynamic> toJson() => {
+        'crop': crop,
+        'fitScore': fitScore,
+        'why': why,
+        'seasonFit': seasonFit,
+        'expectedWaterNeed': expectedWaterNeed,
+        'confidence': confidence,
+      };
+}
+
+class WaterPlan {
+  const WaterPlan({
+    required this.totalRequirementMm,
+    required this.criticalIrrigationStages,
+    required this.fieldNote,
+    required this.confidence,
+  });
+  final String totalRequirementMm;
+  final List<String> criticalIrrigationStages;
+  final String fieldNote;
+  final double confidence;
+
+  factory WaterPlan.fromJson(Map<String, dynamic> json) => WaterPlan(
+        totalRequirementMm: (json['total_requirement_mm'] ?? json['totalRequirementMm'] ?? '') as String,
+        criticalIrrigationStages: ((json['critical_irrigation_stages'] ?? json['criticalIrrigationStages']) as List? ?? [])
+            .map((e) => e.toString())
+            .toList(),
+        fieldNote: (json['field_note'] ?? json['fieldNote'] ?? '') as String,
+        confidence: ((json['confidence'] ?? 0.5) as num).toDouble(),
+      );
+
+  Map<String, dynamic> toJson() => {
+        'totalRequirementMm': totalRequirementMm,
+        'criticalIrrigationStages': criticalIrrigationStages,
+        'fieldNote': fieldNote,
+        'confidence': confidence,
+      };
+}
+
+class PreSowingPlan {
+  const PreSowingPlan({
+    required this.steps,
+    required this.confidence,
+  });
+  final List<String> steps;
+  final double confidence;
+
+  factory PreSowingPlan.fromJson(Map<String, dynamic> json) => PreSowingPlan(
+        steps: ((json['steps'] ?? json['pre_sowing_plan'] ?? []) as List).map((e) => e.toString()).toList(),
+        confidence: ((json['confidence'] ?? 0.5) as num).toDouble(),
+      );
+
+  Map<String, dynamic> toJson() => {
+        'steps': steps,
+        'confidence': confidence,
+      };
+}
+
+class PestDiseaseRisk {
+  const PestDiseaseRisk({
+    required this.name,
+    required this.type,
+    required this.riskLevel,
+    required this.whyLikely,
+    required this.earlySigns,
+    required this.prevention,
+    required this.confidence,
+  });
+  final String name;
+  final String type;
+  final String riskLevel;
+  final String whyLikely;
+  final List<String> earlySigns;
+  final List<String> prevention;
+  final double confidence;
+
+  factory PestDiseaseRisk.fromJson(Map<String, dynamic> json) => PestDiseaseRisk(
+        name: (json['name'] ?? '') as String,
+        type: (json['type'] ?? '') as String,
+        riskLevel: (json['risk_level'] ?? json['riskLevel'] ?? '') as String,
+        whyLikely: (json['why_likely'] ?? json['whyLikely'] ?? '') as String,
+        earlySigns: ((json['early_signs'] ?? json['earlySigns']) as List? ?? []).map((e) => e.toString()).toList(),
+        prevention: ((json['prevention'] ?? []) as List).map((e) => e.toString()).toList(),
+        confidence: ((json['confidence'] ?? 0.5) as num).toDouble(),
+      );
+
+  Map<String, dynamic> toJson() => {
+        'name': name,
+        'type': type,
+        'riskLevel': riskLevel,
+        'whyLikely': whyLikely,
+        'earlySigns': earlySigns,
+        'prevention': prevention,
+        'confidence': confidence,
+      };
 }
 
 class NPKEstimate {
