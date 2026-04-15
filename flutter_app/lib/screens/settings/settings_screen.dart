@@ -4,8 +4,10 @@ import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 import '../../providers/auth_provider.dart';
+import '../../providers/field_provider.dart';
 import '../../providers/settings_provider.dart';
 import '../../providers/user_provider.dart';
+import '../../models/user_profile.dart';
 import '../../theme/app_theme.dart';
 import '../../widgets/universal_app_bar.dart';
 
@@ -87,13 +89,11 @@ class SettingsScreen extends ConsumerWidget {
                 'Offline Access',
                 hasSwitch: true,
                 switchValue: offlineAccess,
-                onSwitchChanged: (value) => ref
-                    .read(offlineAccessProvider.notifier)
-                    .setEnabled(value),
+                onSwitchChanged: (value) =>
+                    ref.read(offlineAccessProvider.notifier).setEnabled(value),
               ),
             ]),
             const SizedBox(height: 32),
-
             _buildSectionHeader('SUPPORT'),
             const SizedBox(height: 12),
             _buildSettingsGroup([
@@ -123,7 +123,6 @@ class SettingsScreen extends ConsumerWidget {
               ),
             ]),
             const SizedBox(height: 32),
-
             _buildSectionHeader('ACCOUNT'),
             const SizedBox(height: 12),
             _buildSettingsGroup([
@@ -135,7 +134,6 @@ class SettingsScreen extends ConsumerWidget {
               ),
             ]),
             const SizedBox(height: 32),
-
             SizedBox(
               width: double.infinity,
               child: TextButton(
@@ -149,7 +147,8 @@ class SettingsScreen extends ConsumerWidget {
                     if (context.mounted) {
                       ScaffoldMessenger.of(context).showSnackBar(
                         const SnackBar(
-                          content: Text('Unable to sign out. Please try again.'),
+                          content:
+                              Text('Unable to sign out. Please try again.'),
                         ),
                       );
                     }
@@ -183,7 +182,8 @@ class SettingsScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildProfileCard(UserProfile? profile, String languageCode, ThemeMode themeMode) {
+  Widget _buildProfileCard(
+      UserProfile? profile, String languageCode, ThemeMode themeMode) {
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(20),
@@ -210,7 +210,8 @@ class SettingsScreen extends ConsumerWidget {
                   color: MridaColors.primary.withOpacity(0.08),
                   borderRadius: BorderRadius.circular(16),
                 ),
-                child: const Icon(Icons.settings_outlined, color: MridaColors.primary, size: 28),
+                child: const Icon(Icons.settings_outlined,
+                    color: MridaColors.primary, size: 28),
               ),
               const SizedBox(width: 16),
               Expanded(
@@ -245,7 +246,8 @@ class SettingsScreen extends ConsumerWidget {
             spacing: 10,
             runSpacing: 10,
             children: [
-              _buildChip('Language', _languageOptions[languageCode] ?? 'English'),
+              _buildChip(
+                  'Language', _languageOptions[languageCode] ?? 'English'),
               _buildChip('Theme', _themeModeLabel(themeMode)),
             ],
           ),
@@ -272,7 +274,8 @@ class SettingsScreen extends ConsumerWidget {
     );
   }
 
-  void _showLanguageSheet(BuildContext context, WidgetRef ref, String currentCode) {
+  void _showLanguageSheet(
+      BuildContext context, WidgetRef ref, String currentCode) {
     showModalBottomSheet(
       context: context,
       shape: const RoundedRectangleBorder(
@@ -296,14 +299,21 @@ class SettingsScreen extends ConsumerWidget {
                 final isSelected = entry.key == currentCode;
                 return ListTile(
                   title: Text(entry.value),
-                  trailing: isSelected ? const Icon(Icons.check, color: MridaColors.primary) : null,
+                  trailing: isSelected
+                      ? const Icon(Icons.check, color: MridaColors.primary)
+                      : null,
                   onTap: () async {
                     final selected = entry.key;
-                    ref.read(localStorageServiceProvider).saveProfile(language: selected);
+                    ref
+                        .read(localStorageServiceProvider)
+                        .saveProfile(language: selected);
                     final userId = ref.read(currentUserIdProvider);
                     if (userId != null) {
                       try {
-                        await ref.read(firestoreServiceProvider).updateUserProfile(userId, {'languageCode': selected});
+                        await ref
+                            .read(firestoreServiceProvider)
+                            .updateUserProfile(
+                                userId, {'languageCode': selected});
                       } catch (_) {
                         // Local save is already complete.
                       }
@@ -321,7 +331,8 @@ class SettingsScreen extends ConsumerWidget {
     );
   }
 
-  void _showThemeSheet(BuildContext context, WidgetRef ref, ThemeMode currentMode) {
+  void _showThemeSheet(
+      BuildContext context, WidgetRef ref, ThemeMode currentMode) {
     showModalBottomSheet(
       context: context,
       shape: const RoundedRectangleBorder(
@@ -336,7 +347,9 @@ class SettingsScreen extends ConsumerWidget {
               final label = _themeModeLabel(mode);
               return ListTile(
                 title: Text(label),
-                trailing: mode == currentMode ? const Icon(Icons.check, color: MridaColors.primary) : null,
+                trailing: mode == currentMode
+                    ? const Icon(Icons.check, color: MridaColors.primary)
+                    : null,
                 onTap: () {
                   ref.read(appThemeModeProvider.notifier).setThemeMode(mode);
                   if (context.mounted) Navigator.pop(context);
@@ -349,7 +362,8 @@ class SettingsScreen extends ConsumerWidget {
     );
   }
 
-  void _showUnitSheet(BuildContext context, WidgetRef ref, String currentUnits) {
+  void _showUnitSheet(
+      BuildContext context, WidgetRef ref, String currentUnits) {
     const options = ['Metric', 'Imperial'];
     showModalBottomSheet(
       context: context,
@@ -365,7 +379,9 @@ class SettingsScreen extends ConsumerWidget {
               final isSelected = option == currentUnits;
               return ListTile(
                 title: Text(option),
-                trailing: isSelected ? const Icon(Icons.check, color: MridaColors.primary) : null,
+                trailing: isSelected
+                    ? const Icon(Icons.check, color: MridaColors.primary)
+                    : null,
                 onTap: () {
                   ref.read(measurementUnitsProvider.notifier).setUnits(option);
                   if (context.mounted) Navigator.pop(context);
@@ -383,7 +399,8 @@ class SettingsScreen extends ConsumerWidget {
       context: context,
       builder: (context) {
         return AlertDialog(
-          title: Text('Delete Account', style: GoogleFonts.sora(fontWeight: FontWeight.w700)),
+          title: Text('Delete Account',
+              style: GoogleFonts.sora(fontWeight: FontWeight.w700)),
           content: Text(
             'Account deletion is not available from this screen. Please contact MRIDA support if you need assistance.',
             style: GoogleFonts.inter(fontSize: 14),
@@ -478,7 +495,8 @@ class SettingsScreen extends ConsumerWidget {
                 activeColor: MridaColors.primary,
               ),
             if (hasChevron)
-              const Icon(Icons.chevron_right, color: MridaColors.outlineVariant),
+              const Icon(Icons.chevron_right,
+                  color: MridaColors.outlineVariant),
           ],
         ),
       ),

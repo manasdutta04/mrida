@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import 'local_storage_service.dart';
+import '../services/local_storage_service.dart';
 
 final settingsStorageServiceProvider = Provider<LocalStorageService>((ref) {
   return LocalStorageService();
