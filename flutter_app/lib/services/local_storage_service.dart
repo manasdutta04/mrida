@@ -11,6 +11,14 @@ class LocalStorageService {
     return _box.get(key) as String?;
   }
 
+  void setBool(String key, bool value) {
+    _box.put(key, value);
+  }
+
+  bool? getBool(String key) {
+    return _box.get(key) as bool?;
+  }
+
   void saveProfile({String? name, String? phone, String? language}) {
     if (name != null) _box.put('displayName', name);
     if (phone != null) _box.put('phoneNumber', phone);
