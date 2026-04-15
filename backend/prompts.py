@@ -1,4 +1,11 @@
-def build_user_prompt(state: str, district: str, season: str, crop: str, language: str) -> str:
+def build_user_prompt(
+    state: str,
+    district: str,
+    season: str,
+    crop: str,
+    language: str,
+    weather_summary: str = "Weather data unavailable",
+) -> str:
     return f"""
 Analyze this soil photograph carefully.
 
@@ -8,6 +15,7 @@ Context provided by the farmer:
 - Current season: {season} (Kharif / Rabi / Zaid)
 - Intended crop: {crop}
 - Language for prescription: {language}
+- Weather context: {weather_summary}
 
 ## Your analysis process - follow this order exactly
 Step 1: VISUAL SIGNALS
@@ -67,7 +75,7 @@ Step 11: PEST/DISEASE RISK
     "text": "Full prescription in {language}",
     "audio_short": "Shorter version in {language}"
   }},
-  "warning_note": null
+  "warning_note": null,
   "crop_advisory": {{
     "recommended_crops": [
       {{

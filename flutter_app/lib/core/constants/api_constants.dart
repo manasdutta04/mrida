@@ -30,4 +30,7 @@ class ApiConstants {
 
   /// Backend scan endpoint
   static const String scanEndpoint = '$backendUrl/scan';
+
+  /// Free weather API (no key required)
+  static const String openMeteoEndpoint = 'https://api.open-meteo.com/v1/forecast';
 }

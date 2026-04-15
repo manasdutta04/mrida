@@ -3,6 +3,8 @@ import json
 import os
 from pathlib import Path
 from typing import Any
+from urllib.parse import urlencode
+from urllib.request import urlopen
 
 import google.generativeai as genai
 from dotenv import load_dotenv
@@ -46,6 +48,27 @@ model = genai.GenerativeModel(
 )
 
 
+def _fetch_weather_summary(latitude: float, longitude: float) -> str:
+    try:
+        query = urlencode(
+            {
+                "latitude": latitude,
+                "longitude": longitude,
+                "current": "temperature_2m,relative_humidity_2m,precipitation",
+            }
+        )
+        url = f"https://api.open-meteo.com/v1/forecast?{query}"
+        with urlopen(url, timeout=8) as response:
+            payload = json.loads(response.read().decode("utf-8"))
+        current = payload.get("current", {})
+        temp = current.get("temperature_2m", "NA")
+        humidity = current.get("relative_humidity_2m", "NA")
+        rain = current.get("precipitation", "NA")
+        return f"Temp {temp}C, Humidity {humidity}%, Rain {rain}mm"
+    except Exception:
+        return "Weather data unavailable"
+
+
 def _ensure_advisory_shape(result: dict) -> dict:
     result.setdefault("crop_advisory", {})
     advisory = result["crop_advisory"]
@@ -61,6 +84,78 @@ def _ensure_advisory_shape(result: dict) -> dict:
     )
     advisory.setdefault("pre_sowing_plan", {"steps": [], "confidence": 0.4})
     advisory.setdefault("pest_disease_risk", [])
+    return result
+
+
+def _apply_advisory_confidence_policy(result: dict) -> dict:
+    advisory = result.get("crop_advisory", {})
+    warnings: list[str] = []
+
+    recs = advisory.get("recommended_crops", [])
+    rec_conf = (
+        sum(float(r.get("confidence", 0.5)) for r in recs) / len(recs)
+        if recs
+        else 0.45
+    )
+    water_conf = float(advisory.get("water_plan", {}).get("confidence", 0.45))
+    pre_conf = float(advisory.get("pre_sowing_plan", {}).get("confidence", 0.45))
+    risks = advisory.get("pest_disease_risk", [])
+    risk_conf = (
+        sum(float(r.get("confidence", 0.5)) for r in risks) / len(risks)
+        if risks
+        else 0.45
+    )
+
+    if rec_conf < 0.65:
+        warnings.append("Crop recommendation confidence is moderate/low.")
+    if water_conf < 0.65:
+        warnings.append("Water plan is approximate.")
+    if pre_conf < 0.65:
+        warnings.append("Pre-sowing plan confidence is moderate.")
+    if risk_conf < 0.65:
+        warnings.append("Pest/disease risk confidence is moderate.")
+
+    refusal_template = (
+        "Confidence is below threshold for reliable advisory. "
+        "Retake photo in natural daylight and confirm with local agronomist/lab."
+    )
+    if rec_conf < 0.5:
+        advisory["recommended_crops"] = [
+            {
+                "crop": "insufficient_confidence",
+                "fit_score": 0.0,
+                "why": refusal_template,
+                "season_fit": "insufficient_confidence",
+                "expected_water_need": "insufficient_confidence",
+                "confidence": round(rec_conf, 2),
+            }
+        ]
+    if water_conf < 0.5:
+        advisory.setdefault("water_plan", {})
+        advisory["water_plan"]["field_note"] = refusal_template
+        advisory["water_plan"]["total_requirement_mm"] = "insufficient_confidence"
+    if pre_conf < 0.5:
+        advisory["pre_sowing_plan"] = {
+            "steps": [refusal_template],
+            "confidence": round(pre_conf, 2),
+        }
+    if risk_conf < 0.5:
+        advisory["pest_disease_risk"] = [
+            {
+                "name": "insufficient_confidence",
+                "type": "disease",
+                "risk_level": "medium",
+                "why_likely": refusal_template,
+                "early_signs": ["Retake image and verify with extension officer."],
+                "prevention": ["Use local integrated pest management advisory."],
+                "confidence": round(risk_conf, 2),
+            }
+        ]
+
+    if warnings:
+        existing = result.get("warning_note") or ""
+        result["warning_note"] = (existing + " " + " ".join(warnings)).strip()
+    result["crop_advisory"] = advisory
     return result
 
 
@@ -106,6 +201,7 @@ async def analyze_soil(request: ScanRequest) -> ScanResponse:
             season=request.season,
             crop=request.crop,
             language=request.language,
+            weather_summary=_fetch_weather_summary(request.latitude, request.longitude),
         )
 
         # 3. Call Gemini Vision (direct API — no Vertex AI)
@@ -130,6 +226,7 @@ async def analyze_soil(request: ScanRequest) -> ScanResponse:
             crop_profiles=CROP_ADVISORY_PROFILES,
             risk_matrix=PEST_DISEASE_MATRIX,
         )
+        result = _apply_advisory_confidence_policy(result)
 
         # 6. Confidence gate — reject if too low
         if result["confidence"] < 0.40:

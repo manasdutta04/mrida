@@ -77,12 +77,14 @@ class ScanService {
     final imageBytes = await imageFile.readAsBytes();
     final imageBase64 = base64Encode(imageBytes);
 
+    final weatherSummary = await _fetchWeatherSummary(location);
     final prompt = _buildPrompt(
       state: state,
       district: district,
       season: season,
       crop: crop,
       language: language,
+      weatherSummary: weatherSummary,
     );
 
     final url = Uri.parse(
@@ -149,6 +151,7 @@ class ScanService {
       longitude: location.longitude,
     );
     parsed = _validateCropAdvisory(parsed, state: state, season: season);
+    parsed = _applyAdvisoryConfidencePolicy(parsed);
     return parsed;
   }
 
@@ -194,6 +197,7 @@ class ScanService {
     final data = jsonDecode(response.body) as Map<String, dynamic>;
     var parsed = ScanResult.fromJson(data);
     parsed = _validateCropAdvisory(parsed, state: state, season: season);
+    parsed = _applyAdvisoryConfidencePolicy(parsed);
     return parsed;
   }
 
@@ -204,6 +208,7 @@ class ScanService {
     required String season,
     required String crop,
     required String language,
+    required String weatherSummary,
   }) {
     return '''
 Analyze this soil photograph carefully.
@@ -214,6 +219,7 @@ Context provided by the farmer:
 - Current season: $season (Kharif / Rabi / Zaid)
 - Intended crop: $crop
 - Language for prescription: $language
+- Weather context: $weatherSummary
 
 ## Your analysis process — follow this order exactly
 
@@ -301,7 +307,7 @@ List likely pest/disease attacks for recommended crops in this season with confi
     "text": "Full prescription in $language — 3-4 sentences, specific doses",
     "audio_short": "Shorter version for TTS, 1-2 sentences in $language"
   },
-  "warning_note": null
+  "warning_note": null,
   "crop_advisory": {
     "recommended_crops": [
       {
@@ -337,6 +343,26 @@ List likely pest/disease attacks for recommended crops in this season with confi
   }
 }
 ''';
+  }
+
+  Future<String> _fetchWeatherSummary(Position location) async {
+    try {
+      final uri = Uri.parse(ApiConstants.openMeteoEndpoint).replace(queryParameters: {
+        'latitude': location.latitude.toString(),
+        'longitude': location.longitude.toString(),
+        'current': 'temperature_2m,relative_humidity_2m,precipitation',
+      });
+      final response = await _client.get(uri);
+      if (response.statusCode != 200) return 'Weather data unavailable';
+      final payload = jsonDecode(response.body) as Map<String, dynamic>;
+      final current = payload['current'] as Map<String, dynamic>? ?? {};
+      final temp = current['temperature_2m'] ?? 'NA';
+      final humidity = current['relative_humidity_2m'] ?? 'NA';
+      final rain = current['precipitation'] ?? 'NA';
+      return 'Temp ' + temp.toString() + 'C, Humidity ' + humidity.toString() + '%, Rain ' + rain.toString() + 'mm';
+    } catch (_) {
+      return 'Weather data unavailable';
+    }
   }
 
   Future<void> _ensureAdvisoryDataLoaded() async {
@@ -396,6 +422,91 @@ List likely pest/disease attacks for recommended crops in this season with confi
       scannedAt: input.scannedAt,
       cropAdvisory: input.cropAdvisory,
       warningNote: ((input.warningNote ?? '') + ' ' + warnings.join(' ')).trim(),
+    );
+  }
+
+  ScanResult _applyAdvisoryConfidencePolicy(ScanResult input) {
+    final advisory = input.cropAdvisory;
+    if (advisory == null) return input;
+
+    final recConf = advisory.recommendedCrops.isEmpty
+        ? 0.45
+        : advisory.recommendedCrops.map((e) => e.confidence).reduce((a, b) => a + b) / advisory.recommendedCrops.length;
+    final waterConf = advisory.waterPlan.confidence;
+    final preConf = advisory.preSowingPlan.confidence;
+    final riskConf = advisory.pestDiseaseRisk.isEmpty
+        ? 0.45
+        : advisory.pestDiseaseRisk.map((e) => e.confidence).reduce((a, b) => a + b) / advisory.pestDiseaseRisk.length;
+
+    final warnings = <String>[];
+    if (recConf < 0.65) warnings.add('Crop recommendation confidence is moderate/low.');
+    if (waterConf < 0.65) warnings.add('Water requirement guidance is approximate.');
+    if (preConf < 0.65) warnings.add('Pre-sowing guidance confidence is moderate.');
+    if (riskConf < 0.65) warnings.add('Pest/disease risk confidence is moderate.');
+
+    const refusal = 'Advisory confidence below threshold. Retake photo in natural daylight and verify with local agronomist/lab.';
+
+    final adjustedAdvisory = CropAdvisory(
+      recommendedCrops: recConf < 0.5
+          ? const [
+              RecommendedCrop(
+                crop: 'insufficient_confidence',
+                fitScore: 0,
+                why: refusal,
+                seasonFit: 'insufficient_confidence',
+                expectedWaterNeed: 'insufficient_confidence',
+                confidence: 0.45,
+              ),
+            ]
+          : advisory.recommendedCrops,
+      waterPlan: waterConf < 0.5
+          ? const WaterPlan(
+              totalRequirementMm: 'insufficient_confidence',
+              criticalIrrigationStages: [],
+              fieldNote: refusal,
+              confidence: 0.45,
+            )
+          : advisory.waterPlan,
+      preSowingPlan: preConf < 0.5
+          ? const PreSowingPlan(
+              steps: [refusal],
+              confidence: 0.45,
+            )
+          : advisory.preSowingPlan,
+      pestDiseaseRisk: riskConf < 0.5
+          ? const [
+              PestDiseaseRisk(
+                name: 'insufficient_confidence',
+                type: 'disease',
+                riskLevel: 'medium',
+                whyLikely: refusal,
+                earlySigns: ['Retake image and verify with extension officer.'],
+                prevention: ['Use local integrated pest management advisory.'],
+                confidence: 0.45,
+              )
+            ]
+          : advisory.pestDiseaseRisk,
+    );
+
+    final mergedWarning = ((input.warningNote ?? '') + (warnings.isEmpty ? '' : ' ${warnings.join(' ')}')).trim();
+    return ScanResult(
+      scanId: input.scanId,
+      fieldId: input.fieldId,
+      userId: input.userId,
+      imageUrl: input.imageUrl,
+      grade: input.grade,
+      npk: input.npk,
+      ph: input.ph,
+      deficiencies: input.deficiencies,
+      prescriptionText: input.prescriptionText,
+      prescriptionAudio: input.prescriptionAudio,
+      confidenceScore: input.confidenceScore,
+      signals: input.signals,
+      languageCode: input.languageCode,
+      location: input.location,
+      scannedAt: input.scannedAt,
+      cropAdvisory: adjustedAdvisory,
+      warningNote: mergedWarning.isEmpty ? null : mergedWarning,
     );
   }
 }
