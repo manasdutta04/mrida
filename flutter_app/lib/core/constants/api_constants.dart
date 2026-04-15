@@ -1,3 +1,5 @@
+import 'package:flutter_dotenv/flutter_dotenv.dart';
+
 /// Scan mode determines whether to call Gemini directly or via the backend.
 enum ScanMode {
   /// Phase 1: POST directly to Gemini API. No backend required.
@@ -14,9 +16,9 @@ class ApiConstants {
   /// Change to [ScanMode.backend] when Cloud Run is deployed.
   static const ScanMode scanMode = ScanMode.direct;
 
-  /// Gemini API key — injected via --dart-define=GEMINI_API_KEY=...
+  /// Gemini API key — injected via --dart-define=GEMINI_API_KEY=... or from .env
   /// Get a free key at https://aistudio.google.com
-  static const String geminiApiKey = String.fromEnvironment(
+  static String get geminiApiKey => dotenv.env['GEMINI_API_KEY'] ?? const String.fromEnvironment(
     'GEMINI_API_KEY',
     defaultValue: '',
   );

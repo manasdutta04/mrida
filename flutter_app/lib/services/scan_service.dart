@@ -69,7 +69,7 @@ class ScanService {
   }) async {
     if (ApiConstants.geminiApiKey.isEmpty) {
       throw Exception(
-        'GEMINI_API_KEY not set. Run with: '
+        'GEMINI_API_KEY not set. Add it to your .env file or run with: '
         'flutter run --dart-define=GEMINI_API_KEY=your_key',
       );
     }
