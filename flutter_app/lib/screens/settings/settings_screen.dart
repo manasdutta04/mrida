@@ -242,6 +242,11 @@ class SettingsScreen extends ConsumerWidget {
             ],
           ),
           const SizedBox(height: 18),
+          Wrap(
+            spacing: 10,
+            runSpacing: 10,
+            children: [
+              _buildChip('Language', _languageOptions[languageCode] ?? 'English'),
               _buildChip('Theme', _themeModeLabel(themeMode)),
               if (profile?.state != null) _buildChip('State', profile!.state!),
             ],

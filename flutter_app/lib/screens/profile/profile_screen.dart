@@ -185,6 +185,7 @@ class ProfileScreen extends ConsumerWidget {
               style: const TextStyle(fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 16),
+            TextField(
               controller: phoneController,
               decoration: const InputDecoration(labelText: 'PHONE NUMBER', hintText: '+91 ...'),
               keyboardType: TextInputType.phone,
