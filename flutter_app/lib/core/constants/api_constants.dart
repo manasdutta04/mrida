@@ -25,7 +25,7 @@ class ApiConstants {
 
   /// Gemini direct API endpoint (Phase 1)
   static const String geminiEndpoint =
-      'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent';
+      'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent';
 
   /// Cloud Run backend URL (Phase 2 — placeholder until deployed)
   static const String backendUrl = 'https://YOUR_CLOUD_RUN_URL';
