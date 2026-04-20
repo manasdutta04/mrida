@@ -303,119 +303,312 @@ class _CameraScreenState extends ConsumerState<CameraScreen>
   Widget _buildPreview() {
     return Scaffold(
       backgroundColor: Colors.black,
-      body: SafeArea(
-        child: Column(
-          children: [
-            // Top bar
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
-              child: Row(
-                children: [
-                  IconButton(
-                    onPressed: _retake,
-                    icon: const Icon(Icons.arrow_back, color: Colors.white),
-                  ),
-                  const Spacer(),
-                  Text(
-                    'Review Photo',
-                    style: GoogleFonts.sora(
-                      color: Colors.white,
-                      fontSize: 16,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                  const Spacer(),
-                  const SizedBox(width: 48),
-                ],
+      body: Stack(
+        children: [
+          // Background Image showing the soil photo
+          Positioned.fill(
+            child: Opacity(
+              opacity: 0.7,
+              child: Image.file(
+                _capturedImage!,
+                fit: BoxFit.cover,
               ),
             ),
-
-            // Image preview
-            Expanded(
-              child: Container(
-                margin: const EdgeInsets.all(16),
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(16),
-                  image: DecorationImage(
-                    image: FileImage(_capturedImage!),
-                    fit: BoxFit.cover,
-                  ),
+          ),
+          
+          // Glass Gradient Overlay
+          Positioned.fill(
+            child: Container(
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  begin: Alignment.topCenter,
+                  end: Alignment.bottomCenter,
+                  colors: const [
+                    Colors.black.withValues(alpha: 0.2),
+                    Colors.black.withValues(alpha: 0.8),
+                  ],
                 ),
               ),
             ),
+          ),
 
-            // Advisory input form
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 24),
-              child: Column(
-                children: [
-                  DropdownButtonFormField<String>(
-                    value: _season,
-                    decoration: const InputDecoration(labelText: 'Season'),
-                    items: const [
-                      DropdownMenuItem(value: 'kharif', child: Text('Kharif')),
-                      DropdownMenuItem(value: 'rabi', child: Text('Rabi')),
-                      DropdownMenuItem(value: 'zaid', child: Text('Zaid')),
+          SafeArea(
+            child: Column(
+              children: [
+                // Top bar
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+                  child: Row(
+                    children: [
+                      IconButton(
+                        onPressed: _retake,
+                        icon: const Icon(Icons.close, color: Colors.white),
+                      ),
+                      const SizedBox(width: 8),
+                      Text(
+                        'Review Analysis Info',
+                        style: GoogleFonts.sora(
+                          color: Colors.white,
+                          fontSize: 18,
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
+                      const Spacer(),
                     ],
-                    onChanged: (v) => setState(() => _season = v ?? 'kharif'),
                   ),
-                  const SizedBox(height: 8),
-                  TextField(
-                    controller: _stateController,
-                    decoration: const InputDecoration(labelText: 'State'),
+                ),
+
+                const Spacer(),
+
+                // Scrolled Form Area
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 32),
+                  decoration: BoxDecoration(
+                    color: Colors.white.withValues(alpha: 0.1),
+                    borderRadius: const BorderRadius.vertical(top: Radius.circular(32)),
+                    border: Border.all(color: Colors.white12),
                   ),
-                  const SizedBox(height: 8),
-                  TextField(
-                    controller: _districtController,
-                    decoration: const InputDecoration(labelText: 'District'),
-                  ),
-                  const SizedBox(height: 8),
-                  TextField(
-                    controller: _cropController,
-                    decoration: const InputDecoration(labelText: 'Intended crop (optional)'),
-                  ),
-                ],
-              ),
-            ),
-            const SizedBox(height: 16),
-            // Action buttons
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 24),
-              child: Row(
-                children: [
-                  Expanded(
-                    child: OutlinedButton.icon(
-                      onPressed: _retake,
-                      icon: const Icon(Icons.refresh),
-                      label: const Text('Retake'),
-                      style: OutlinedButton.styleFrom(
-                        foregroundColor: Colors.white,
-                        side: const BorderSide(color: Colors.white38),
-                        padding: const EdgeInsets.symmetric(vertical: 16),
-                        shape: const StadiumBorder(),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      Text(
+                        'Enter Field Details',
+                        style: GoogleFonts.sora(
+                          color: Colors.white,
+                          fontSize: 20,
+                          fontWeight: FontWeight.w700,
+                        ),
                       ),
-                    ),
-                  ),
-                  const SizedBox(width: 16),
-                  Expanded(
-                    flex: 2,
-                    child: ElevatedButton.icon(
-                      onPressed: _usePhoto,
-                      icon: const Icon(Icons.check_circle_outline),
-                      label: const Text('Use this photo'),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: MridaColors.gradeA,
-                        foregroundColor: Colors.white,
-                        padding: const EdgeInsets.symmetric(vertical: 16),
-                        shape: const StadiumBorder(),
+                      const SizedBox(height: 4),
+                      Text(
+                        'Confirm details for localized accuracy',
+                        style: GoogleFonts.inter(
+                          color: Colors.white70,
+                          fontSize: 13,
+                        ),
                       ),
-                    ),
+                      const SizedBox(height: 24),
+
+                      // Season & Crop in a row for space efficiency
+                      Row(
+                        children: [
+                          Expanded(
+                            child: _GlassDropdown(
+                              label: 'Season',
+                              value: _season,
+                              items: ['kharif', 'rabi', 'zaid'],
+                              onChanged: (v) => setState(() => _season = v ?? 'kharif'),
+                            ),
+                          ),
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: _GlassInput(
+                              label: 'Crop (Optional)',
+                              controller: _cropController,
+                              hint: 'e.g. Rice',
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 16),
+                      Row(
+                        children: [
+                          Expanded(
+                            child: _GlassInput(
+                              label: 'State',
+                              controller: _stateController,
+                            ),
+                          ),
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: _GlassInput(
+                              label: 'District',
+                              controller: _districtController,
+                            ),
+                          ),
+                        ],
+                      ),
+                      
+                      const SizedBox(height: 32),
+
+                      // Action Buttons
+                      Row(
+                        children: [
+                          _SmallIconButton(
+                            icon: Icons.refresh,
+                            onTap: _retake,
+                          ),
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: ElevatedButton(
+                              onPressed: _usePhoto,
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: const Color(0xFF66BB6A),
+                                foregroundColor: Colors.black,
+                                padding: const EdgeInsets.symmetric(vertical: 20),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(16),
+                                ),
+                                elevation: 0,
+                              ),
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Text(
+                                    'Analyze Soil Now',
+                                    style: GoogleFonts.inter(
+                                      fontWeight: FontWeight.w800,
+                                      fontSize: 16,
+                                      letterSpacing: 0.5,
+                                    ),
+                                  ),
+                                  const SizedBox(width: 8),
+                                  const Icon(Icons.arrow_forward, size: 20),
+                                ],
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
                   ),
-                ],
-              ),
+                ),
+              ],
             ),
-          ],
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _GlassInput extends StatelessWidget {
+  const _GlassInput({
+    required this.label,
+    required this.controller,
+    this.hint,
+  });
+
+  final String label;
+  final TextEditingController controller;
+  final String? hint;
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Padding(
+          padding: const EdgeInsets.only(left: 4, bottom: 6),
+          child: Text(
+            label.toUpperCase(),
+            style: GoogleFonts.inter(
+              color: Colors.white54,
+              fontSize: 10,
+              fontWeight: FontWeight.w800,
+              letterSpacing: 1.2,
+            ),
+          ),
         ),
+        Container(
+          decoration: BoxDecoration(
+            color: Colors.white.withValues(alpha: 0.08),
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(color: Colors.white12),
+          ),
+          child: TextField(
+            controller: controller,
+            style: GoogleFonts.inter(color: Colors.white, fontSize: 14),
+            decoration: InputDecoration(
+              hintText: hint,
+              hintStyle: const TextStyle(color: Colors.white24),
+              contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+              border: InputBorder.none,
+              filled: false,
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class _GlassDropdown extends StatelessWidget {
+  const _GlassDropdown({
+    required this.label,
+    required this.value,
+    required this.items,
+    required this.onChanged,
+  });
+
+  final String label;
+  final String value;
+  final List<String> items;
+  final ValueChanged<String?> onChanged;
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Padding(
+          padding: const EdgeInsets.only(left: 4, bottom: 6),
+          child: Text(
+            label.toUpperCase(),
+            style: GoogleFonts.inter(
+              color: Colors.white54,
+              fontSize: 10,
+              fontWeight: FontWeight.w800,
+              letterSpacing: 1.2,
+            ),
+          ),
+        ),
+        Container(
+          padding: const EdgeInsets.symmetric(horizontal: 16),
+          decoration: BoxDecoration(
+            color: Colors.white.withValues(alpha: 0.08),
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(color: Colors.white12),
+          ),
+          child: DropdownButtonHideUnderline(
+            child: DropdownButton<String>(
+              value: value,
+              isExpanded: true,
+              dropdownColor: const Color(0xFF1A1A1A),
+              icon: const Icon(Icons.keyboard_arrow_down, color: Colors.white54),
+              style: GoogleFonts.inter(color: Colors.white, fontSize: 14, fontWeight: FontWeight.w500),
+              items: items.map((e) => DropdownMenuItem(
+                value: e,
+                child: Text(e[0].toUpperCase() + e.substring(1)),
+              )).toList(),
+              onChanged: onChanged,
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class _SmallIconButton extends StatelessWidget {
+  const _SmallIconButton({required this.icon, required this.onTap});
+  final IconData icon;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(12),
+      child: Container(
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: Colors.white.withValues(alpha: 0.08),
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(color: Colors.white24),
+        ),
+        child: Icon(icon, color: Colors.white, size: 24),
       ),
     );
   }
