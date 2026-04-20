@@ -28,6 +28,6 @@ flutter_app/ios/.symlinks/
 flutter_app/ios/Flutter/ephemeral/
 flutter_app/android/.gradle/
 
-
+firebase-service-account.json
 
 stitch_mrida_welcome_screen_design/*
