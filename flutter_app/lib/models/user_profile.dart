@@ -19,4 +19,28 @@ class UserProfile {
         displayName: json['displayName'] as String?,
         state: json['state'] as String?,
       );
+
+  UserProfile copyWith({
+    String? uid,
+    String? phoneNumber,
+    String? languageCode,
+    String? displayName,
+    String? state,
+  }) {
+    return UserProfile(
+      uid: uid ?? this.uid,
+      phoneNumber: phoneNumber ?? this.phoneNumber,
+      languageCode: languageCode ?? this.languageCode,
+      displayName: displayName ?? this.displayName,
+      state: state ?? this.state,
+    );
+  }
+
+  Map<String, dynamic> toJson() => {
+        'uid': uid,
+        'phoneNumber': phoneNumber,
+        'languageCode': languageCode,
+        'displayName': displayName,
+        'state': state,
+      };
 }
