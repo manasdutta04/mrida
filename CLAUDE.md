@@ -31,7 +31,7 @@ mrida/
 - **Auth**: Firebase Auth — phone number OTP only (no email, farmers use phones)
 - **DB**: Firestore (scans, fields, user profiles)
 - **Storage**: Firebase Storage (compressed soil images, max 800px, JPEG 85%)
-- **Maps**: Google Maps Flutter SDK
+- **Prices**: Government of India Mandi API (Agmarknet)
 - **Voice**: flutter_tts for prescription readout
 
 ## Languages supported

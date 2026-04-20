@@ -6,6 +6,7 @@ import '../../providers/user_provider.dart';
 import '../../theme/app_theme.dart';
 import '../../models/mandi_price.dart';
 import '../../data/msp_2025.dart';
+import '../../data/states.dart';
 import 'package:intl/intl.dart';
 
 class MandiScreen extends ConsumerStatefulWidget {
@@ -20,15 +21,7 @@ class _MandiScreenState extends ConsumerState<MandiScreen> {
   final TextEditingController _searchController = TextEditingController();
   String _searchQuery = '';
 
-  final List<String> _states = [
-    'Andhra Pradesh', 'Arunachal Pradesh', 'Assam', 'Bihar', 'Chhattisgarh', 
-    'Goa', 'Gujarat', 'Haryana', 'Himachal Pradesh', 'Jharkhand', 'Karnataka', 
-    'Kerala', 'Madhya Pradesh', 'Maharashtra', 'Manipur', 'Meghalaya', 'Mizoram', 
-    'Nagaland', 'Odisha', 'Punjab', 'Rajasthan', 'Sikkim', 'Tamil Nadu', 
-    'Telangana', 'Tripura', 'Uttar Pradesh', 'Uttarakhand', 'West Bengal', 
-    'Andaman and Nicobar', 'Chandigarh', 'Dadra and Nagar Haveli', 'Daman and Diu', 
-    'Delhi', 'Jammu and Kashmir', 'Ladakh', 'Lakshadweep', 'Puducherry'
-  ];
+  final List<String> _states = indianStates;
 
   @override
   void initState() {

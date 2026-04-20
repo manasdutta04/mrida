@@ -7,6 +7,7 @@ import '../../providers/user_provider.dart';
 import '../../providers/scan_provider.dart';
 import '../../providers/field_provider.dart';
 import '../../models/user_profile.dart';
+import '../../data/states.dart';
 
 class ProfileScreen extends ConsumerWidget {
   const ProfileScreen({super.key});
@@ -127,7 +128,7 @@ class ProfileScreen extends ConsumerWidget {
                 const SizedBox(height: 24),
 
                 _SettingsGroup(children: [
-                  _SettingsTile(icon: Icons.map_outlined, title: 'Manage Fields', hasChevron: true),
+                  _SettingsTile(icon: Icons.agriculture_outlined, title: 'Manage Fields', hasChevron: true),
                   _SettingsTile(icon: Icons.history, title: 'Full Scan History', hasChevron: true, onTap: () => context.push('/history')),
                 ]),
                 const SizedBox(height: 48),
@@ -184,12 +185,26 @@ class ProfileScreen extends ConsumerWidget {
               style: const TextStyle(fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 16),
-            TextField(
               controller: phoneController,
               decoration: const InputDecoration(labelText: 'PHONE NUMBER', hintText: '+91 ...'),
               keyboardType: TextInputType.phone,
               style: const TextStyle(fontWeight: FontWeight.bold),
             ),
+            const SizedBox(height: 16),
+            const Text('PRIMARY STATE (FOR MANDI PRICES)', style: TextStyle(fontWeight: FontWeight.w900, fontSize: 10, letterSpacing: 1.0, color: Colors.grey)),
+            StatefulBuilder(builder: (context, setModalState) {
+              String? selectedState = profile?.state;
+              return DropdownButton<String>(
+                isExpanded: true,
+                value: selectedState,
+                hint: const Text('Select your state'),
+                items: indianStates.map((s) => DropdownMenuItem(value: s, child: Text(s))).toList(),
+                onChanged: (val) {
+                  setModalState(() => selectedState = val);
+                  profile = profile?.copyWith(state: val);
+                },
+              );
+            }),
             const SizedBox(height: 32),
             SizedBox(
               width: double.infinity,
@@ -208,6 +223,7 @@ class ProfileScreen extends ConsumerWidget {
                       await ref.read(firestoreServiceProvider).updateUserProfile(userId, {
                         'displayName': name,
                         'phoneNumber': phone,
+                        'state': profile?.state,
                       });
                       
                       // 3. Force provider refresh to show immediate changes
