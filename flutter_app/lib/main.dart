@@ -22,9 +22,21 @@ Future<void> main() async {
     debugPrint("Warning: .env file not found. Falling back to platform defaults.");
   }
 
-  await Firebase.initializeApp(
-    options: DefaultFirebaseOptions.currentPlatform,
-  );
+  // Initialize Firebase
+  // On Android, we can rely on the google-services.json for automatic initialization
+  // to avoid conflicts with manual options.
+  try {
+    if (kIsWeb || defaultTargetPlatform == TargetPlatform.iOS) {
+      await Firebase.initializeApp(
+        options: DefaultFirebaseOptions.currentPlatform,
+      );
+    } else {
+      await Firebase.initializeApp();
+    }
+  } catch (e) {
+    debugPrint("Firebase initialization failed: $e");
+    // We still call runApp so the app can show an error or partial UI instead of hanging
+  }
   
   runApp(const ProviderScope(child: MridaApp()));
 }
