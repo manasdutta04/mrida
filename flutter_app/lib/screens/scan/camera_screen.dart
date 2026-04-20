@@ -323,7 +323,7 @@ class _CameraScreenState extends ConsumerState<CameraScreen>
                 gradient: LinearGradient(
                   begin: Alignment.topCenter,
                   end: Alignment.bottomCenter,
-                  colors: const [
+                  colors: [
                     Colors.black.withValues(alpha: 0.2),
                     Colors.black.withValues(alpha: 0.8),
                   ],
@@ -397,7 +397,7 @@ class _CameraScreenState extends ConsumerState<CameraScreen>
                             child: _GlassDropdown(
                               label: 'Season',
                               value: _season,
-                              items: ['kharif', 'rabi', 'zaid'],
+                              items: const ['kharif', 'rabi', 'zaid'],
                               onChanged: (v) => setState(() => _season = v ?? 'kharif'),
                             ),
                           ),
