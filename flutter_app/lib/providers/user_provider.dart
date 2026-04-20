@@ -32,6 +32,7 @@ final userProfileProvider = StreamProvider<UserProfile?>((ref) async* {
     phoneNumber: local['phoneNumber'] ?? '',
     languageCode: local['languageCode'] ?? 'en',
     displayName: local['displayName'],
+    state: local['state'],
   );
 
   // Watch remote and update local cache
@@ -42,6 +43,7 @@ final userProfileProvider = StreamProvider<UserProfile?>((ref) async* {
               name: remote.displayName,
               phone: remote.phoneNumber,
               language: remote.languageCode,
+              state: remote.state,
             );
       }
       yield remote;

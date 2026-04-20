@@ -13,6 +13,7 @@ Future<void> main() async {
   // Initialize local storage (Hive)
   await Hive.initFlutter();
   await Hive.openBox('settings');
+  await Hive.openBox('mandi_cache');
   
   // Load local environment variables
   try {

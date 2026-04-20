@@ -19,10 +19,11 @@ class LocalStorageService {
     return _box.get(key) as bool?;
   }
 
-  void saveProfile({String? name, String? phone, String? language}) {
+  void saveProfile({String? name, String? phone, String? language, String? state}) {
     if (name != null) _box.put('displayName', name);
     if (phone != null) _box.put('phoneNumber', phone);
     if (language != null) _box.put('languageCode', language);
+    if (state != null) _box.put('state', state);
   }
 
   Map<String, String?> getProfile() {
@@ -30,6 +31,7 @@ class LocalStorageService {
       'displayName': _box.get('displayName') as String?,
       'phoneNumber': _box.get('phoneNumber') as String?,
       'languageCode': _box.get('languageCode') as String?,
+      'state': _box.get('state') as String?,
     };
   }
 }

@@ -15,7 +15,7 @@ import '../screens/scan/camera_screen.dart';
 import '../screens/scan/loading_screen.dart';
 import '../screens/scan/result_screen.dart';
 import '../screens/profile/profile_screen.dart';
-import '../screens/map/field_map_screen.dart';
+import '../screens/mandi/mandi_screen.dart';
 import '../screens/settings/settings_screen.dart';
 import '../screens/settings/support/about_screen.dart';
 import '../screens/settings/support/help_center_screen.dart';
@@ -92,7 +92,10 @@ final appRouterProvider = Provider<GoRouter>((ref) {
           ),
           StatefulShellBranch(
             routes: [
-              GoRoute(path: '/map', builder: (_, __) => const FieldMapScreen())
+              GoRoute(
+                path: '/mandi',
+                builder: (_, state) => MandiScreen(initialCommodity: state.extra as String?),
+              )
             ],
           ),
           StatefulShellBranch(

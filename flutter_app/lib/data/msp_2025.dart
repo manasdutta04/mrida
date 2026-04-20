@@ -1,0 +1,25 @@
+/// Minimum Support Price (MSP) in ₹ per quintal for 2024-25 season
+/// Source: Cabinet Committee on Economic Affairs (CCEA)
+const Map<String, double> msp2025 = {
+  'Rice': 2300,
+  'Paddy(Dhan)(Common)': 2300,
+  'Paddy(Dhan)(Grade A)': 2320,
+  'Wheat': 2275,
+  'Maize': 2090,
+  'Groundnut': 6377,
+  'Soyabean': 4892,
+  'Cotton': 7121,
+  'Mustard': 5650,
+  'Gram': 5440,
+  'Tur': 7550,
+  'Moong': 8682,
+  'Bajra': 2625,
+  'Jowar': 3371,
+  'Ragi': 4290,
+  'Sunflower': 7280,
+  'Sesamum': 9267,
+  'Nigerseed': 8717,
+  'Lentil (Masur)': 6425,
+  'Barley': 1850,
+  'Safflower': 5800,
+};

@@ -88,7 +88,7 @@ class _ModernNavBarState extends State<ModernNavBar> with TickerProviderStateMix
                     Expanded(child: _buildNavItem(0, Icons.home_filled, 'HOME')),
                     Expanded(child: _buildNavItem(1, Icons.history, 'HISTORY')),
                     Expanded(child: _buildCenterItem(2)),
-                    Expanded(child: _buildNavItem(3, Icons.map_outlined, 'MAP')),
+                    Expanded(child: _buildNavItem(3, Icons.storefront_outlined, 'MANDI')),
                     Expanded(child: _buildNavItem(4, Icons.person_outline, 'PROFILE')),
                   ],
                 ),

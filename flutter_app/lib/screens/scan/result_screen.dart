@@ -273,6 +273,27 @@ class ResultScreen extends ConsumerWidget {
                       ),
                     );
                   }),
+                  const SizedBox(height: 16),
+                  InkWell(
+                    onTap: () {
+                      final crop = r.cropAdvisory?.recommendedCrops.firstOrNull?.crop;
+                      context.push('/mandi', extra: crop);
+                    },
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 8.0),
+                      child: Row(
+                        children: [
+                          Text(
+                            'See mandi prices for ${r.cropAdvisory?.recommendedCrops.firstOrNull?.crop ?? 'crops'} →',
+                            style: theme.textTheme.bodyLarge?.copyWith(
+                              color: MridaColors.primary,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
                 ],
 
                 const SizedBox(height: 120),
