@@ -65,7 +65,7 @@ class MandiService {
         
         // Filter out very old records (older than 30 days) to keep it "Real"
         final thirtyDaysAgo = DateTime.now().subtract(const Duration(days: 30));
-        final recentPrices = prices.where((p) => p.arrivalDate.isAfter(thirtyDaysAgo)).toList();
+        final recentPrices = prices.where((p) => p.reportedDate.isAfter(thirtyDaysAgo)).toList();
 
         // Sort by modal price descending
         recentPrices.sort((a, b) => b.modalPrice.compareTo(a.modalPrice));
