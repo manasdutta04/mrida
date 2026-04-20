@@ -66,6 +66,12 @@ class MandiNotifier extends StateNotifier<AsyncValue<List<MandiPrice>>> {
     await fetchPrices(state: _currentState, commodity: _currentCommodity);
   }
 
+  Future<void> clearFilters() async {
+    _currentState = null;
+    _currentCommodity = null;
+    await fetchPrices(state: '', commodity: '');
+  }
+
   String? get currentState => _currentState;
   String? get currentCommodity => _currentCommodity;
 }

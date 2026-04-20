@@ -98,24 +98,50 @@ class _MandiScreenState extends ConsumerState<MandiScreen> {
                   ],
                 ),
                 const SizedBox(height: 12),
-                TextField(
-                  controller: _searchController,
-                  onChanged: (val) => setState(() => _searchQuery = val),
-                  decoration: InputDecoration(
-                    hintText: 'Search commodity, market...',
-                    prefixIcon: const Icon(Icons.search, size: 20),
-                    filled: true,
-                    fillColor: Colors.white,
-                    contentPadding: const EdgeInsets.symmetric(horizontal: 16),
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(16),
-                      borderSide: BorderSide(color: MridaColors.outline.withValues(alpha: 0.1)),
+                Row(
+                  children: [
+                    Expanded(
+                      child: TextField(
+                        controller: _searchController,
+                        onChanged: (val) => setState(() => _searchQuery = val),
+                        decoration: InputDecoration(
+                          hintText: 'Search commodity, market...',
+                          prefixIcon: const Icon(Icons.search, size: 20),
+                          filled: true,
+                          fillColor: Colors.white,
+                          contentPadding: const EdgeInsets.symmetric(horizontal: 16),
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(16),
+                            borderSide: BorderSide(color: MridaColors.outline.withValues(alpha: 0.1)),
+                          ),
+                          enabledBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(16),
+                            borderSide: BorderSide(color: MridaColors.outline.withValues(alpha: 0.1)),
+                          ),
+                        ),
+                      ),
                     ),
-                    enabledBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(16),
-                      borderSide: BorderSide(color: MridaColors.outline.withValues(alpha: 0.1)),
-                    ),
-                  ),
+                    if (notifier.currentState != null || notifier.currentCommodity != null || _searchQuery.isNotEmpty)
+                      Padding(
+                        padding: const EdgeInsets.only(left: 8.0),
+                        child: TextButton(
+                          onPressed: () {
+                            _searchController.clear();
+                            setState(() => _searchQuery = '');
+                            ref.read(mandiProvider.notifier).clearFilters();
+                          },
+                          child: Text(
+                            'CLEAR',
+                            style: TextStyle(
+                              color: Colors.red.shade700,
+                              fontSize: 10,
+                              fontWeight: FontWeight.w900,
+                              letterSpacing: 1.0,
+                            ),
+                          ),
+                        ),
+                      ),
+                  ],
                 ),
               ],
             ),
@@ -271,6 +297,16 @@ class _MandiScreenState extends ConsumerState<MandiScreen> {
           const SizedBox(height: 16),
           const Text('No price data for this selection.', style: TextStyle(fontWeight: FontWeight.bold)),
           const Text('Try a different commodity or state.', style: TextStyle(color: Colors.grey)),
+          const SizedBox(height: 24),
+          TextButton.icon(
+            onPressed: () {
+              _searchController.clear();
+              setState(() => _searchQuery = '');
+              ref.read(mandiProvider.notifier).clearFilters();
+            },
+            icon: const Icon(Icons.refresh),
+            label: const Text('CLEAR ALL FILTERS'),
+          ),
         ],
       ),
     );
