@@ -8,7 +8,11 @@
     "typical_potassium": "medium_to_high",
     "common_deficiencies": ["nitrogen", "zinc", "boron", "sulfur"],
     "problem_areas": ["Boron deficiency in groundnut belt", "Iron deficiency in upland rice"],
-    "major_crops": ["rice", "groundnut", "cotton", "chili", "sugarcane"]
+    "major_crops": ["rice", "groundnut", "cotton", "chili", "sugarcane"],
+    "district_context": {
+      "Guntur": "Rich black and red soils; major chili and tobacco belt. High fertilizer use.",
+      "Anantapur": "Arid red soils; groundnut dominant; moisture-stressed, low available P."
+    }
   },
   "Arunachal Pradesh": {
     "dominant_soil_orders": ["Inceptisols", "Entisols"],
@@ -151,7 +155,11 @@
     "typical_potassium": "high",
     "common_deficiencies": ["nitrogen", "sulfur", "zinc", "iron", "boron"],
     "problem_areas": ["Micronutrient deficiencies increasing in intensive farming areas"],
-    "major_crops": ["sugarcane", "cotton", "soybean", "onion", "grapes", "oranges"]
+    "major_crops": ["sugarcane", "cotton", "soybean", "onion", "grapes", "oranges"],
+    "district_context": {
+      "Nagpur": "Orange belt; Vertic Inceptisols; prone to zinc and micronutrient deficiencies.",
+      "Ahmednagar": "Sugarcane and onion focus; intensive irrigation, risk of alkalization."
+    }
   },
   "Manipur": {
     "dominant_soil_orders": ["Inceptisols", "Entisols"],
@@ -217,7 +225,11 @@
     "typical_potassium": "high",
     "common_deficiencies": ["nitrogen", "zinc", "iron"],
     "problem_areas": ["High P buildup from overfertilization", "Water table depletion"],
-    "major_crops": ["wheat", "rice", "maize", "cotton", "potato"]
+    "major_crops": ["wheat", "rice", "maize", "cotton", "potato"],
+    "district_context": {
+      "Ludhiana": "Rice-wheat heartland; high organic C in some pockets, but heavy N usage.",
+      "Bhatinda": "Cotton belt; lighter texture, iron-related chlorosis common."
+    }
   },
   "Rajasthan": {
     "dominant_soil_orders": ["Aridisols", "Entisols", "Vertisols"],

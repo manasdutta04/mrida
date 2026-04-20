@@ -100,16 +100,23 @@ def validate_against_regional_profile(
         )
         confidence_penalty += 0.10
 
-    regional_def = set(profile["common_deficiencies"])
+    regional_def = set(profile.get("common_deficiencies", []))
     model_def = set(gemini_result.get("deficiencies", []))
     if model_def and not model_def.intersection(regional_def):
         anomalies.append(
             f"Flagged deficiencies {sorted(model_def)} are uncommon for {state}; "
             f"regional watchlist: {sorted(regional_def)}."
         )
-        confidence_penalty += 0.05
+        confidence_penalty += 0.08  # Increased penalty
 
-    gemini_result["confidence"] = round(max(0.0, gemini_result["confidence"] - confidence_penalty), 2)
+    # District context check (if provided in request and available in data)
+    district = gemini_result.get("district")
+    if district and "district_context" in profile:
+        context = profile["district_context"].get(district)
+        if context:
+            gemini_result["regional_note"] = f"District context ({district}): {context}"
+
+    gemini_result["confidence"] = round(max(0.1, gemini_result["confidence"] - confidence_penalty), 2)
 
     if crop_profiles is not None:
         crop_anomalies, crop_penalty = validate_crop_recommendations(gemini_result, state, crop_profiles)

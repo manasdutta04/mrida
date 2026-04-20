@@ -15,7 +15,7 @@ class MandiService {
 
     if (cachedData != null) {
       final lastFetched = DateTime.parse(cachedData['timestamp'] as String);
-      if (DateTime.now().difference(lastFetched).inHours < 6) {
+      if (DateTime.now().difference(lastFetched).inHours < 24) {
         final List<dynamic> list = jsonDecode(cachedData['data'] as String);
         return list.map((e) => MandiPrice.fromJson(e as Map<String, dynamic>)).toList();
       }
@@ -25,7 +25,7 @@ class MandiService {
       final queryParams = {
         'api-key': _apiKey,
         'format': 'json',
-        'limit': 50,
+        'limit': 250,
       };
 
       if (state != null && state.isNotEmpty) {
@@ -41,11 +41,34 @@ class MandiService {
       );
 
       if (response.statusCode == 200) {
-        final List<dynamic> records = response.data['records'] ?? [];
+        List<dynamic> records = response.data['records'] ?? [];
+        
+        // Fallback: If state-specific query returns nothing, try fetching national latest
+        if (records.isEmpty && (state != null || commodity != null)) {
+          final fallbackParams = {
+            'api-key': _apiKey,
+            'format': 'json',
+            'limit': 100,
+          };
+          if (commodity != null) fallbackParams['filters[Commodity]'] = commodity;
+          
+          final fallbackResponse = await _dio.get(
+            'https://api.data.gov.in/resource/$_resourceId',
+            queryParameters: fallbackParams,
+          );
+          if (fallbackResponse.statusCode == 200) {
+            records = fallbackResponse.data['records'] ?? [];
+          }
+        }
+
         final prices = records.map((e) => MandiPrice.fromJson(e as Map<String, dynamic>)).toList();
+        
+        // Filter out very old records (older than 30 days) to keep it "Real"
+        final thirtyDaysAgo = DateTime.now().subtract(const Duration(days: 30));
+        final recentPrices = prices.where((p) => p.arrivalDate.isAfter(thirtyDaysAgo)).toList();
 
         // Sort by modal price descending
-        prices.sort((a, b) => b.modalPrice.compareTo(a.modalPrice));
+        recentPrices.sort((a, b) => b.modalPrice.compareTo(a.modalPrice));
 
         // Cache response
         await _cacheBox.put(cacheKey, {
@@ -53,7 +76,7 @@ class MandiService {
           'data': jsonEncode(records),
         });
 
-        return prices;
+        return recentPrices;
       } else {
         throw DioException(
           requestOptions: response.requestOptions,
