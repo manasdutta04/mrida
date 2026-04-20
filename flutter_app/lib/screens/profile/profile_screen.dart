@@ -89,13 +89,10 @@ class ProfileScreen extends ConsumerWidget {
             sliver: SliverList(
               delegate: SliverChildListDelegate([
                 // High-Contrast Bento Stats
-                // High-Contrast Bento Stats
                 statsAsync.when(
                   data: (stats) => Row(
                     children: [
                       _BentoStatCard(value: stats['scans'].toString(), label: 'SCANS'),
-                      const SizedBox(width: 12),
-                      _BentoStatCard(value: stats['fields'].toString(), label: 'FIELDS'),
                       const SizedBox(width: 12),
                       _BentoStatCard(value: stats['crops'].toString(), label: 'CROPS'),
                     ],
@@ -103,8 +100,6 @@ class ProfileScreen extends ConsumerWidget {
                   loading: () => const Row(
                     children: [
                       _BentoStatCard(value: '...', label: 'SCANS'),
-                      SizedBox(width: 12),
-                      _BentoStatCard(value: '...', label: 'FIELDS'),
                       SizedBox(width: 12),
                       _BentoStatCard(value: '...', label: 'CROPS'),
                     ],
@@ -128,7 +123,6 @@ class ProfileScreen extends ConsumerWidget {
                 const SizedBox(height: 24),
 
                 _SettingsGroup(children: [
-                  _SettingsTile(icon: Icons.agriculture_outlined, title: 'Manage Fields', hasChevron: true),
                   _SettingsTile(icon: Icons.history, title: 'Full Scan History', hasChevron: true, onTap: () => context.push('/history')),
                 ]),
                 const SizedBox(height: 48),
