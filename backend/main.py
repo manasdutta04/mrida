@@ -27,7 +27,13 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-root = Path(__file__).resolve().parent.parent
+BASE_DIR = Path(__file__).resolve().parent
+# Handle both local dev (backend/main.py -> ../data) and Docker (/app/main.py -> ./data)
+if (BASE_DIR / "data").exists():
+    root = BASE_DIR
+else:
+    root = BASE_DIR.parent
+
 with (root / "data" / "regional_soil_profiles.json").open("r", encoding="utf-8") as f:
     REGIONAL_PROFILES: dict[str, Any] = json.load(f)
 with (root / "data" / "crop_advisory_profiles.json").open("r", encoding="utf-8") as f:
