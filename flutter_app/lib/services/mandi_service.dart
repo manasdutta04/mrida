@@ -6,7 +6,7 @@ import '../models/mandi_price.dart';
 class MandiService {
   final Dio _dio = Dio();
   final Box _cacheBox = Hive.box('mandi_cache');
-  final String _apiKey = '579b464db66ec23bdd000001cdd3946e70ce4ffd825e6bfd2d43a93';
+  final String _apiKey = '579b464db66ec23bdd000001cdd3946e44ce4aad7209ff7b23ac571b';
   final String _resourceId = '9ef84268-d588-465a-a308-a864a43d0070';
 
   Future<List<MandiPrice>> fetchPrices({String? state, String? commodity}) async {
