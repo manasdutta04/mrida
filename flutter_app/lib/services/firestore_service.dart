@@ -1,4 +1,4 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:cloud_firestore/cloud_firestore.dart' hide Field;
 
 import '../models/field.dart';
 import '../models/user_profile.dart';

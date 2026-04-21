@@ -5,7 +5,7 @@ import '../../models/field.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import '../../theme/app_theme.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:cloud_firestore/cloud_firestore.dart' hide Field;
 import '../../models/scan_result.dart';
 
 class FieldDetailScreen extends ConsumerWidget {

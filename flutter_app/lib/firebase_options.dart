@@ -22,13 +22,29 @@ class DefaultFirebaseOptions {
     }
   }
 
-  static String get _apiKey => dotenv.get('FIREBASE_API_KEY');
-  static String get _projectId => dotenv.get('FIREBASE_PROJECT_ID', fallback: 'mrida-app');
-  static String get _senderId => dotenv.get('FIREBASE_MESSAGING_SENDER_ID');
+  static String get _apiKey {
+    const baked = String.fromEnvironment('FIREBASE_API_KEY');
+    if (baked.isNotEmpty) return baked;
+    return dotenv.get('FIREBASE_API_KEY');
+  }
+
+  static String get _projectId {
+    const baked = String.fromEnvironment('FIREBASE_PROJECT_ID');
+    if (baked.isNotEmpty) return baked;
+    return dotenv.get('FIREBASE_PROJECT_ID', fallback: 'mrida-app');
+  }
+
+  static String get _senderId {
+    const baked = String.fromEnvironment('FIREBASE_MESSAGING_SENDER_ID');
+    if (baked.isNotEmpty) return baked;
+    return dotenv.get('FIREBASE_MESSAGING_SENDER_ID');
+  }
 
   static FirebaseOptions get android => FirebaseOptions(
     apiKey: _apiKey,
-    appId: dotenv.get('FIREBASE_ANDROID_APP_ID'),
+    appId: const String.fromEnvironment('FIREBASE_ANDROID_APP_ID').isNotEmpty 
+        ? const String.fromEnvironment('FIREBASE_ANDROID_APP_ID') 
+        : dotenv.get('FIREBASE_ANDROID_APP_ID'),
     messagingSenderId: _senderId,
     projectId: _projectId,
     storageBucket: '$_projectId.appspot.com',
@@ -36,7 +52,9 @@ class DefaultFirebaseOptions {
 
   static FirebaseOptions get ios => FirebaseOptions(
     apiKey: _apiKey,
-    appId: dotenv.get('FIREBASE_IOS_APP_ID'),
+    appId: const String.fromEnvironment('FIREBASE_IOS_APP_ID').isNotEmpty 
+        ? const String.fromEnvironment('FIREBASE_IOS_APP_ID') 
+        : dotenv.get('FIREBASE_IOS_APP_ID'),
     messagingSenderId: _senderId,
     projectId: _projectId,
     storageBucket: '$_projectId.appspot.com',

@@ -20,7 +20,9 @@ Future<void> main() async {
   try {
     await dotenv.load(fileName: ".env");
   } catch (e) {
-    debugPrint("Warning: .env file not found. Falling back to platform defaults.");
+    if (kDebugMode) {
+      debugPrint("Warning: .env file not found. Local environment variables are disabled.");
+    }
   }
 
   // Initialize Firebase

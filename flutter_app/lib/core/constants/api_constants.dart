@@ -12,26 +12,46 @@ enum ScanMode {
 class ApiConstants {
   ApiConstants._();
 
-  /// Toggle between direct Gemini API and Cloud Run backend.
-  /// Change to [ScanMode.backend] when Cloud Run is deployed.
-  static const ScanMode scanMode = ScanMode.direct;
+  /// Helper to get env variable with priority: 
+  /// 1. --dart-define (baked in build)
+  /// 2. .env file (local dev)
+  /// 3. Default value
+  static String _getEnv(String key, {String defaultValue = ''}) {
+    const baked = String.fromEnvironment;
+    // We must use the string literal 'KEY' inside the method for it to work with fromEnvironment
+    // but dart-define is handled at compile time. 
+    // This helper logic is slightly limited by Dart's const requirement for fromEnvironment.
+    // So we'll implement it directly for each getter.
+    return defaultValue;
+  }
 
-  /// Gemini API key — injected via --dart-define=GEMINI_API_KEY=... or from .env
-  /// Get a free key at https://aistudio.google.com
-  static String get geminiApiKey => dotenv.env['GEMINI_API_KEY'] ?? const String.fromEnvironment(
-    'GEMINI_API_KEY',
-    defaultValue: '',
-  );
+  /// Gemini API key
+  static String get geminiApiKey {
+    const baked = String.fromEnvironment('GEMINI_API_KEY');
+    if (baked.isNotEmpty) return baked;
+    return dotenv.env['GEMINI_API_KEY'] ?? '';
+  }
+
+  /// Backend URL (Phase 2)
+  static String get backendUrl {
+    const baked = String.fromEnvironment('BACKEND_URL');
+    if (baked.isNotEmpty) return baked;
+    return dotenv.env['BACKEND_URL'] ?? 'https://mrida.onrender.com';
+  }
+
+  /// Scan Mode
+  static ScanMode get scanMode {
+    const baked = String.fromEnvironment('SCAN_MODE');
+    final val = baked.isNotEmpty ? baked : (dotenv.env['SCAN_MODE'] ?? 'direct');
+    return val.toLowerCase() == 'backend' ? ScanMode.backend : ScanMode.direct;
+  }
 
   /// Gemini direct API endpoint (Phase 1)
   static const String geminiEndpoint =
       'https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-latest:generateContent';
 
-  /// Cloud Run backend URL (Phase 2 — placeholder until deployed)
-  static const String backendUrl = 'https://YOUR_CLOUD_RUN_URL';
-
   /// Backend scan endpoint
-  static const String scanEndpoint = '$backendUrl/scan';
+  static String get scanEndpoint => '$backendUrl/scan';
 
   /// Free weather API (no key required)
   static const String openMeteoEndpoint = 'https://api.open-meteo.com/v1/forecast';
