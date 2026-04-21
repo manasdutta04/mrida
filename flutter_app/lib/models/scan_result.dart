@@ -65,12 +65,14 @@ class ScanResult {
       confidenceScore: (json['confidenceScore'] ?? json['confidence'] as num? ?? 0.0).toDouble(),
       signals: SoilSignals.fromJson(Map<String, dynamic>.from(json['signals'] as Map)),
       languageCode: (json['languageCode'] ?? json['language'] ?? 'en') as String,
-      location: loc != null
-          ? GeoPoint(
-              (loc['latitude'] ?? loc['_latitude'] as num? ?? 0.0).toDouble(),
-              (loc['longitude'] ?? loc['_longitude'] as num? ?? 0.0).toDouble(),
-            )
-          : const GeoPoint(0, 0),
+      location: loc is GeoPoint
+          ? loc
+          : loc != null
+              ? GeoPoint(
+                  (loc['latitude'] ?? loc['_latitude'] as num? ?? 0.0).toDouble(),
+                  (loc['longitude'] ?? loc['_longitude'] as num? ?? 0.0).toDouble(),
+                )
+              : const GeoPoint(0, 0),
       scannedAt: parseTime(json['scannedAt'] ?? json['scanned_at']),
       cropAdvisory: json['crop_advisory'] != null || json['cropAdvisory'] != null
           ? CropAdvisory.fromJson(
