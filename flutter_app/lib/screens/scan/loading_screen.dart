@@ -46,6 +46,9 @@ class _LoadingScreenState extends ConsumerState<LoadingScreen>
       }
     });
 
+    // Start analysis
+    _analyze();
+
     // ... existing pulse/rotate controllers ...
     _pulseController = AnimationController(
       vsync: this,
@@ -121,9 +124,6 @@ class _LoadingScreenState extends ConsumerState<LoadingScreen>
 
   @override
   Widget build(BuildContext context) {
-    if (!_analysisStarted) {
-      Future.microtask(_analyze);
-    }
     return Scaffold(
       backgroundColor: MridaColors.surface,
       body: Center(

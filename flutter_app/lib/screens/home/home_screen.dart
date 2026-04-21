@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../providers/scan_provider.dart';
 import '../../providers/field_provider.dart';
+import '../../providers/weather_provider.dart';
 import '../../models/scan_result.dart';
 import '../../theme/app_theme.dart';
 import 'package:intl/intl.dart';
@@ -16,6 +17,7 @@ class HomeScreen extends ConsumerWidget {
     final theme = Theme.of(context);
     final scansAsync = ref.watch(scansStreamProvider);
     final statsAsync = ref.watch(statsProvider);
+    final weatherAsync = ref.watch(weatherProvider);
     
     return CustomScrollView(
       physics: const BouncingScrollPhysics(),
@@ -246,12 +248,40 @@ class HomeScreen extends ConsumerWidget {
                   style: theme.textTheme.labelLarge,
                 ),
                 const SizedBox(height: 24),
-                Row(
-                  children: [
-                    Expanded(child: _buildInsightTile('28°C', 'SUNNY', Icons.wb_sunny_outlined)),
-                    const SizedBox(width: 12),
-                    Expanded(child: _buildInsightTile('12%', 'MOISTURE', Icons.opacity_outlined)),
-                  ],
+                weatherAsync.when(
+                  data: (weather) => Row(
+                    children: [
+                      Expanded(
+                        child: _buildInsightTile(
+                          weather != null ? '${weather.temperature.toStringAsFixed(1)}°C' : '--°C',
+                          weather?.condition.toUpperCase() ?? 'WEATHER',
+                          weather?.icon ?? Icons.wb_sunny_outlined,
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: _buildInsightTile(
+                          weather != null ? '${weather.humidity.toStringAsFixed(0)}%' : '--%',
+                          'HUMIDITY',
+                          Icons.opacity_outlined,
+                        ),
+                      ),
+                    ],
+                  ),
+                  loading: () => Row(
+                    children: [
+                      Expanded(child: _buildInsightTile('...', 'FETCHING', Icons.refresh)),
+                      const SizedBox(width: 12),
+                      Expanded(child: _buildInsightTile('...', 'FETCHING', Icons.refresh)),
+                    ],
+                  ),
+                  error: (e, __) => Row(
+                    children: [
+                      Expanded(child: _buildInsightTile('N/A', 'ERROR', Icons.error_outline)),
+                      const SizedBox(width: 12),
+                      Expanded(child: _buildInsightTile('N/A', 'ERROR', Icons.error_outline)),
+                    ],
+                  ),
                 ),
               ],
             ),

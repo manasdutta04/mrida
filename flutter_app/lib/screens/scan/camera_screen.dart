@@ -6,6 +6,7 @@ import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:image_picker/image_picker.dart';
 import '../../providers/scan_flow_provider.dart';
+import '../../providers/location_provider.dart';
 import '../../theme/app_theme.dart';
 
 class CameraScreen extends ConsumerStatefulWidget {
@@ -23,9 +24,9 @@ class _CameraScreenState extends ConsumerState<CameraScreen>
   bool _isCameraInitialized = false;
   File? _capturedImage;
   final ImagePicker _picker = ImagePicker();
-  final _stateController = TextEditingController(text: 'Maharashtra');
-  final _districtController = TextEditingController(text: 'Pune');
-  final _cropController = TextEditingController(text: 'soybean');
+  final _stateController = TextEditingController();
+  final _districtController = TextEditingController();
+  final _cropController = TextEditingController(text: '');
   String _season = 'kharif';
 
   @override
@@ -33,6 +34,18 @@ class _CameraScreenState extends ConsumerState<CameraScreen>
     super.initState();
     WidgetsBinding.instance.addObserver(this);
     _initializeCamera();
+    _autoFillLocation();
+  }
+
+  Future<void> _autoFillLocation() async {
+    // Show a loading hint if possible
+    final locationDetails = await ref.read(locationProvider.future);
+    if (locationDetails != null && mounted) {
+      setState(() {
+        if (_stateController.text.isEmpty) _stateController.text = locationDetails.state;
+        if (_districtController.text.isEmpty) _districtController.text = locationDetails.district;
+      });
+    }
   }
 
   Future<void> _initializeCamera() async {
@@ -372,13 +385,31 @@ class _CameraScreenState extends ConsumerState<CameraScreen>
                     mainAxisSize: MainAxisSize.min,
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
-                      Text(
-                        'Enter Field Details',
-                        style: GoogleFonts.sora(
-                          color: Colors.white,
-                          fontSize: 20,
-                          fontWeight: FontWeight.w700,
-                        ),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            'Enter Field Details',
+                            style: GoogleFonts.sora(
+                              color: Colors.white,
+                              fontSize: 20,
+                              fontWeight: FontWeight.w700,
+                            ),
+                          ),
+                          TextButton.icon(
+                            onPressed: _autoFillLocation,
+                            icon: const Icon(Icons.my_location, size: 14, color: Color(0xFF66BB6A)),
+                            label: Text(
+                              'DETECT',
+                              style: GoogleFonts.inter(
+                                color: const Color(0xFF66BB6A),
+                                fontSize: 10,
+                                fontWeight: FontWeight.w900,
+                                letterSpacing: 1.0,
+                              ),
+                            ),
+                          ),
+                        ],
                       ),
                       const SizedBox(height: 4),
                       Text(
