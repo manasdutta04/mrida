@@ -57,12 +57,8 @@ final appRouterProvider = Provider<GoRouter>((ref) {
 
           return Scaffold(
             backgroundColor: MridaColors.surface,
-            body: Column(
-              children: [
-                UniversalAppBar(),
-                Expanded(child: navigationShell),
-              ],
-            ),
+            appBar: const UniversalAppBar(),
+            body: navigationShell,
             extendBody: true,
             bottomNavigationBar: ModernNavBar(
               activeIndex: getNavIndex(navigationShell.currentIndex),

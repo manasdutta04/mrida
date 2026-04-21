@@ -10,11 +10,12 @@ class FirestoreService {
 
   final FirebaseFirestore _firestore;
 
-  CollectionReference<Map<String, dynamic>> _fieldsRef(String userId) {
-    return _firestore.collection('users').doc(userId).collection('fields');
+  CollectionReference<Map<String, dynamic>> _fieldsRef(String? userId) {
+    return _firestore.collection('users').doc(userId ?? 'anonymous').collection('fields');
   }
 
-  Stream<List<Field>> watchFields(String userId) {
+  Stream<List<Field>> watchFields(String? userId) {
+    if (userId == null) return Stream.value([]);
     return _fieldsRef(userId).orderBy('name').snapshots().map(
           (snapshot) => snapshot.docs
               .map((doc) => Field.fromFirestore(doc.id, doc.data()))

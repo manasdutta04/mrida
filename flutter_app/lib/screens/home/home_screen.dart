@@ -218,9 +218,12 @@ class HomeScreen extends ConsumerWidget {
                   itemCount: recentScans.length,
                   itemBuilder: (context, index) {
                     final scan = recentScans[index];
+                    final fieldName = fieldMap[scan.fieldId] ?? 
+                                     (scan.fieldId.isNotEmpty ? scan.fieldId.toUpperCase() : 'UNKNOWN FIELD');
+                    
                     return _buildModernScanCard(
                       context,
-                      fieldMap[scan.fieldId] ?? scan.fieldId.toUpperCase(),
+                      fieldName,
                       DateFormat('MMM dd').format(scan.scannedAt),
                       'Grade ${scan.grade.name.toUpperCase()}',
                       _getColorForGrade(scan.grade.name),

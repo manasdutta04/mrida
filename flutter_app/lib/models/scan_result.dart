@@ -57,20 +57,20 @@ class ScanResult {
       userId: (json['userId'] ?? json['user_id'] ?? '') as String,
       imageUrl: (json['imageUrl'] ?? json['image_url'] ?? '') as String,
       grade: _parseGrade(json['grade'] as String? ?? 'C'),
-      npk: NPKEstimate.fromJson(Map<String, dynamic>.from(json['npk'] as Map)),
-      ph: PHRange.fromJson(Map<String, dynamic>.from(json['ph'] as Map)),
+      npk: NPKEstimate.fromJson(Map<String, dynamic>.from((json['npk'] ?? {}) as Map)),
+      ph: PHRange.fromJson(Map<String, dynamic>.from((json['ph'] ?? {'min': 6.0, 'max': 7.0, 'interpretation': 'Normal'}) as Map)),
       deficiencies: (json['deficiencies'] as List?)?.map((e) => e.toString()).toList() ?? [],
       prescriptionText: _extractPrescriptionText(json),
       prescriptionAudio: _extractPrescriptionAudio(json),
       confidenceScore: (json['confidenceScore'] ?? json['confidence'] as num? ?? 0.0).toDouble(),
-      signals: SoilSignals.fromJson(Map<String, dynamic>.from(json['signals'] as Map)),
+      signals: SoilSignals.fromJson(Map<String, dynamic>.from((json['signals'] ?? {}) as Map)),
       languageCode: (json['languageCode'] ?? json['language'] ?? 'en') as String,
       location: loc is GeoPoint
           ? loc
-          : loc != null
+          : loc is Map
               ? GeoPoint(
-                  (loc['latitude'] ?? loc['_latitude'] as num? ?? 0.0).toDouble(),
-                  (loc['longitude'] ?? loc['_longitude'] as num? ?? 0.0).toDouble(),
+                  ((loc['latitude'] ?? loc['_latitude']) as num? ?? 0.0).toDouble(),
+                  ((loc['longitude'] ?? loc['_longitude']) as num? ?? 0.0).toDouble(),
                 )
               : const GeoPoint(0, 0),
       scannedAt: parseTime(json['scannedAt'] ?? json['scanned_at']),
