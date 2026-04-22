@@ -29,10 +29,10 @@ final statsProvider = Provider<AsyncValue<Map<String, int>>>((ref) {
           'crops': crops.length,
         });
       },
-      loading: () => const AsyncValue.loading(),
-      error: (e, st) => AsyncValue.error(e, st),
+      loading: () => const AsyncValue.data({'scans': 0, 'fields': 0, 'crops': 0}),
+      error: (e, st) => const AsyncValue.data({'scans': 0, 'fields': 0, 'crops': 0}),
     ),
-    loading: () => const AsyncValue.loading(),
-    error: (e, st) => AsyncValue.error(e, st),
+    loading: () => const AsyncValue.data({'scans': 0, 'fields': 0, 'crops': 0}),
+    error: (e, st) => const AsyncValue.data({'scans': 0, 'fields': 0, 'crops': 0}),
   );
 });

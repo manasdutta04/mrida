@@ -228,8 +228,8 @@ class SettingsScreen extends ConsumerWidget {
                     ),
                     const SizedBox(height: 6),
                     Text(
-                      profile?.phoneNumber != null && profile!.phoneNumber.isNotEmpty
-                          ? profile.phoneNumber
+                      (profile?.phoneNumber != null && profile!.phoneNumber.isNotEmpty)
+                          ? profile!.phoneNumber
                           : 'No phone linked',
                       style: GoogleFonts.inter(
                         fontSize: 13,

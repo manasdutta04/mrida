@@ -116,9 +116,9 @@ class HomeScreen extends ConsumerWidget {
               data: (stats) => Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  _buildStatItem('SCANS', stats['scans'].toString()),
-                  _buildStatItem('FIELDS', stats['fields'].toString()),
-                  _buildStatItem('CROPS', stats['crops'].toString()),
+                  _buildStatItem('SCANS', (stats['scans'] ?? 0).toString()),
+                  _buildStatItem('FIELDS', (stats['fields'] ?? 0).toString()),
+                  _buildStatItem('CROPS', (stats['crops'] ?? 0).toString()),
                 ],
               ),
               loading: () => const Center(child: CircularProgressIndicator()),

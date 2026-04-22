@@ -24,17 +24,17 @@ class Field {
   final DateTime? lastScannedAt;
 
   factory Field.fromJson(Map<String, dynamic> json) => Field(
-        fieldId: (json['fieldId'] ?? '') as String,
-        userId: (json['userId'] ?? '') as String,
-        name: (json['name'] ?? '') as String,
+        fieldId: (json['fieldId'] ?? json['field_id'] ?? '') as String,
+        userId: (json['userId'] ?? json['user_id'] ?? '') as String,
+        name: (json['name'] ?? json['field_name'] ?? 'Untitled Field') as String,
         location: json['location'] as GeoPoint? ?? const GeoPoint(0, 0),
-        areaAcres: ((json['areaAcres'] as num?) ?? 0).toDouble(),
+        areaAcres: ((json['areaAcres'] ?? json['area_acres'] ?? 0) as num).toDouble(),
         crops: ((json['crops'] as List?) ?? const [])
             .map((e) => e.toString())
             .toList(),
         lastScanId: json['lastScanId'] as String?,
         lastHealthScore: (json['lastHealthScore'] as num?)?.toDouble(),
-        lastScannedAt: _parseDate(json['lastScannedAt']),
+        lastScannedAt: _parseDate(json['lastScannedAt'] ?? json['last_scanned_at']),
       );
 
   factory Field.fromFirestore(

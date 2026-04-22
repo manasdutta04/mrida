@@ -99,6 +99,7 @@ class _CameraScreenState extends ConsumerState<CameraScreen>
     }
   }
 
+  Future<void> _captureFromCamera() async {
     try {
       final controller = _controller;
       if (controller == null || !controller.value.isInitialized) return;
@@ -110,6 +111,7 @@ class _CameraScreenState extends ConsumerState<CameraScreen>
     } catch (e) {
       debugPrint('Error taking picture: $e');
     }
+  }
 
   Future<void> _pickFromGallery() async {
     final photo = await _picker.pickImage(

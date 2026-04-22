@@ -18,13 +18,14 @@ class UniversalAppBar extends StatelessWidget implements PreferredSizeWidget {
 
   @override
   Widget build(BuildContext context) {
+    final bool canPop = Navigator.canPop(context);
     return AppBar(
       backgroundColor: MridaColors.surface,
       surfaceTintColor: Colors.transparent,
       elevation: 0,
       centerTitle: false,
       primary: true,
-      leading: context.canPop()
+      leading: canPop
           ? Padding(
               padding: const EdgeInsets.only(left: 8),
               child: IconButton(
@@ -33,7 +34,7 @@ class UniversalAppBar extends StatelessWidget implements PreferredSizeWidget {
               ),
             )
           : null,
-      titleSpacing: context.canPop() ? 0 : 24,
+      titleSpacing: canPop ? 0 : 24,
       title: Text(
         title ?? 'MRIDA',
         style: GoogleFonts.sora(

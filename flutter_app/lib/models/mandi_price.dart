@@ -45,15 +45,15 @@ class MandiPrice {
     }
 
     return MandiPrice(
-      state: (json['State'] ?? json['state'] ?? '') as String,
-      district: (json['District'] ?? json['district'] ?? '') as String,
-      market: (json['Market'] ?? json['market'] ?? '') as String,
-      commodity: (json['Commodity'] ?? json['commodity'] ?? '') as String,
-      variety: (json['Variety'] ?? json['variety'] ?? '') as String,
+      state: (json['State'] ?? json['state'] ?? 'Unknown State') as String,
+      district: (json['District'] ?? json['district'] ?? 'Unknown District') as String,
+      market: (json['Market'] ?? json['market'] ?? 'Unknown Market') as String,
+      commodity: (json['Commodity'] ?? json['commodity'] ?? 'Unknown Crop') as String,
+      variety: (json['Variety'] ?? json['variety'] ?? 'Unknown Variety') as String,
       minPrice: parsePrice(json['Min_Price'] ?? json['min_price'] ?? json['Min_x0020_Price']),
       modalPrice: parsePrice(json['Modal_Price'] ?? json['modal_price'] ?? json['Modal_x0020_Price']),
       maxPrice: parsePrice(json['Max_Price'] ?? json['max_price'] ?? json['Max_x0020_Price']),
-      reportedDate: parseDate((json['Arrival_Date'] ?? json['reported_date'] ?? '') as String),
+      reportedDate: parseDate((json['Arrival_Date'] ?? json['arrival_date'] ?? json['reported_date'] ?? '') as String),
     );
   }
 

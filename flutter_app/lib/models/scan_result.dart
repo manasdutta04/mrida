@@ -56,7 +56,7 @@ class ScanResult {
       fieldId: (json['fieldId'] ?? json['field_id'] ?? '') as String,
       userId: (json['userId'] ?? json['user_id'] ?? '') as String,
       imageUrl: (json['imageUrl'] ?? json['image_url'] ?? '') as String,
-      grade: _parseGrade(json['grade'] as String? ?? 'C'),
+      grade: _parseGrade((json['grade'] ?? 'C') as String),
       npk: NPKEstimate.fromJson(Map<String, dynamic>.from((json['npk'] ?? {}) as Map)),
       ph: PHRange.fromJson(Map<String, dynamic>.from((json['ph'] ?? {'min': 6.0, 'max': 7.0, 'interpretation': 'Normal'}) as Map)),
       deficiencies: (json['deficiencies'] as List?)?.map((e) => e.toString()).toList() ?? [],
@@ -141,14 +141,14 @@ class ScanResult {
       fieldId: fieldId,
       userId: userId,
       imageUrl: '', // No image URL in direct mode
-      grade: _parseGrade(json['grade'] as String? ?? 'C'),
-      npk: NPKEstimate.fromJson(Map<String, dynamic>.from(json['npk'] as Map)),
-      ph: PHRange.fromJson(Map<String, dynamic>.from(json['ph'] as Map)),
+      grade: _parseGrade((json['grade'] ?? 'C') as String),
+      npk: NPKEstimate.fromJson(Map<String, dynamic>.from((json['npk'] ?? {}) as Map)),
+      ph: PHRange.fromJson(Map<String, dynamic>.from((json['ph'] ?? {}) as Map)),
       deficiencies: (json['deficiencies'] as List?)?.map((e) => e.toString()).toList() ?? [],
       prescriptionText: (prescription['text'] ?? '') as String,
       prescriptionAudio: (prescription['audio_short'] ?? '') as String,
       confidenceScore: (json['confidence'] as num? ?? 0.0).toDouble(),
-      signals: SoilSignals.fromJson(Map<String, dynamic>.from(json['signals'] as Map)),
+      signals: SoilSignals.fromJson(Map<String, dynamic>.from((json['signals'] ?? {}) as Map)),
       languageCode: 'en',
       location: GeoPoint(latitude, longitude),
       scannedAt: DateTime.now(),
@@ -371,9 +371,9 @@ class PHRange {
   final double max;
   final String interpretation;
   factory PHRange.fromJson(Map<String, dynamic> json) => PHRange(
-        min: (json['min'] as num).toDouble(),
-        max: (json['max'] as num).toDouble(),
-        interpretation: (json['interpretation'] ?? '') as String,
+        min: ((json['min'] ?? json['min_ph'] ?? 6.0) as num).toDouble(),
+        max: ((json['max'] ?? json['max_ph'] ?? 7.5) as num).toDouble(),
+        interpretation: (json['interpretation'] ?? 'Normal') as String,
       );
 }
 

@@ -276,7 +276,7 @@ class ResultScreen extends ConsumerWidget {
                   const SizedBox(height: 16),
                   InkWell(
                     onTap: () {
-                      final crop = r.cropAdvisory?.recommendedCrops.firstOrNull?.crop;
+                      final crop = r?.cropAdvisory?.recommendedCrops.firstOrNull?.crop;
                       context.push('/mandi', extra: crop);
                     },
                     child: Padding(
@@ -284,7 +284,7 @@ class ResultScreen extends ConsumerWidget {
                       child: Row(
                         children: [
                           Text(
-                            'See mandi prices for ${r.cropAdvisory?.recommendedCrops.firstOrNull?.crop ?? 'crops'} →',
+                            'See mandi prices for ${r?.cropAdvisory?.recommendedCrops.firstOrNull?.crop ?? 'crops'} →',
                             style: theme.textTheme.bodyLarge?.copyWith(
                               color: MridaColors.primary,
                               fontWeight: FontWeight.bold,
