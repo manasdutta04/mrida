@@ -50,7 +50,7 @@ class MandiService {
             'format': 'json',
             'limit': 100,
           };
-          if (commodity != null) fallbackParams['filters[Commodity]'] = commodity;
+          if (commodity != null && commodity.isNotEmpty) fallbackParams['filters[Commodity]'] = commodity;
           
           final fallbackResponse = await _dio.get(
             'https://api.data.gov.in/resource/$_resourceId',
@@ -63,12 +63,17 @@ class MandiService {
 
         final prices = records.map((e) => MandiPrice.fromJson(e as Map<String, dynamic>)).toList();
         
-        // Filter out very old records (older than 30 days) to keep it "Real"
-        final thirtyDaysAgo = DateTime.now().subtract(const Duration(days: 30));
-        final recentPrices = prices.where((p) => p.reportedDate.isAfter(thirtyDaysAgo)).toList();
+        // Only apply the 30-day filter if we actually have data, 
+        // otherwise we might hide everything if the gov API hasn't updated recently.
+        final recentPrices = prices.where((p) {
+          final thirtyDaysAgo = DateTime.now().subtract(const Duration(days: 60)); // Extended to 60 days
+          return p.reportedDate.isAfter(thirtyDaysAgo);
+        }).toList();
+
+        final finalPrices = recentPrices.isNotEmpty ? recentPrices : prices;
 
         // Sort by modal price descending
-        recentPrices.sort((a, b) => b.modalPrice.compareTo(a.modalPrice));
+        finalPrices.sort((a, b) => b.modalPrice.compareTo(a.modalPrice));
 
         // Cache response
         await _cacheBox.put(cacheKey, {
@@ -76,7 +81,7 @@ class MandiService {
           'data': jsonEncode(records),
         });
 
-        return recentPrices;
+        return finalPrices;
       } else {
         throw DioException(
           requestOptions: response.requestOptions,
