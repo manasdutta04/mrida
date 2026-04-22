@@ -18,8 +18,8 @@ class MandiNotifier extends StateNotifier<AsyncValue<List<MandiPrice>>> {
   Future<void> _init() async {
     _currentState = null;
     _currentCommodity = null;
-
-    await fetchPrices(state: _currentState, commodity: _currentCommodity);
+    // Clear by default as requested - don't pre-fetch automatically
+    state = const AsyncValue.data([]);
   }
 
   Future<void> fetchPrices({String? state, String? commodity}) async {

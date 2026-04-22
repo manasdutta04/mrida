@@ -38,6 +38,8 @@ class SettingsScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final profile = ref.watch(userProfileProvider).value;
+    final displayName = profile?.displayName;
+    final phoneNumber = profile?.phoneNumber;
     final languageCode = profile?.languageCode ?? 'en';
     final themeMode = ref.watch(appThemeModeProvider);
     final units = ref.watch(measurementUnitsProvider);
@@ -48,11 +50,10 @@ class SettingsScreen extends ConsumerWidget {
       backgroundColor: MridaColors.surface,
       appBar: const UniversalAppBar(title: 'SETTINGS', showSettings: false),
       body: SingleChildScrollView(
-        padding: const EdgeInsets.fromLTRB(24, 0, 24, 120),
+        padding: const EdgeInsets.all(24),
         child: Column(
           children: [
-            const SizedBox(height: 24),
-            _buildProfileCard(profile, languageCode, themeMode),
+            _buildProfileCard(profile, displayName, phoneNumber, languageCode, themeMode),
             const SizedBox(height: 24),
             _buildSectionHeader('APP PREFERENCES'),
             const SizedBox(height: 12),
@@ -183,57 +184,53 @@ class SettingsScreen extends ConsumerWidget {
   }
 
   Widget _buildProfileCard(
-      UserProfile? profile, String languageCode, ThemeMode themeMode) {
+      UserProfile? profile, String? displayName, String? phoneNumber, String languageCode, ThemeMode themeMode) {
     return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.all(20),
+      padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(24),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.04),
-            offset: const Offset(0, 12),
-            blurRadius: 20,
-          ),
-        ],
+        borderRadius: BorderRadius.circular(32),
+        border: Border.all(color: MridaColors.outline.withValues(alpha: 0.1)),
       ),
       child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
             children: [
-              Container(
-                width: 56,
-                height: 56,
-                decoration: BoxDecoration(
-                  color: MridaColors.primary.withOpacity(0.08),
-                  borderRadius: BorderRadius.circular(16),
+              CircleAvatar(
+                radius: 36,
+                backgroundColor: MridaColors.primary.withValues(alpha: 0.1),
+                child: Text(
+                  (displayName != null && displayName.isNotEmpty)
+                      ? displayName[0].toUpperCase()
+                      : '?',
+                  style: const TextStyle(
+                      fontSize: 32,
+                      fontWeight: FontWeight.bold,
+                      color: MridaColors.primary),
                 ),
-                child: const Icon(Icons.settings_outlined,
-                    color: MridaColors.primary, size: 28),
               ),
-              const SizedBox(width: 16),
+              const SizedBox(width: 20),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      profile?.displayName?.toUpperCase() ?? 'FARMER PROFILE',
+                      displayName?.toUpperCase() ?? 'FARMER PROFILE',
                       style: GoogleFonts.sora(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w800,
-                        color: MridaColors.onSurface,
+                        fontWeight: FontWeight.w900,
+                        fontSize: 18,
+                        color: MridaColors.primary,
                       ),
                     ),
-                    const SizedBox(height: 6),
+                    const SizedBox(height: 4),
                     Text(
-                      (profile?.phoneNumber != null && profile!.phoneNumber.isNotEmpty)
-                          ? profile!.phoneNumber
+                      (phoneNumber != null && phoneNumber.isNotEmpty)
+                          ? phoneNumber
                           : 'No phone linked',
                       style: GoogleFonts.inter(
-                        fontSize: 13,
                         color: MridaColors.onSurfaceVariant,
+                        fontSize: 14,
+                        fontWeight: FontWeight.w600,
                       ),
                     ),
                   ],
@@ -241,7 +238,7 @@ class SettingsScreen extends ConsumerWidget {
               ),
             ],
           ),
-          const SizedBox(height: 18),
+          const SizedBox(height: 24),
           Wrap(
             spacing: 10,
             runSpacing: 10,

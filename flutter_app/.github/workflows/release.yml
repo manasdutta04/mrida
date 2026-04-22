@@ -32,9 +32,12 @@ jobs:
       - name: Get dependencies
         run: flutter pub get
         
-          --dart-define=BACKEND_URL=${{ secrets.BACKEND_URL }}
-          --dart-define=SCAN_MODE=${{ secrets.SCAN_MODE }}
-          --dart-define=OPENWEATHER_API_KEY=${{ secrets.OPENWEATHER_API_KEY }}
+      - name: Build APK
+        run: |
+          flutter build apk --release \
+            --dart-define=BACKEND_URL=${{ secrets.BACKEND_URL }} \
+            --dart-define=SCAN_MODE=${{ secrets.SCAN_MODE }} \
+            --dart-define=OPENWEATHER_API_KEY=${{ secrets.OPENWEATHER_API_KEY }}
         
       - name: Rename APK
         run: mv build/app/outputs/flutter-apk/app-release.apk build/app/outputs/flutter-apk/mrida-android.apk

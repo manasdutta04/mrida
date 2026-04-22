@@ -30,6 +30,10 @@ class _MandiScreenState extends ConsumerState<MandiScreen> {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         ref.read(mandiProvider.notifier).fetchPrices(commodity: widget.initialCommodity);
       });
+    } else {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        ref.read(mandiProvider.notifier).clearFilters();
+      });
     }
   }
 
@@ -55,11 +59,6 @@ class _MandiScreenState extends ConsumerState<MandiScreen> {
       loading: () => <MandiPrice>[],
       error: (_, __) => <MandiPrice>[],
     );
-
-    final showWarning = filteredPrices.any((p) {
-      final msp = msp2025[p.commodity];
-      return msp != null && p.modalPrice < msp;
-    });
 
     return Scaffold(
       backgroundColor: MridaColors.surface,
@@ -139,26 +138,6 @@ class _MandiScreenState extends ConsumerState<MandiScreen> {
               ],
             ),
           ),
-
-          // Warning Banner
-          if (showWarning)
-            Container(
-              width: double.infinity,
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-              color: Colors.red.shade50,
-              child: Row(
-                children: [
-                  const Icon(Icons.warning_amber_rounded, color: Colors.red, size: 20),
-                  const SizedBox(width: 8),
-                  Expanded(
-                    child: Text(
-                      'Some prices below MSP — you have the right to sell at MSP via government procurement centers',
-                      style: theme.textTheme.labelSmall?.copyWith(color: Colors.red.shade900, fontWeight: FontWeight.bold),
-                    ),
-                  ),
-                ],
-              ),
-            ),
 
           // Results List
           Expanded(
