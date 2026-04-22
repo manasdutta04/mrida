@@ -2,6 +2,7 @@ name: Build & Release APK
 
 on:
   push:
+    branches: [ main ]
     tags:
       - 'v*' # Push events to matching v*, i.e. v1.0, v20.15.10
   workflow_dispatch: # Allow manual trigger
@@ -50,13 +51,14 @@ jobs:
         working-directory: flutter_app
         
       - name: Rename APK
-        run: mv flutter_app/build/app/outputs/flutter-apk/app-release.apk flutter_app/build/app/outputs/flutter-apk/mrida-android-apk.apk
+        run: mv build/app/outputs/flutter-apk/app-release.apk build/app/outputs/flutter-apk/mrida-android.apk
+        working-directory: flutter_app
 
       - name: Create Release
         uses: softprops/action-gh-release@v2
         if: startsWith(github.ref, 'refs/tags/')
         with:
-          files: flutter_app/build/app/outputs/flutter-apk/mrida-android-apk.apk
+          files: flutter_app/build/app/outputs/flutter-apk/mrida-android.apk
           name: Release ${{ github.ref_name }}
           draft: false
           prerelease: false
