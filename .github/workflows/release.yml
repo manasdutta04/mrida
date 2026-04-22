@@ -39,17 +39,37 @@ jobs:
         working-directory: flutter_app
 
       - name: Create google-services.json
+        shell: python
         run: |
-          if [[ $GOOGLE_SERVICES_JSON == {* ]]; then
-            echo "Format detected: RAW JSON"
-            printf "%s" "$GOOGLE_SERVICES_JSON" > flutter_app/android/app/google-services.json
-          else
-            echo "Format detected: BASE64"
-            printf "%s" "$GOOGLE_SERVICES_JSON" | base64 --decode > flutter_app/android/app/google-services.json
-          fi
-          echo "Final File Size: $(stat -c%s flutter_app/android/app/google-services.json)"
-          # Verify JSON start
-          head -c 1 flutter_app/android/app/google-services.json
+          import os
+          import base64
+          import json
+
+          secret = os.environ.get('GOOGLE_SERVICES_JSON', '').strip()
+          if not secret:
+              print("::error::GOOGLE_SERVICES_JSON secret is empty or not set!")
+              exit(1)
+
+          path = 'flutter_app/android/app/google-services.json'
+          os.makedirs(os.path.dirname(path), exist_ok=True)
+
+          # Try parsing as raw JSON first
+          try:
+              json_data = json.loads(secret)
+              with open(path, 'w') as f:
+                  json.dump(json_data, f)
+              print(f"Successfully created {path} from RAW JSON")
+          except json.JSONDecodeError:
+              # Try Base64 decode
+              try:
+                  decoded = base64.b64decode(secret)
+                  json_data = json.loads(decoded)
+                  with open(path, 'wb') as f:
+                      f.write(decoded)
+                  print(f"Successfully created {path} from BASE64")
+              except Exception as e:
+                  print(f"::error::Failed to parse GOOGLE_SERVICES_JSON as either RAW JSON or BASE64: {str(e)}")
+                  exit(1)
         env:
           GOOGLE_SERVICES_JSON: ${{ secrets.GOOGLE_SERVICES_JSON }}
         
