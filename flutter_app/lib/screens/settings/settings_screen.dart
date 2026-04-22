@@ -228,8 +228,8 @@ class SettingsScreen extends ConsumerWidget {
                     ),
                     const SizedBox(height: 6),
                     Text(
-                      profile?.phoneNumber.isNotEmpty == true
-                          ? profile!.phoneNumber
+                      profile?.phoneNumber != null && profile!.phoneNumber.isNotEmpty
+                          ? profile.phoneNumber
                           : 'No phone linked',
                       style: GoogleFonts.inter(
                         fontSize: 13,
@@ -248,7 +248,7 @@ class SettingsScreen extends ConsumerWidget {
             children: [
               _buildChip('Language', _languageOptions[languageCode] ?? 'English'),
               _buildChip('Theme', _themeModeLabel(themeMode)),
-              if (profile?.state != null) _buildChip('State', profile!.state!),
+              if (profile?.state != null) _buildChip('State', profile?.state ?? ''),
             ],
           ),
         ],

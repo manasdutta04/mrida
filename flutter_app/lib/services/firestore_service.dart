@@ -102,10 +102,11 @@ class FirestoreService {
         .doc(userId)
         .snapshots()
         .map((snapshot) {
-      if (!snapshot.exists || snapshot.data() == null) return null;
+      final data = snapshot.data();
+      if (!snapshot.exists || data == null) return null;
       return UserProfile.fromJson({
         'uid': userId,
-        ...snapshot.data()!,
+        ...data,
       });
     });
   }

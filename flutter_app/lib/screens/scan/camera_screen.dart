@@ -65,9 +65,12 @@ class _CameraScreenState extends ConsumerState<CameraScreen>
     );
 
     try {
-      await _controller!.initialize();
-      if (mounted) {
-        setState(() => _isCameraInitialized = true);
+      final controller = _controller;
+      if (controller != null) {
+        await controller.initialize();
+        if (mounted) {
+          setState(() => _isCameraInitialized = true);
+        }
       }
     } catch (e) {
       debugPrint('Error initializing camera: $e');
@@ -96,18 +99,17 @@ class _CameraScreenState extends ConsumerState<CameraScreen>
     }
   }
 
-  Future<void> _captureFromCamera() async {
-    if (_controller == null || !_controller!.value.isInitialized) return;
-
     try {
-      final XFile photo = await _controller!.takePicture();
+      final controller = _controller;
+      if (controller == null || !controller.value.isInitialized) return;
+
+      final XFile photo = await controller.takePicture();
       if (mounted) {
         setState(() => _capturedImage = File(photo.path));
       }
     } catch (e) {
       debugPrint('Error taking picture: $e');
     }
-  }
 
   Future<void> _pickFromGallery() async {
     final photo = await _picker.pickImage(
@@ -161,8 +163,8 @@ class _CameraScreenState extends ConsumerState<CameraScreen>
           // Real Live Camera Preview
           Positioned.fill(
             child: AspectRatio(
-              aspectRatio: _controller!.value.aspectRatio,
-              child: CameraPreview(_controller!),
+              aspectRatio: _controller?.value.aspectRatio ?? 1.0,
+              child: _controller != null ? CameraPreview(_controller!) : const SizedBox.shrink(),
             ),
           ),
 
@@ -292,13 +294,14 @@ class _CameraScreenState extends ConsumerState<CameraScreen>
                             : Icons.flash_on_outlined,
                         label: 'Flash',
                         onTap: () async {
-                          if (_controller == null) return;
+                          final controller = _controller;
+                          if (controller == null) return;
                           final newMode =
-                              _controller!.value.flashMode == FlashMode.off
+                              controller.value.flashMode == FlashMode.off
                                   ? FlashMode.torch
                                   : FlashMode.off;
-                          await _controller!.setFlashMode(newMode);
-                          setState(() {});
+                          await controller.setFlashMode(newMode);
+                          if (mounted) setState(() {});
                         },
                       ),
                     ],

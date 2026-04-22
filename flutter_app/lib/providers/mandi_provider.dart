@@ -16,29 +16,8 @@ class MandiNotifier extends StateNotifier<AsyncValue<List<MandiPrice>>> {
   }
 
   Future<void> _init() async {
-    // Wait for user profile and scans to be available
-    final profileAsync = _ref.read(userProfileProvider);
-    final scansAsync = _ref.read(scansStreamProvider);
-
-    String? initialState;
-    String? initialCommodity;
-
-    profileAsync.whenData((profile) {
-      initialState = profile?.state;
-    });
-
-    scansAsync.whenData((scans) {
-      if (scans.isNotEmpty) {
-        // use the crop from the latest scan if available
-        final advisory = scans.first.cropAdvisory;
-        if (advisory != null && advisory.recommendedCrops.isNotEmpty) {
-          initialCommodity = advisory.recommendedCrops.first.crop;
-        }
-      }
-    });
-
-    _currentState = initialState;
-    _currentCommodity = initialCommodity;
+    _currentState = null;
+    _currentCommodity = null;
 
     await fetchPrices(state: _currentState, commodity: _currentCommodity);
   }

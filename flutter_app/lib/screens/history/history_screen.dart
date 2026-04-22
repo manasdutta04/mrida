@@ -55,7 +55,7 @@ class HistoryScreen extends ConsumerWidget {
                     (context, index) {
                       final fieldId = groupedScans.keys.elementAt(index);
                       final fieldName = fieldNames[fieldId] ?? 'Unknown Field';
-                      final scansInField = groupedScans[fieldId]!;
+                      final scansInField = groupedScans[fieldId] ?? [];
 
                       return Column(
                         crossAxisAlignment: CrossAxisAlignment.start,

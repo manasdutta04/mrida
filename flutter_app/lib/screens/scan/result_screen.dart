@@ -216,7 +216,7 @@ class ResultScreen extends ConsumerWidget {
                   Wrap(
                     spacing: 8,
                     runSpacing: 8,
-                    children: r!.cropAdvisory!.recommendedCrops.take(3).map((c) {
+                    children: (r?.cropAdvisory?.recommendedCrops ?? []).take(3).map((c) {
                       return Chip(
                         label: Text('${c.crop} ${(c.fitScore * 100).round()}%'),
                         backgroundColor: MridaColors.primary.withValues(alpha: 0.08),
@@ -226,12 +226,12 @@ class ResultScreen extends ConsumerWidget {
                   const SizedBox(height: 16),
                   Text('WATER PLAN', style: theme.textTheme.labelLarge),
                   const SizedBox(height: 8),
-                  Text('Total need: ${r.cropAdvisory!.waterPlan.totalRequirementMm} mm'),
-                  Text('Critical: ${r.cropAdvisory!.waterPlan.criticalIrrigationStages.join(', ')}'),
+                  Text('Total need: ${r?.cropAdvisory?.waterPlan.totalRequirementMm ?? 0} mm'),
+                  Text('Critical: ${(r?.cropAdvisory?.waterPlan.criticalIrrigationStages ?? []).join(', ')}'),
                   const SizedBox(height: 16),
                   Text('PRE-SOWING INSTRUCTIONS', style: theme.textTheme.labelLarge),
                   const SizedBox(height: 8),
-                  ...r.cropAdvisory!.preSowingPlan.steps.take(5).map((s) => Padding(
+                  ...(r?.cropAdvisory?.preSowingPlan.steps ?? []).take(5).map((s) => Padding(
                         padding: const EdgeInsets.only(bottom: 6),
                         child: Row(
                           crossAxisAlignment: CrossAxisAlignment.start,
@@ -244,7 +244,7 @@ class ResultScreen extends ConsumerWidget {
                   const SizedBox(height: 16),
                   Text('PEST / DISEASE RISK', style: theme.textTheme.labelLarge),
                   const SizedBox(height: 8),
-                  ...r.cropAdvisory!.pestDiseaseRisk.take(4).map((risk) {
+                  ...(r?.cropAdvisory?.pestDiseaseRisk ?? []).take(4).map((risk) {
                     final level = risk.riskLevel.toLowerCase();
                     final color = level == 'high'
                         ? MridaColors.gradeD
